@@ -1,0 +1,23 @@
++++
++++
+Qua Mai 18 12:36:19 BRT 2016
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina: desconhecida
++++ compilador: gfortran
++++ solver: Gauss
++++ executavel: /home/bidu/LNCC/simuladorMEFacademicoPotencial/bin/simuladorGG0.exe
++++ diretorio: exp05x02
++++
++++
++++ digite ENTER para executar o simulador 
++++
+(export OMP_NUM_THREADS=1; cd exp05x02 ; time /home/bidu/LNCC/simuladorMEFacademicoPotencial/bin/simuladorGG0.exe |tee -a tela_GG0_1Thr.txt)
+ +++ inicio da simulacao: Qua Mai 18 12:36:19 BRT 2016
+ +++ fim .. da simulacao: Qua Mai 18 12:36:19 BRT 2016 
+./rodarExperimento.sh: line 135: /home/bidu/LNCC/simuladorMEFacademicoPotencial/bin/simuladorGG0.exe: Arquivo ou diretório não encontrado
+
+real	0m0.003s
+user	0m0.000s
+sys	0m0.000s

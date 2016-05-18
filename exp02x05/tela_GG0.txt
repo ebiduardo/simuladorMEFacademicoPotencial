@@ -1,0 +1,76 @@
+ optSolverP= GaussSkyline        
+ optSolverF= GaussSkyline        
+       call abrirArquivos  ()
+  +++inputDS.dat         
+  call preprocessadorDS ()
+ call leituraGeracaoCoordenadasDS
+ call leituraGeracaoConectividadesDS
+ call leituraCodigosCondContornoDS(idPotencial
+ call leituraValoresCondContornoDS(fPotencial,ndofP,numnp,0,nlvectP,iprtin)
+ call leituraCodigosCondContornoDS(idFluxo,
+ call leituraParamNumericosPropFisicaDS()
+       call processamento  ()
+  call montarEstrutDadosSistEqAlq(optSolverP_ =GaussSkyline        
+ em montarEstrutDadosSistEqAlq,   
+ criar estruturas de dados,  tempo de parede =    1.9531250000000000E-003
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =       12
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =           47
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        3
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.38E-03
+
+      Solver escolhido                                      = GaussSkyline        
+  call montarEstrutDadosSistEqAlq(optSolverF_ =GaussSkyline        
+ em montarEstrutDadosSistEqAlq,   
+ criar estruturas de dados,  tempo de parede =    0.0000000000000000     
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =       36
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          282
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        7
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.23E-02
+
+      Solver escolhido                                      = GaussSkyline        
+  ..... montando sistema de equacoes da potencial
+           1          47          12
+  +++ apos call montarEstrutDadosSistEqAlq(
+  +++ apos call dirichletConditions(
+  +++ apos call calcCoefSistAlgPotencial(
+  calculo dos coeficientes, tempo =    3.9062500000000000E-003
+  +++, em subroutine escreverSistemaSkylineEmMTX(alhs,idiag,lm,id,ien,nee,nen,numel,numnp)
+ solver GaussSkyline        , potencial   
+  em solverGaussSkyline, etapa=full, simetria= T
+  valores nos extremos do vetor solucao,  potencial              1
+  0.60000000E+00  0.60000000E+00  0.60000000E+00  0.20000000E+00  0.20000000E+00  0.20000000E+00
+ -0.20000000E+00 -0.20000000E+00 -0.20000000E+00 -0.60000000E+00 -0.60000000E+00 -0.60000000E+00
+Euclid norms of computed solution:   0.15491933E+01
+ tempo de parede (potencial) =      0.0078, segundos
+ .............. montagem matriz   =      0.0059, segundos
+ .............. solver            =      0.0020, segundos
+  ..... montando sistema de equacoes da fluxo
+           2         282          36
+ call calcCoefSistAlgFluxo(...
+  calculo dos coeficientes, tempo =    0.0000000000000000     
+  +++, em subroutine escreverSistemaSkylineEmMTX(alhs,idiag,lm,id,ien,nee,nen,numel,numnp)
+ solver GaussSkyline        , fluxo       
+  em solverGaussSkyline, etapa=full, simetria= T
+  valores nos extremos do vetor solucao,  fluxo                  1
+ -0.11102230E-15  0.40000000E+00 -0.27755576E-16  0.40000000E+00  0.55511151E-16  0.40000000E+00
+ -0.27755576E-16  0.40000000E+00  0.62450045E-16  0.40000000E+00  0.18041124E-15  0.40000000E+00
+Euclid norms of computed solution:   0.16970563E+01
+ tempo de parede (fluxo)     =      0.0020, segundos
+ .............. montagem matriz   =      0.0020, segundos
+ .............. solver            =      0.0000, segundos

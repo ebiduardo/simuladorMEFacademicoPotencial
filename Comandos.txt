@@ -1,0 +1,26 @@
+
+cat ./cicloVerificaInstalacao.txt |bash
+
+expDir=~/Experimentos/ExperimentosImCoopLncc/2D/exp0500x0500/;
+expDir=~/Experimentos/ExperimentosImCoopLncc/2D/exp1000x1000/;
+
+#(cd $expDir; ( for f in $(ls -tr tela_*4.txt); do pwd; echo ........... $f; egrep -i "nalhs|solver |Itera| montagem ma" $f  ; done;) )
+(cd $expDir; ( for f in $(ls -tr tela_*4.txt); do pwd; echo ........... $f; egrep "sufixo|solver | extremos |Itera| montagem ma|neq" $f -A 1 |egrep -v " allo|montando|--|Elapsed|full|subrou" ; done;) )
+
+#(cd ~/Experimentos/ExperimentosImCoopLncc/2D/exp0500x0500/; ( for f in $(ls -tr tela_*4.txt); do echo ........... $f; egrep "sufixo|solver | extremos |Itera| montagem ma" $f -A 1 |egrep -v " allo|montando|--|Elapsed|full" ; done;) )
+
+#(cd ~/Experimentos/ExperimentosImCoopLncc/2D/exp0500x0500/;
+# (for f in $(ls -tr tela_*4.txt); do
+#    echo ........... $f;
+#    egrep "sufixo|solver | extremos |Itera| montagem ma" $f -A 1 |egrep -v " allo|montando|--|Elapsed|full" ; 
+# done;)
+# )
+
+
+
+
+#(cd ~/Experimentos/ExperimentosImCoopLncc/2D/exp0500x0500/; ( for f in $(find . -name "tela_*4.txt"); do echo cat $f '|egrep "sufixo|solver | extremos |Itera| montagem ma" -A 1 |egrep -v " allo|montando|--|Elapsed|full"' ;  done;)  |bash)
+ls ~/Experimentos/ExperimentosImCoopLncc/2D/exp*/tela_[PH]I4.txt
+
+
+(cd resultados/exp2000x2000/; cp inputRegularDS.dat inputDS.dat; ../../rodarExperimento.sh 2 2 2 .; mv tela_PI4.txt tela_HI4_Reg.txt; ls -ltr)

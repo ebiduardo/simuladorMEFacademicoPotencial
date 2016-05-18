@@ -1,0 +1,1014 @@
+este arquivo contem as saidas das seguintes 10 linhas de comandos abaixo:
+
+ 1  ./criarArqEntrada2D.sh 100 100  > exp0100x0100/input.dat
+ 2  (cd exp0100x0100; ../converterInput_DS) 
+ 3  ./compilar.sh 1 1 1                            > tela.txt
+ 4  ./rodarExperimento.sh 1 1 1                   >> tela.txt
+ 5  ./compilar.sh 2 2 1                           >> tela.txt
+ 6  ./rodarExperimento.sh 2 2 1 exp0100x0100x001/ >> tela.txt
+ 7  ./compilar.sh 3 2 1                           >> tela.txt
+ 8  ./rodarExperimento.sh 3 2 1 exp0250x0250/     >> tela.txt
+
+3 scripts e dois executaveis em fortran foram usados
+
+1. criarArqEntrada2D.sh  -> cria um arquivo de dados de entrada input.dat em formato antigo
+2. converterInput_DS.f90 -> converte o arquivo input.dat em inputDS.dat em formato novo 
+3. compilar.sh           -> compila e roda um experimento pequeno para verificacao
+     compila todos os arquivos fontes de acordo com a escolha de 3 arqumentos:
+   a. o solver: 1. gauss interno, 2. pardiso (mkl, direto), 3. HYPRE (iterativo)
+   b. o compilador: 1. gfortran, 2. ifort
+   c. a otmizacao: 1. sem otimizacao, 2 otimizacao nivel 4
+
+   obs:
+   o1. para compilar com gaussSkyline não há necessidade de nada, o codigo
+    esta todo nos arquivos fontes
+   o2. para compilar com o solver pardiso é possivel:
+       o2a. usar o existente na biblioteca mkl do compilador da intel
+       o2b. usar um arquivo *.a que disponivel no site: http://www.pardiso-project.org/
+        e compilari simulador usando o gfortran
+   o3. para compilar com o HYPRE é preciso baixar a biblioteca da mesma forma
+    que o caso anterior e usar o gfortran
+      http://computation.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods/software
+
+  3.1 
+
+
+nomes dos executaveis gerados
+
+compilar.sh 1 1 1 -> simuladorGG0.exe : gauss+gfortran+O0
+compilar.sh 2 2 1 -> simuladorPI0.exe : pardiso+ifort+O0
+compilar.sh 2 2 2 -> simuladorPI4.exe : pardiso+ifort+O4
+compilar.sh 3 1 1 -> simuladorHI0.exe : HYPRE+ifort+O0
+compilar.sh 3 1 2 -> simuladorHI4.exe : HYPRE+ifort+O4
+
+4. rodarExperimento.sh 
+     roda o experimento usando o executavel de acordo com a escolha de 4 arqumentos:
+   a. o solver: 1. gauss interno, 2. pardiso (mkl, direto), 3. HYPRE (iterativo)
+   b. o compilador: 1. gfortran, 2. ifort
+   c. a otmizacao: 1. sem otimizacao, 2 otimizacao nivel 4
+   d. nome do diretorio com os dados de entrada
+
+./compilar.sh 1 1 1            ----------------------------------------------------------------  
+escolhas: 1	 1	1
+escolhas: Gauss	 gfortran 		-g -O0 ...  no41.hpc.lncc.br
+sufixo  : GG0
+source /hpc/modulos/bash/gcc-4.7.sh
+source /hpc/modulos/bash/hypre-2.9.0b-k20.sh
++++ no41.hpc.lncc.br gfortran Gauss -DwithGaussSkyline -J include -fopenmp -DwithOMP -fopenmp
+(gfortran --version)
+GNU Fortran (GCC) 4.7.2 20121015 (Red Hat 4.7.2-5)
+Copyright (C) 2012 Free Software Foundation, Inc.
+
+GNU Fortran comes with NO WARRANTY, to the extent permitted by law.
+You may redistribute copies of GNU Fortran
+under the terms of the GNU General Public License.
+For more information about these matters, see the file named COPYING
+
++++ digite Enter para gerar o executavel: simuladorGG0.exe 
+rm -rf bin/simuladorGG0.exe
+gfortran -c -J include -g -O0 -DmostrarTempos -fopenmp -DwithOMP fontes/variaveisGlobais.F90 -o bin/variaveisGlobais.o
+gfortran -c -J include -g -O0 -DmostrarTempos -fopenmp -DwithOMP fontes/malha.F90 -o bin/malha.o
+gfortran -c -J include -g -O0 -DmostrarTempos -fopenmp -DwithOMP fontes/leituraEscrita.F90 -o bin/leituraEscrita.o
+gfortran -c -J include -g -O0 -DmostrarTempos -fopenmp -DwithOMP fontes/funcoesDeForma.F90 -o bin/funcoesDeForma.o
+gfortran -c -J include -g -O0 -DmostrarTempos -fopenmp -DwithOMP fontes/utilitarios.F90 -o bin/utilitarios.o
+gfortran -c -J include -DwithGaussSkyline fontes/estruturasDadosSistEq.F90 -o bin/estruturasDadosSistEq.o
+gfortran -c -J include -g -O0 -DmostrarTempos -fopenmp -DwithOMP fontes/mInputReader.F90 -o bin/mInputReader.o
+gfortran -c -J include -g -O0 -DmostrarTempos -fopenmp -DwithOMP fontes/solverGaussSkyline.F90 -o bin/solverGaussSkyline.o
+gfortran -c -J include -DwithGaussSkyline fontes/solverHypre.F90 -o bin/solverHypre.o
+gfortran -c -J include -DwithGaussSkyline fontes/solverPardisoCSR.F90 -o bin/solverPardisoCSR.o
+gfortran -c -J include -g -O0 -DmostrarTempos -fopenmp -DwithOMP fontes/utilSistemaEquacoes.F90 -o bin/utilSistemaEquacoes.o
+gfortran -c -J include -g -O0 -DmostrarTempos -fopenmp -DwithOMP fontes/potencial.F90 -o bin/potencial.o
+gfortran -c -J include -g -O0 -DmostrarTempos -fopenmp -DwithOMP fontes/fluxo.F90 -o bin/fluxo.o
+gfortran -c -J include -DwithGaussSkyline -g -O0 -DmostrarTempos -fopenmp -DwithOMP fontes/driverDS.F90 -o bin/driverDS.o
+gfortran -fopenmp -g -O0 -o bin/simuladorGG0.exe bin/variaveisGlobais.o bin/malha.o bin/leituraEscrita.o bin/funcoesDeForma.o bin/utilitarios.o bin/estruturasDadosSistEq.o bin/mInputReader.o bin/solverGaussSkyline.o bin/solverHypre.o bin/solverPardisoCSR.o bin/utilSistemaEquacoes.o bin/potencial.o bin/fluxo.o bin/driverDS.o
++++
++++ executavel criado
+-rwxr-xr-x 1 bidu prjedlg 402278 Out 21  2015 bin/simuladorGG0.exe
++++
++++
+./rodarExperimento.sh 1 1 1 exp05x02
++++
++++ source /hpc/modulos/bash/gcc-4.7.sh
++++ source /hpc/modulos/bash/hypre-2.9.0b.sh
++++ source /hpc/modulos/bash/openmpi-gcc44-1.4.1.sh
++++
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina: altix-xe.hpc.lncc.br
++++ compilador: gfortran
++++ solver: Gauss
++++ executavel: /prj/prjedlg/bidu/simuladorMEFacademicoBT-Patricia/bin/simuladorGG0.exe
++++
++++
++++ digite ENTER para executar o simulador 
++++
+(export OMP_NUM_THREADS=4; cd exp05x02 ; time /prj/prjedlg/bidu/simuladorMEFacademicoBT-Patricia/bin/simuladorGG0.exe |tee tela_GG0.txt)
+       call abrirArquivos  ()
+  +++inputDS.dat         
+  call preprocessadorDS ()
+ call leituraGeracaoCoordenadasDS
+ call leituraGeracaoConectividadesDS
+ call leituraCodigosCondContornoDS(idPotencial
+ call leituraValoresCondContornoDS(fPotencial,ndofP,numnp,0,nlvectP,iprtin)
+ call leituraCodigosCondContornoDS(idFluxo,
+ call leituraParamNumericosPropFisicaDS()
+       call processamento  ()
+  call montarEstrutDadosSistEqAlq(optSolverP_ =GaussSkyline        
+ em montarEstrutDadosSistEqAlq,  criar estruturas de dados,  tempo de parede =    0.0000000000000000     
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =       12
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =           53
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        4
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.42E-03
+
+      Solver escolhido                                      = GaussSkyline        
+  call montarEstrutDadosSistEqAlq(optSolverF_ =GaussSkyline        
+ em montarEstrutDadosSistEqAlq,  criar estruturas de dados,  tempo de parede =    0.0000000000000000     
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =       36
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          402
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =       11
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.32E-02
+
+      Solver escolhido                                      = GaussSkyline        
+  ..... montando sistema de equacoes da potencial
+           1          53          12
+  +++ apos call montarEstrutDadosSistEqAlq(
+  +++ apos call dirichletConditions(
+  +++ apos call calcCoefSistAlgPotencial(
+  calculo dos coeficientes, tempo =    0.0000000000000000     
+ solver GaussSkyline        , potencial   
+  em solverGaussSkyline, call factor
+  em factor 
+  em solverGaussSkyline, call back
+  valores nos extremos do vetor solucao,  potencial              1
+  0.60000000E+00  0.20000000E+00 -0.20000000E+00 -0.60000000E+00  0.60000000E+00  0.20000000E+00
+ -0.20000000E+00 -0.60000000E+00  0.60000000E+00  0.20000000E+00 -0.20000000E+00 -0.60000000E+00
+Euclid norms of computed solution:   0.15491933E+01
+ tempo de parede (potencial) =      0.0000, segundos
+ .............. montagem matriz   =      0.0000, segundos
+ .............. solver            =      0.0000, segundos
+  ..... montando sistema de equacoes da fluxo
+           2         402          36
+ call calcCoefSistAlgFluxo(...
+  calculo dos coeficientes, tempo =    0.0000000000000000     
+ solver GaussSkyline        , fluxo       
+  em solverGaussSkyline, call factor
+  em factor 
+  em solverGaussSkyline, call back
+  valores nos extremos do vetor solucao,  fluxo                  1
+  0.40000000E+00  0.69388939E-16  0.40000000E+00  0.00000000E+00  0.40000000E+00  0.41633363E-16
+  0.40000000E+00 -0.55511151E-16  0.40000000E+00  0.23592239E-15  0.40000000E+00 -0.14559899E-15
+Euclid norms of computed solution:   0.16970563E+01
+ tempo de parede (fluxo)     =      0.0000, segundos
+ .............. montagem matriz   =      0.0000, segundos
+ .............. solver            =      0.0000, segundos
+ 4  ./rodarExperimento.sh 1 1 1   -------------------------------------------------------------- 
++++ source /hpc/modulos/bash/gcc-4.7.sh
++++ source /hpc/modulos/bash/hypre-2.9.0b.sh
++++ source /hpc/modulos/bash/openmpi-gcc44-1.4.1.sh
++++
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina: altix-xe.hpc.lncc.br
++++ compilador: gfortran
++++ solver: Gauss
++++ executavel: /prj/prjedlg/bidu/simuladorMEFacademicoBT-Patricia/bin/simuladorGG0.exe
++++
++++
++++ digite ENTER para executar o simulador 
++++
+(export OMP_NUM_THREADS=4; cd exp05x02/ ; time /prj/prjedlg/bidu/simuladorMEFacademicoBT-Patricia/bin/simuladorGG0.exe |tee tela_GG0.txt)
+       call abrirArquivos  ()
+  +++inputDS.dat         
+  call preprocessadorDS ()
+ call leituraGeracaoCoordenadasDS
+ call leituraGeracaoConectividadesDS
+ call leituraCodigosCondContornoDS(idPotencial
+ call leituraValoresCondContornoDS(fPotencial,ndofP,numnp,0,nlvectP,iprtin)
+ call leituraCodigosCondContornoDS(idFluxo,
+ call leituraParamNumericosPropFisicaDS()
+       call processamento  ()
+  call montarEstrutDadosSistEqAlq(optSolverP_ =GaussSkyline        
+ em montarEstrutDadosSistEqAlq,  criar estruturas de dados,  tempo de parede =    0.0000000000000000     
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =       12
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =           53
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        4
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.42E-03
+
+      Solver escolhido                                      = GaussSkyline        
+  call montarEstrutDadosSistEqAlq(optSolverF_ =GaussSkyline        
+ em montarEstrutDadosSistEqAlq,  criar estruturas de dados,  tempo de parede =    0.0000000000000000     
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =       36
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          402
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =       11
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.32E-02
+
+      Solver escolhido                                      = GaussSkyline        
+  ..... montando sistema de equacoes da potencial
+           1          53          12
+  +++ apos call montarEstrutDadosSistEqAlq(
+  +++ apos call dirichletConditions(
+  +++ apos call calcCoefSistAlgPotencial(
+  calculo dos coeficientes, tempo =    0.0000000000000000     
+ solver GaussSkyline        , potencial   
+  em solverGaussSkyline, call factor
+  em factor 
+  em solverGaussSkyline, call back
+  valores nos extremos do vetor solucao,  potencial              1
+  0.60000000E+00  0.20000000E+00 -0.20000000E+00 -0.60000000E+00  0.60000000E+00  0.20000000E+00
+ -0.20000000E+00 -0.60000000E+00  0.60000000E+00  0.20000000E+00 -0.20000000E+00 -0.60000000E+00
+Euclid norms of computed solution:   0.15491933E+01
+ tempo de parede (potencial) =      0.0000, segundos
+ .............. montagem matriz   =      0.0000, segundos
+ .............. solver            =      0.0000, segundos
+  ..... montando sistema de equacoes da fluxo
+           2         402          36
+ call calcCoefSistAlgFluxo(...
+  calculo dos coeficientes, tempo =    0.0000000000000000     
+ solver GaussSkyline        , fluxo       
+  em solverGaussSkyline, call factor
+  em factor 
+  em solverGaussSkyline, call back
+  valores nos extremos do vetor solucao,  fluxo                  1
+  0.40000000E+00  0.69388939E-16  0.40000000E+00  0.00000000E+00  0.40000000E+00  0.41633363E-16
+  0.40000000E+00 -0.55511151E-16  0.40000000E+00  0.23592239E-15  0.40000000E+00 -0.14559899E-15
+Euclid norms of computed solution:   0.16970563E+01
+ tempo de parede (fluxo)     =      0.0000, segundos
+ .............. montagem matriz   =      0.0000, segundos
+ .............. solver            =      0.0000, segundos
+ 4  ./compilar.sh 2 2 1     -------------------------------------------------------------- 
+escolhas: 2	 2	1
+escolhas: Pardiso	 ifort 		-g -O0 ...  no41.hpc.lncc.br
+sufixo  : PI0
+source /hpc/modulos/bash/intel-cluster_studio_xe_2013.sh
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) Inspector XE 2013 (build 328075)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) VTune(TM) Amplifier XE 2013 (build 328102)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) Advisor XE 2013 (build 316162)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) VTune(TM) Amplifier XE 2013 (build 328102)
+source /hpc/modulos/bash/hypre-2.9.0b-intel-k20.sh
++++ no41.hpc.lncc.br ifort Pardiso -DwithPardiso -DwithCSR -openmp -DwithOMP -w -module include -openmp -DwithOMP -openmp
+(ifort --version)
+ifort (IFORT) 14.0.2 20140120
+Copyright (C) 1985-2014 Intel Corporation.  All rights reserved.
+
++++ digite Enter para gerar o executavel: simuladorPI0.exe 
+rm -rf bin/simuladorPI0.exe
+ifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/variaveisGlobais.F90 -o bin/variaveisGlobais.o
+ifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/malha.F90 -o bin/malha.o
+ifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/leituraEscrita.F90 -o bin/leituraEscrita.o
+ifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/funcoesDeForma.F90 -o bin/funcoesDeForma.o
+ifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/utilitarios.F90 -o bin/utilitarios.o
+ifort -c -w -module include -DwithPardiso -DwithCSR -openmp -DwithOMP fontes/estruturasDadosSistEq.F90 -o bin/estruturasDadosSistEq.o
+ifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/mInputReader.F90 -o bin/mInputReader.o
+ifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/solverGaussSkyline.F90 -o bin/solverGaussSkyline.o
+ifort -c -w -module include -DwithPardiso -DwithCSR -openmp -DwithOMP fontes/solverHypre.F90 -o bin/solverHypre.o
+ifort -c -w -module include -DwithPardiso -DwithCSR -openmp -DwithOMP fontes/solverPardisoCSR.F90 -o bin/solverPardisoCSR.o
+ifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/utilSistemaEquacoes.F90 -o bin/utilSistemaEquacoes.o
+ifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/potencial.F90 -o bin/potencial.o
+ifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/fluxo.F90 -o bin/fluxo.o
+ifort -c -w -module include -DwithPardiso -DwithCSR -openmp -DwithOMP -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/driverDS.F90 -o bin/driverDS.o
+ifort -openmp -g -O0 -o bin/simuladorPI0.exe bin/variaveisGlobais.o bin/malha.o bin/leituraEscrita.o bin/funcoesDeForma.o bin/utilitarios.o bin/estruturasDadosSistEq.o bin/mInputReader.o bin/solverGaussSkyline.o bin/solverHypre.o bin/solverPardisoCSR.o bin/utilSistemaEquacoes.o bin/potencial.o bin/fluxo.o bin/driverDS.o -mkl
++++
++++ executavel criado
+-rwxr-xr-x 1 bidu prjedlg 1664271 Out 21  2015 bin/simuladorPI0.exe
++++
++++
+./rodarExperimento.sh 2 2 1 exp05x02
++++
+source /hpc/modulos/bash/intel-cluster_studio_xe_2013.sh
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) Inspector XE 2013 (build 328075)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) VTune(TM) Amplifier XE 2013 (build 328102)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) Advisor XE 2013 (build 316162)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) VTune(TM) Amplifier XE 2013 (build 328102)
+source /hpc/modulos/bash/hypre-2.9.0b-intel.sh
++++
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina: altix-xe.hpc.lncc.br
++++ compilador: ifort
++++ solver: Pardiso
++++ executavel: /prj/prjedlg/bidu/simuladorMEFacademicoBT-Patricia/bin/simuladorPI0.exe
++++
++++
++++ digite ENTER para executar o simulador 
++++
+(export OMP_NUM_THREADS=4; cd exp05x02 ; time /prj/prjedlg/bidu/simuladorMEFacademicoBT-Patricia/bin/simuladorPI0.exe |tee tela_PI0.txt)
+       call abrirArquivos  ()
+  +++inputDS.dat         
+  call preprocessadorDS ()
+ call leituraGeracaoCoordenadasDS
+ call leituraGeracaoConectividadesDS
+ call leituraCodigosCondContornoDS(idPotencial
+ call leituraValoresCondContornoDS(fPotencial,ndofP,numnp,0,nlvectP,iprtin)
+ call leituraCodigosCondContornoDS(idFluxo,
+ call leituraParamNumericosPropFisicaDS()
+       call processamento  ()
+  call montarEstrutDadosSistEqAlq(optSolverP_ =PardisoEsparso      
+ em montarEstrutDadosSistEqAlq, 
+  em subroutine criarPonteirosMatEsparsa_CSR(nsd, ndof, neq, num
+           9
+  ++ subroutine montarLmStencilNodal_CSR(...., numCoefPorLinha =            9
+ criar estruturas de dados,  tempo de parede =   0.000000000000000E+000
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =       12
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =           41
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        3
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.33E-03
+
+      Solver escolhido                                      = PardisoEsparso      
+  call montarEstrutDadosSistEqAlq(optSolverF_ =PardisoEsparso      
+ em montarEstrutDadosSistEqAlq, 
+  em subroutine criarPonteirosMatEsparsa_CSR(nsd, ndof, neq, num
+          18
+  ++ subroutine montarLmStencilNodal_CSR(...., numCoefPorLinha =           18
+ criar estruturas de dados,  tempo de parede =   3.906250000000000E-003
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =       36
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          242
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        6
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.19E-02
+
+      Solver escolhido                                      = PardisoEsparso      
+  ..... montando sistema de equacoes da potencial
+           1          41          12
+  +++ apos call montarEstrutDadosSistEqAlq(
+  +++ apos call dirichletConditions(
+  +++ apos call calcCoefSistAlgPotencial(
+  calculo dos coeficientes, tempo =   0.000000000000000E+000
+ solver PardisoEsparso      , potencial   
+ simetria=.true.; etapa='full';
+++, em solverPardisoPPD_Nodal,potencial   , com numThreads:  4
+ [PARDISO]: License check was successful ... 
+ Number of nonzeros in factors   =           56
+ Number of factorization MFLOPS  =            0
+  valores nos extremos do vetor solucao,  potencial              1
+  0.60000000E+00  0.20000000E+00 -0.20000000E+00 -0.60000000E+00  0.60000000E+00  0.20000000E+00
+ -0.20000000E+00 -0.60000000E+00  0.60000000E+00  0.20000000E+00 -0.20000000E+00 -0.60000000E+00
+Euclid norms of computed solution:   0.15491933E+01
+ tempo de parede (potencial) =      0.0117, segundos
+ .............. montagem matriz   =      0.0000, segundos
+ .............. solver            =      0.0117, segundos
+  ..... montando sistema de equacoes da fluxo
+           2         242          36
+ call calcCoefSistAlgFluxo(...
+  calculo dos coeficientes, tempo =   0.000000000000000E+000
+ solver PardisoEsparso      , fluxo       
+ simetria=.true.; etapa='full';
+++, em solverPardisoPPD_Nodal,fluxo       , com numThreads:  4
+ [PARDISO]: License check was successful ... 
+ Number of nonzeros in factors   =          397
+ Number of factorization MFLOPS  =            0
+  valores nos extremos do vetor solucao,  fluxo                  1
+  0.40000000E+00  0.79612534E-16  0.40000000E+00  0.71037103E-16  0.40000000E+00  0.24853504E-16
+  0.40000000E+00  0.85643215E-16  0.40000000E+00  0.19528657E-16  0.40000000E+00  0.16843852E-16
+Euclid norms of computed solution:   0.16970563E+01
+ tempo de parede (fluxo)     =      0.0000, segundos
+ .............. montagem matriz   =      0.0000, segundos
+ .............. solver            =      0.0000, segundos
+./rodarExperimento.sh 2 2 1 exp0100x0100x001/ ----------------------------------------------------- 
+source /hpc/modulos/bash/intel-cluster_studio_xe_2013.sh
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) Inspector XE 2013 (build 328075)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) VTune(TM) Amplifier XE 2013 (build 328102)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) Advisor XE 2013 (build 316162)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) VTune(TM) Amplifier XE 2013 (build 328102)
+source /hpc/modulos/bash/hypre-2.9.0b-intel.sh
++++
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina: altix-xe.hpc.lncc.br
++++ compilador: ifort
++++ solver: Pardiso
++++ executavel: /prj/prjedlg/bidu/simuladorMEFacademicoBT-Patricia/bin/simuladorPI0.exe
++++
++++
++++ digite ENTER para executar o simulador 
++++
+(export OMP_NUM_THREADS=4; cd exp0100x0100x001/ ; time /prj/prjedlg/bidu/simuladorMEFacademicoBT-Patricia/bin/simuladorPI0.exe |tee tela_PI0.txt)
+       call abrirArquivos  ()
+  +++inputDS.dat         
+  call preprocessadorDS ()
+ call leituraGeracaoCoordenadasDS
+ call leituraGeracaoConectividadesDS
+ call leituraCodigosCondContornoDS(idPotencial
+ call leituraValoresCondContornoDS(fPotencial,ndofP,numnp,0,nlvectP,iprtin)
+ call leituraCodigosCondContornoDS(idFluxo,
+ call leituraParamNumericosPropFisicaDS()
+       call processamento  ()
+  call montarEstrutDadosSistEqAlq(optSolverP_ =PardisoEsparso      
+ em montarEstrutDadosSistEqAlq, 
+  em subroutine criarPonteirosMatEsparsa_CSR(nsd, ndof, neq, num
+          27
+  ++ subroutine montarLmStencilNodal_CSR(...., numCoefPorLinha =           27
+ criar estruturas de dados,  tempo de parede =   4.687500000000000E-002
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =    19998
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =       187589
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        9
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.15E+01
+
+      Solver escolhido                                      = PardisoEsparso      
+  call montarEstrutDadosSistEqAlq(optSolverF_ =PardisoEsparso      
+ em montarEstrutDadosSistEqAlq, 
+  em subroutine criarPonteirosMatEsparsa_CSR(nsd, ndof, neq, num
+          81
+  ++ subroutine montarLmStencilNodal_CSR(...., numCoefPorLinha =           81
+ criar estruturas de dados,  tempo de parede =   0.667968750000000     
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =    61206
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =      1661421
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =       27
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.13E+02
+
+      Solver escolhido                                      = PardisoEsparso      
+  ..... montando sistema de equacoes da potencial
+           1      187589       19998
+  +++ apos call montarEstrutDadosSistEqAlq(
+  +++ apos call dirichletConditions(
+  +++ apos call calcCoefSistAlgPotencial(
+  calculo dos coeficientes, tempo =   0.230468750000000     
+ solver PardisoEsparso      , potencial   
+ simetria=.true.; etapa='full';
+++, em solverPardisoPPD_Nodal,potencial   , com numThreads:  4
+ [PARDISO]: License check was successful ... 
+ Number of nonzeros in factors   =      1380613
+ Number of factorization MFLOPS  =          180
+  valores nos extremos do vetor solucao,  potencial              1
+  0.98000007E+00  0.98000007E+00  0.98000007E+00  0.98000006E+00  0.98000007E+00  0.98000007E+00
+ -0.98000005E+00 -0.98000004E+00 -0.98000004E+00 -0.98000004E+00 -0.98000005E+00 -0.98000004E+00
+Euclid norms of computed solution:   0.80825044E+02
+ tempo de parede (potencial) =      0.3398, segundos
+ .............. montagem matriz   =      0.2305, segundos
+ .............. solver            =      0.1094, segundos
+  ..... montando sistema de equacoes da fluxo
+           3     1661421       61206
+ call calcCoefSistAlgFluxo(...
+  calculo dos coeficientes, tempo =   0.738281250000000     
+ solver PardisoEsparso      , fluxo       
+ simetria=.true.; etapa='full';
+++, em solverPardisoPPD_Nodal,fluxo       , com numThreads:  4
+ [PARDISO]: License check was successful ... 
+ Number of nonzeros in factors   =     12384893
+ Number of factorization MFLOPS  =         4694
+  valores nos extremos do vetor solucao,  fluxo                  1
+  0.80443146E-17  0.19999919E-02  0.30333542E-12 -0.55640317E-18  0.19999928E-02  0.84640117E-13
+  0.23467379E-16  0.19999955E-02 -0.93991599E-15  0.59772187E-16  0.19999961E-02  0.12974179E-12
+Euclid norms of computed solution:   0.28567113E+00
+ tempo de parede (fluxo)     =      1.2031, segundos
+ .............. montagem matriz   =      0.7383, segundos
+ .............. solver            =      0.4648, segundos
+./compilar.sh 3 2 1     ------------------------------------------------------------------------------ 
+escolhas: 3	 2	1
+escolhas: HYPRE	 ifort 		-g -O0 ...  no41.hpc.lncc.br
+sufixo  : HI0
+source /hpc/modulos/bash/intel-cluster_studio_xe_2013.sh
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) Inspector XE 2013 (build 328075)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) VTune(TM) Amplifier XE 2013 (build 328102)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) Advisor XE 2013 (build 316162)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) VTune(TM) Amplifier XE 2013 (build 328102)
+source /hpc/modulos/bash/hypre-2.9.0b-intel-k20.sh
++++ no41.hpc.lncc.br mpiifort HYPRE -DwithHYPRE -w -module include -openmp -DwithOMP -openmp
+(mpiifort --version)
+ifort (IFORT) 14.0.2 20140120
+Copyright (C) 1985-2014 Intel Corporation.  All rights reserved.
+
++++ digite Enter para gerar o executavel: simuladorHI0.exe 
+rm -rf bin/simuladorHI0.exe
+mpiifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/variaveisGlobais.F90 -o bin/variaveisGlobais.o
+mpiifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/malha.F90 -o bin/malha.o
+mpiifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/leituraEscrita.F90 -o bin/leituraEscrita.o
+mpiifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/funcoesDeForma.F90 -o bin/funcoesDeForma.o
+mpiifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/utilitarios.F90 -o bin/utilitarios.o
+mpiifort -c -w -module include -DwithHYPRE fontes/estruturasDadosSistEq.F90 -o bin/estruturasDadosSistEq.o
+mpiifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/mInputReader.F90 -o bin/mInputReader.o
+mpiifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/solverGaussSkyline.F90 -o bin/solverGaussSkyline.o
+mpiifort -c -w -module include -DwithHYPRE fontes/solverHypre.F90 -o bin/solverHypre.o
+mpiifort -c -w -module include -DwithHYPRE fontes/solverPardisoCSR.F90 -o bin/solverPardisoCSR.o
+mpiifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/utilSistemaEquacoes.F90 -o bin/utilSistemaEquacoes.o
+mpiifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/potencial.F90 -o bin/potencial.o
+mpiifort -c -w -module include -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/fluxo.F90 -o bin/fluxo.o
+mpiifort -c -w -module include -DwithHYPRE -g -O0 -DmostrarTempos -openmp -DwithOMP fontes/driverDS.F90 -o bin/driverDS.o
+mpiifort -openmp -g -O0 -o bin/simuladorHI0.exe bin/variaveisGlobais.o bin/malha.o bin/leituraEscrita.o bin/funcoesDeForma.o bin/utilitarios.o bin/estruturasDadosSistEq.o bin/mInputReader.o bin/solverGaussSkyline.o bin/solverHypre.o bin/solverPardisoCSR.o bin/utilSistemaEquacoes.o bin/potencial.o bin/fluxo.o bin/driverDS.o -L/hpc/hypre-2.9.0b-intel-k20/lib -lHYPRE
++++
++++ executavel criado
+-rwxr-xr-x 1 bidu prjedlg 3506190 Out 21  2015 bin/simuladorHI0.exe
++++
++++
+./rodarExperimento.sh 3 2 1 exp05x02
++++
+source /hpc/modulos/bash/intel-cluster_studio_xe_2013.sh
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) Inspector XE 2013 (build 328075)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) VTune(TM) Amplifier XE 2013 (build 328102)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) Advisor XE 2013 (build 316162)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) VTune(TM) Amplifier XE 2013 (build 328102)
+source /hpc/modulos/bash/hypre-2.9.0b-intel.sh
++++
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina: altix-xe.hpc.lncc.br
++++ compilador: ifort
++++ solver: HYPRE
++++ executavel: /prj/prjedlg/bidu/simuladorMEFacademicoBT-Patricia/bin/simuladorHI0.exe
++++
++++
++++ digite ENTER para executar o simulador 
++++
+(export OMP_NUM_THREADS=4; cd exp05x02 ; time /prj/prjedlg/bidu/simuladorMEFacademicoBT-Patricia/bin/simuladorHI0.exe |tee tela_HI0.txt)
+       call abrirArquivos  ()
+  +++inputDS.dat         
+  call preprocessadorDS ()
+ call leituraGeracaoCoordenadasDS
+ call leituraGeracaoConectividadesDS
+ call leituraCodigosCondContornoDS(idPotencial
+ call leituraValoresCondContornoDS(fPotencial,ndofP,numnp,0,nlvectP,iprtin)
+ call leituraCodigosCondContornoDS(idFluxo,
+ call leituraParamNumericosPropFisicaDS()
+       call processamento  ()
+  em subroutine inicializarMPI(myid_, num_procs_, mpi_comm_)
+  em subroutine inicializar, myid=           0 , numprocs=           1 
+ , mpi_comm=           0
+i+++, mpi_comm_ =  1140850688
+i+++, MPI_COMM_WORLD =  1140850688
+  call montarEstrutDadosSistEqAlq(optSolverP_ =HYPREEsparso        
+ em montarEstrutDadosSistEqAlq, 
+  em subroutine criarSistemaAlgHYPRE(A_, parcsr_A_, b_, par_b_, ...
+  c+++, Clower_=                      0 , Cupper_                     11
+c+++,               0              0              0              0              0              0
+c+++, mpi_comm =  1140850688
+c+++,        41123712              0       41134864              0       41135232              0
+ optSolver_  =HYPREEsparso                            11                     0
+ criar estruturas de dados,  tempo de parede =   0.000000000000000E+000
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =       12
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        0
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.00E+00
+
+      Solver escolhido                                      = HYPREEsparso        
+  call montarEstrutDadosSistEqAlq(optSolverF_ =HYPREEsparso        
+ em montarEstrutDadosSistEqAlq, 
+  em subroutine criarSistemaAlgHYPRE(A_, parcsr_A_, b_, par_b_, ...
+  c+++, Clower_=                      0 , Cupper_                     35
+c+++,               0              0              0              0              0              0
+c+++, mpi_comm =  1140850688
+c+++,        41136400              0       41152032              0       41152624              0
+ optSolver_  =HYPREEsparso                            35                     0
+ criar estruturas de dados,  tempo de parede =   0.000000000000000E+000
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =       36
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        0
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.00E+00
+
+      Solver escolhido                                      = HYPREEsparso        
+  ..... montando sistema de equacoes da potencial
+           1           0          12
+  +++ apos call montarEstrutDadosSistEqAlq(
+  +++ apos call dirichletConditions(
+  +++ apos call calcCoefSistAlgPotencial(
+  calculo dos coeficientes, tempo =   0.000000000000000E+000
+ call finalizarMontagemSistemaHYPRE (estrutSistEqP_%A_
+  finalizarMontagemSistemaHYPRE(A_, parcsr_A_, b_, par_b_, u_, par_u_)
+f+++,        41123712              0       41134864              0       41135232              0
+f+++,        41123712       41128048       41134864       41134960       41135232       41135360
+ solver HYPREEsparso        , potencial   
+, allocate(initialGuess_(neqP)); initialGuessP=0.0 
+ em subroutine resolverSistemaAlgHYPRE  (A_, parcsr_A_, b_, par_b_, 
+r+++,        41123712       41128048       41134864       41134960       41135232       41135360              0
+  ... PCG with AMG preconditioner, BD
+ ++ precond_id_ =           2 , tol =  9.999999939225290E-009
+
+BoomerAMG SETUP PARAMETERS:
+
+ Max levels = 25
+ Num levels = 2
+
+ Strength Threshold = 0.250000
+ Interpolation Truncation Factor = 0.000000
+ Maximum Row Sum Threshold for Dependency Weakening = 0.900000
+
+ Coarsening Type = Falgout-CLJP 
+ measures are determined locally
+
+ Interpolation = modified classical interpolation
+
+Operator Matrix Information:
+
+            nonzero         entries per row        row sums
+lev   rows  entries  sparse  min  max   avg       min         max
+===================================================================
+ 0      12       70  0.486     4    9   5.8  -2.776e-16   1.000e+00
+ 1       2        4  1.000     2    2   2.0   1.250e+00   1.438e+00
+
+
+Interpolation Matrix Information:
+                 entries/row    min     max         row sums
+lev  rows cols    min max     weight   weight     min       max 
+=================================================================
+ 0    12 x 2       1   2   5.000e-01 6.250e-01 6.250e-01 1.000e+00
+
+
+     Complexity:    grid = 1.166667
+                operator = 1.057143
+
+
+
+
+BoomerAMG SOLVER PARAMETERS:
+
+  Maximum number of cycles:         1 
+  Stopping Tolerance:               0.000000e+00 
+  Cycle type (1 = V, 2 = W, etc.):  1
+
+  Relaxation Parameters:
+   Visiting Grid:                     down   up  coarse
+            Number of sweeps:            1    1     1 
+   Type 0=Jac, 3=hGS, 6=hSGS, 9=GE:      6    6     9 
+   Point types, partial sweeps (1=C, -1=F):
+                  Pre-CG relaxation (down):   1  -1
+                   Post-CG relaxation (up):  -1   1
+                             Coarsest grid:   0
+
+<b,b>: 3.000000e+00
+
+
+Iters       ||r||_2     conv.rate  ||r||_2/||b||_2
+-----    ------------   ---------  ------------ 
+    1    2.290224e-02    0.013223    1.322261e-02
+    2    4.785341e-04    0.020895    2.762818e-04
+    3    1.749693e-06    0.003656    1.010186e-06
+    4    5.455238e-09    0.003118    3.149583e-09
+
+
+ em subroutine escreverResultadosHYPRE
+ 
+ Final Relative Residual Norm =   3.149582920692049E-009
+ Iterations                   =            4
+ Elapsed real time            =   0.000000000000000E+000
+ 
+r+++,        41123712       41128048       41134864       41134960       41135232       41135360       41130384
+  valores nos extremos do vetor solucao,  potencial              1
+  0.60000000E+00  0.20000000E+00 -0.20000000E+00 -0.60000000E+00  0.60000000E+00  0.20000000E+00
+ -0.20000000E+00 -0.60000000E+00  0.60000000E+00  0.20000000E+00 -0.20000000E+00 -0.60000000E+00
+Euclid norms of computed solution:   0.15491933E+01
+ tempo de parede (potencial) =      0.0000, segundos
+ .............. montagem matriz   =      0.0000, segundos
+ .............. solver            =      0.0000, segundos
+  ..... montando sistema de equacoes da fluxo
+           2           0          36
+ call calcCoefSistAlgFluxo(...
+  calculo dos coeficientes, tempo =   0.000000000000000E+000
+  finalizarMontagemSistemaHYPRE(A_, parcsr_A_, b_, par_b_, u_, par_u_)
+f+++,        41136400              0       41152032              0       41152624              0
+f+++,        41136400       41136544       41152032       41152160       41152624       41152752
+ solver HYPREEsparso        , fluxo       
+, allocate(initialGuess_(neqP)); initialGuessP=0.0 
+ em subroutine resolverSistemaAlgHYPRE  (A_, parcsr_A_, b_, par_b_, 
+r+++,        41136400       41136544       41152032       41152160       41152624       41152752              0
+  ... PCG with AMG preconditioner, BD
+ ++ precond_id_ =           1 , tol =  9.999999747378752E-005
+<b,b>: 1.080000e+00
+
+
+Iters       ||r||_2     conv.rate  ||r||_2/||b||_2
+-----    ------------   ---------  ------------ 
+    1    2.745141e-09    0.000000    2.641513e-09
+
+
+ em subroutine escreverResultadosHYPRE
+ 
+ Final Relative Residual Norm =   2.641513184773941E-009
+ Iterations                   =            1
+ Elapsed real time            =   0.000000000000000E+000
+ 
+r+++,        41136400       41136544       41152032       41152160       41152624       41152752       41137584
+  valores nos extremos do vetor solucao,  fluxo                  1
+  0.40000000E+00  0.21598762E-09  0.40000000E+00  0.65166434E-09  0.40000000E+00  0.14165083E-08
+  0.40000000E+00 -0.15753236E-09  0.40000000E+00  0.65549024E-09  0.40000000E+00  0.40194073E-09
+Euclid norms of computed solution:   0.16970563E+01
+ tempo de parede (fluxo)     =      0.0039, segundos
+ .............. montagem matriz   =      0.0039, segundos
+ .............. solver            =      0.0000, segundos
+./rodarExperimento.sh 3 2 1 exp0250x0250/  -------------------------------------------------- 
+source /hpc/modulos/bash/intel-cluster_studio_xe_2013.sh
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) Inspector XE 2013 (build 328075)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) VTune(TM) Amplifier XE 2013 (build 328102)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) Advisor XE 2013 (build 316162)
+Copyright (C) 2009-2013 Intel Corporation. All rights reserved.
+Intel(R) VTune(TM) Amplifier XE 2013 (build 328102)
+source /hpc/modulos/bash/hypre-2.9.0b-intel.sh
++++
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina: altix-xe.hpc.lncc.br
++++ compilador: ifort
++++ solver: HYPRE
++++ executavel: /prj/prjedlg/bidu/simuladorMEFacademicoBT-Patricia/bin/simuladorHI0.exe
++++
++++
++++ digite ENTER para executar o simulador 
++++
+(export OMP_NUM_THREADS=4; cd exp0250x0250/ ; time /prj/prjedlg/bidu/simuladorMEFacademicoBT-Patricia/bin/simuladorHI0.exe |tee tela_HI0.txt)
+       call abrirArquivos  ()
+  +++inputDS.dat         
+  call preprocessadorDS ()
+ call leituraGeracaoCoordenadasDS
+ call leituraGeracaoConectividadesDS
+ call leituraCodigosCondContornoDS(idPotencial
+ call leituraValoresCondContornoDS(fPotencial,ndofP,numnp,0,nlvectP,iprtin)
+ call leituraCodigosCondContornoDS(idFluxo,
+ call leituraParamNumericosPropFisicaDS()
+       call processamento  ()
+  em subroutine inicializarMPI(myid_, num_procs_, mpi_comm_)
+  em subroutine inicializar, myid=           0 , numprocs=           1 
+ , mpi_comm=           0
+i+++, mpi_comm_ =  1140850688
+i+++, MPI_COMM_WORLD =  1140850688
+  call montarEstrutDadosSistEqAlq(optSolverP_ =HYPREEsparso        
+ em montarEstrutDadosSistEqAlq, 
+  em subroutine criarSistemaAlgHYPRE(A_, parcsr_A_, b_, par_b_, ...
+  c+++, Clower_=                      0 , Cupper_                  62498
+c+++,               0              0              0              0              0              0
+c+++, mpi_comm =  1140850688
+c+++,        20981408              0       44987072              0       44987360              0
+ optSolver_  =HYPREEsparso                         62498                     0
+ criar estruturas de dados,  tempo de parede =   1.562500000000000E-002
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =    62499
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        0
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.00E+00
+
+      Solver escolhido                                      = HYPREEsparso        
+  call montarEstrutDadosSistEqAlq(optSolverF_ =HYPREEsparso        
+ em montarEstrutDadosSistEqAlq, 
+  em subroutine criarSistemaAlgHYPRE(A_, parcsr_A_, b_, par_b_, ...
+  c+++, Clower_=                      0 , Cupper_                 126001
+c+++,               0              0              0              0              0              0
+c+++, mpi_comm =  1140850688
+c+++,        44987648              0       93372976              0       93373264              0
+ optSolver_  =HYPREEsparso                        126001                     0
+ criar estruturas de dados,  tempo de parede =   3.515625000000000E-002
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =   126002
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        0
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.00E+00
+
+      Solver escolhido                                      = HYPREEsparso        
+  ..... montando sistema de equacoes da potencial
+           1           0       62499
+  +++ apos call montarEstrutDadosSistEqAlq(
+  +++ apos call dirichletConditions(
+  +++ apos call calcCoefSistAlgPotencial(
+  calculo dos coeficientes, tempo =   0.242187500000000     
+ call finalizarMontagemSistemaHYPRE (estrutSistEqP_%A_
+  finalizarMontagemSistemaHYPRE(A_, parcsr_A_, b_, par_b_, u_, par_u_)
+f+++,        20981408              0       44987072              0       44987360              0
+f+++,        20981408       20981584       44987072       44987200       44987360       44987488
+ solver HYPREEsparso        , potencial   
+, allocate(initialGuess_(neqP)); initialGuessP=0.0 
+ em subroutine resolverSistemaAlgHYPRE  (A_, parcsr_A_, b_, par_b_, 
+r+++,        20981408       20981584       44987072       44987200       44987360       44987488              0
+  ... PCG with AMG preconditioner, BD
+ ++ precond_id_ =           2 , tol =  9.999999939225290E-009
+
+BoomerAMG SETUP PARAMETERS:
+
+ Max levels = 25
+ Num levels = 7
+
+ Strength Threshold = 0.250000
+ Interpolation Truncation Factor = 0.000000
+ Maximum Row Sum Threshold for Dependency Weakening = 0.900000
+
+ Coarsening Type = Falgout-CLJP 
+ measures are determined locally
+
+ Interpolation = modified classical interpolation
+
+Operator Matrix Information:
+
+            nonzero         entries per row        row sums
+lev   rows  entries  sparse  min  max   avg       min         max
+===================================================================
+ 0   62499   559495  0.000     4    9   9.0  -1.277e-15   1.000e+00
+ 1   15500   138010  0.001     4    9   8.9  -3.830e-15   1.063e+00
+ 2    3844    33856  0.002     4    9   8.8  -8.438e-15   1.688e+00
+ 3     961     8281  0.009     4    9   8.6  -1.926e-14   2.254e+00
+ 4     225     1849  0.037     4    9   8.2  -4.030e-14   1.829e+00
+ 5      49      361  0.150     4    9   7.4  -8.893e-14   1.763e+00
+ 6       9       49  0.605     4    9   5.4   2.761e-03   1.696e+00
+
+
+Interpolation Matrix Information:
+                 entries/row    min     max         row sums
+lev  rows cols    min max     weight   weight     min       max 
+=================================================================
+ 0 62499 x 15500   1   4   2.500e-01 1.000e+00 6.250e-01 1.000e+00
+ 1 15500 x 3844    1   4   2.500e-01 1.000e+00 5.669e-01 1.000e+00
+ 2  3844 x 961     1   4   2.045e-01 1.000e+00 4.044e-01 1.000e+00
+ 3   961 x 225     1   4   1.348e-01 1.000e+00 2.312e-01 1.000e+00
+ 4   225 x 49      1   4   2.324e-01 1.000e+00 3.887e-01 1.000e+00
+ 5    49 x 9       1   4   2.500e-01 1.000e+00 4.452e-01 1.000e+00
+
+
+     Complexity:    grid = 1.329413
+                operator = 1.326019
+
+
+
+
+BoomerAMG SOLVER PARAMETERS:
+
+  Maximum number of cycles:         1 
+  Stopping Tolerance:               0.000000e+00 
+  Cycle type (1 = V, 2 = W, etc.):  1
+
+  Relaxation Parameters:
+   Visiting Grid:                     down   up  coarse
+            Number of sweeps:            1    1     1 
+   Type 0=Jac, 3=hGS, 6=hSGS, 9=GE:      6    6     9 
+   Point types, partial sweeps (1=C, -1=F):
+                  Pre-CG relaxation (down):   1  -1
+                   Post-CG relaxation (up):  -1   1
+                             Coarsest grid:   0
+
+<b,b>: 4.990000e+02
+
+
+Iters       ||r||_2     conv.rate  ||r||_2/||b||_2
+-----    ------------   ---------  ------------ 
+    1    1.305116e+00    0.058425    5.842500e-02
+    2    9.418137e-02    0.072163    4.216137e-03
+    3    3.955086e-03    0.041994    1.770540e-04
+    4    2.050132e-04    0.051835    9.177651e-06
+    5    7.010175e-06    0.034194    3.138185e-07
+    6    2.458191e-07    0.035066    1.100438e-08
+    7    1.033125e-08    0.042028    4.624901e-10
+
+
+ em subroutine escreverResultadosHYPRE
+ 
+ Final Relative Residual Norm =   4.624901033356720E-010
+ Iterations                   =            7
+ Elapsed real time            =   0.140625000000000     
+ 
+r+++,        20981408       20981584       44987072       44987200       44987360       44987488       20986176
+  valores nos extremos do vetor solucao,  potencial              1
+  0.99200000E+00  0.98400000E+00  0.97600000E+00  0.96800000E+00  0.96000000E+00  0.95200000E+00
+ -0.95200000E+00 -0.96000000E+00 -0.96800000E+00 -0.97600000E+00 -0.98400000E+00 -0.99200000E+00
+Euclid norms of computed solution:   0.14375791E+03
+ tempo de parede (potencial) =      0.4023, segundos
+ .............. montagem matriz   =      0.2539, segundos
+ .............. solver            =      0.1484, segundos
+  ..... montando sistema de equacoes da fluxo
+           2           0      126002
+ call calcCoefSistAlgFluxo(...
+  calculo dos coeficientes, tempo =   0.414062500000000     
+  finalizarMontagemSistemaHYPRE(A_, parcsr_A_, b_, par_b_, u_, par_u_)
+f+++,        44987648              0       93372976              0       93373264              0
+f+++,        44987648       44987792       93372976       93373104       93373264       93373392
+ solver HYPREEsparso        , fluxo       
+, allocate(initialGuess_(neqP)); initialGuessP=0.0 
+ em subroutine resolverSistemaAlgHYPRE  (A_, parcsr_A_, b_, par_b_, 
+r+++,        44987648       44987792       93372976       93373104       93373264       93373392              0
+  ... PCG with AMG preconditioner, BD
+ ++ precond_id_ =           1 , tol =  9.999999747378752E-005
+<b,b>: 6.374426e-05
+
+
+Iters       ||r||_2     conv.rate  ||r||_2/||b||_2
+-----    ------------   ---------  ------------ 
+    1    6.402897e-09    0.000001    8.019661e-07
+
+
+ em subroutine escreverResultadosHYPRE
+ 
+ Final Relative Residual Norm =   8.019660947057141E-007
+ Iterations                   =            1
+ Elapsed real time            =   1.171875000000000E-002
+ 
+r+++,        44987648       44987792       93372976       93373104       93373264       93373392       20986176
+  valores nos extremos do vetor solucao,  fluxo                  1
+  0.19999999E+01  0.28654582E-07  0.20000000E+01  0.55456309E-07  0.20000000E+01  0.10174602E-07
+  0.20000000E+01  0.14514441E-07  0.20000000E+01  0.11455310E-08  0.20000000E+01 -0.10062010E-08
+Euclid norms of computed solution:   0.50200000E+03
+ tempo de parede (fluxo)     =      0.4648, segundos
+ .............. montagem matriz   =      0.4453, segundos
+ .............. solver            =      0.0195, segundos

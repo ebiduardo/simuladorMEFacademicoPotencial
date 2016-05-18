@@ -1,0 +1,69 @@
+*title_pc{                                                                      
+  experimento inicial com programa modular nodal+ladal, CC dirichlet            
+}
+*exec_pc{                                                                       
+       1
+}
+*iprtin_pc{                                                                     
+       1
+}
+*nsd_pc{                                                                        
+       2
+}
+*numnp_pc{                                                                      
+      18
+}
+*numel_pc{                                                                      
+      10
+}
+*nen_pc{                                                                        
+       4
+}
+*npint_pc{                                                                      
+       4
+}
+*nlvectP_pc{                                                                    
+       1
+}
+*nlvectF_pc{                                                                    
+       0
+}
+*coordenadas_nodais_pc{
+         1         4 0.000E+00 0.000E+00
+                     0.200E+01 0.000E+00
+                     0.200E+01 0.500E+01
+                     0.000E+00 0.500E+01
+         2         1         5         3
+         0
+}
+*conectividades_nodais_pc{
+         1         1         1         2         5         4         1
+         2         1         1         5         2         3
+         0
+}
+*codigos_cond_contorno_potencial_pc{
+         1         3         1         1
+        16        18         1         1
+         0
+}
+*valores_cond_contorno_potencial_pc{
+         1         2  0.10E+01
+                      0.10E+01
+         2         1
+        16         2 -0.10E+01
+                     -0.10E+01
+         2         1
+         0
+}
+*codigos_cond_contorno_fluxo_pc{
+         0
+}
+*nummat_pc{                                                                     
+       1
+}
+*prop_fisica_meio_pc{
+         1       0.10E+01  0.10E+01  0.10E+01
+}
+*grav_pc{
+  0.00E+00  0.00E+00  0.00E+00
+}

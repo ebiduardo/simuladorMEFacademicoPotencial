@@ -1,0 +1,166 @@
+ optSolverP= HYPREEsparso        
+ optSolverF= HYPREEsparso        
+       call abrirArquivos  ()
+  +++inputDS.dat         
+  call preprocessadorDS ()
+ call leituraGeracaoCoordenadasDS
+ call leituraGeracaoConectividadesDS
+ call leituraCodigosCondContornoDS(idPotencial
+ call leituraValoresCondContornoDS(fPotencial,ndofP,numnp,0,nlvectP,iprtin)
+ call leituraCodigosCondContornoDS(idFluxo,
+ call leituraParamNumericosPropFisicaDS()
+       call processamento  ()
+ ++++  em subroutine inicializarMPI(myid_, num_procs_, mpi_comm_)
+ em subroutine inicializarMPI, myid= 0, numprocs= 1, mpi_comm= 1140850688
+  call montarEstrutDadosSistEqAlq(optSolverP_ =HYPREEsparso        
+ em montarEstrutDadosSistEqAlq,   
+  cM+++ , Clower_=            0 , Cupper_           17
+cM+++, 9039328, Clower_= 0,  Cupper_=17
+cV+++,    9052480
+cV+++,    9056640
+ optSolver_  =HYPREEsparso                   0          17
+ criar estruturas de dados,  tempo de parede =    3.9062500000000000E-003
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =       18
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        0
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.00E+00
+
+      Solver escolhido                                      = HYPREEsparso        
+  call montarEstrutDadosSistEqAlq(optSolverF_ =HYPREEsparso        
+ em montarEstrutDadosSistEqAlq,   
+  cM+++ , Clower_=            0 , Cupper_           43
+cM+++, 9058000, Clower_= 0,  Cupper_=43
+cV+++,    9076960
+cV+++,    9077616
+ optSolver_  =HYPREEsparso                   0          43
+ criar estruturas de dados,  tempo de parede =    0.0000000000000000     
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =       44
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        0
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.00E+00
+
+      Solver escolhido                                      = HYPREEsparso        
+  ..... montando sistema de equacoes da potencial
+           1           0          18
+  +++ apos call montarEstrutDadosSistEqAlq(
+  +++ apos call dirichletConditions(
+addV+++, 9052480, Flower_= 1, Fupper_= 18
+fM+++, A_ 9039328, parcsr_A_ =9040800
+fV+++, v_ 9052480, par_v =9052640
+fV+++, v_ 9056640, par_v =9056800
+  +++ apos call calcCoefSistAlgPotencial(
+  calculo dos coeficientes, tempo =    1.9531250000000000E-003
+ solver HYPREEsparso        , potencial   
+, allocate(initialGuess_(neqP)); initialGuessP=0.0 
+ em subroutine resolverSistemaAlgHYPRE  (A_, parcsr_A_, b_, par_b_, 
+s+++,         9039328        9040800        9052480        9052640        9056640        9056800              0
+  ... PCG with AMG preconditioner, BD_dez
+
+BoomerAMG SETUP PARAMETERS:
+
+ Max levels = 25
+ Num levels = 2
+
+ Strength Threshold = 0.250000
+ Interpolation Truncation Factor = 0.000000
+ Maximum Row Sum Threshold for Dependency Weakening = 0.900000
+
+ Coarsening Type = Falgout-CLJP 
+ measures are determined locally
+
+ Interpolation = modified classical interpolation
+
+Operator Matrix Information:
+
+            nonzero         entries per row        row sums
+lev   rows  entries  sparse  min  max   avg       min         max
+===================================================================
+ 0      18      100  0.309     4    6   5.6  -4.441e-16   5.000e+00
+ 1       8       40  0.625     4    6   5.0   1.110e-15   2.500e+00
+
+
+Interpolation Matrix Information:
+                 entries/row    min     max         row sums
+lev  rows cols    min max     weight   weight     min       max 
+=================================================================
+ 0    18 x 8       1   4   1.683e-01 3.317e-01 5.000e-01 1.000e+00
+
+
+     Complexity:    grid = 1.444444
+                operator = 1.400000
+
+
+
+
+BoomerAMG SOLVER PARAMETERS:
+
+  Maximum number of cycles:         1 
+  Stopping Tolerance:               0.000000e+00 
+  Cycle type (1 = V, 2 = W, etc.):  1
+
+  Relaxation Parameters:
+   Visiting Grid:                     down   up  coarse
+            Number of sweeps:            1    1     1 
+   Type 0=Jac, 3=hGS, 6=hSGS, 9=GE:      6    6     9 
+   Point types, partial sweeps (1=C, -1=F):
+                  Pre-CG relaxation (down):   1  -1
+                   Post-CG relaxation (up):  -1   1
+                             Coarsest grid:   0
+
+ em subroutine escreverResultadosHYPRE
+
+ Final Relative Residual Norm =    6.8468846849159476E-009
+ Iterations                   =            4
+ Elapsed real time            =    1.1670976850704250E-312
+
+extV+++, 9056640, Flower_= 1, Fupper_= 18
+  valores nos extremos do vetor solucao,  potencial              1
+  0.80000000E+00  0.60000000E+00  0.40000000E+00  0.20000000E+00  0.20700577E-15 -0.20000000E+00
+  0.20000001E+00  0.41238708E-15 -0.20000001E+00 -0.40000000E+00 -0.59999999E+00 -0.80000000E+00
+Euclid norms of computed solution:   0.21908902E+01
+ tempo de parede (potencial) =      0.0078, segundos
+ .............. montagem matriz   =      0.0020, segundos
+ .............. solver            =      0.0059, segundos
+  ..... montando sistema de equacoes da fluxo
+           2           0          44
+ call calcCoefSistAlgFluxo(...
+addV+++, 9076960, Flower_= 1, Fupper_= 44
+fM+++, A_ 9058000, parcsr_A_ =9058144
+fV+++, v_ 9076960, par_v =9077088
+fV+++, v_ 9077616, par_v =9077744
+  calculo dos coeficientes, tempo =    0.0000000000000000     
+ solver HYPREEsparso        , fluxo       
+, allocate(initialGuess_(neqP)); initialGuessP=0.0 
+ em subroutine resolverSistemaAlgHYPRE  (A_, parcsr_A_, b_, par_b_, 
+s+++,         9058000        9058144        9076960        9077088        9077616        9077744              0
+  ... PCG with AMG preconditioner, BD_dez
+ em subroutine escreverResultadosHYPRE
+
+ Final Relative Residual Norm =    3.8033483335566392E-007
+ Iterations                   =            1
+ Elapsed real time            =    1.1670976850704250E-312
+
+extV+++, 9077616, Flower_= 1, Fupper_= 44
+  valores nos extremos do vetor solucao,  fluxo                  1
+  0.20000000E+01  0.93387256E-08  0.20000000E+01  0.68356379E-07  0.20000000E+01  0.19358438E-06
+  0.20000000E+01 -0.19358440E-06  0.20000000E+01 -0.68356384E-07  0.20000000E+01 -0.93387278E-08
+Euclid norms of computed solution:   0.93808315E+01
+ tempo de parede (fluxo)     =      0.0000, segundos
+ .............. montagem matriz   =      0.0000, segundos
+ .............. solver            =      0.0000, segundos

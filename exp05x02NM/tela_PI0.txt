@@ -1,0 +1,94 @@
+ optSolverP= PardisoEsparso      
+ optSolverF= PardisoEsparso      
+       call abrirArquivos  ()
+  +++inputDS.dat         
+  call preprocessadorDS ()
+ call leituraGeracaoCoordenadasDS
+ call leituraGeracaoConectividadesDS
+ call leituraCodigosCondContornoDS(idPotencial
+ call leituraValoresCondContornoDS(fPotencial,ndofP,numnp,0,nlvectP,iprtin)
+ call leituraCodigosCondContornoDS(idFluxo,
+ call leituraParamNumericosPropFisicaDS()
+       call processamento  ()
+  call montarEstrutDadosSistEqAlq(optSolverP_ =PardisoEsparso      
+ em montarEstrutDadosSistEqAlq,   
+  em subroutine criarPonteirosMatEsparsa_CSR(nsd, ndof, neq, num
+           9
+  ++ subroutine montarLmStencilNodal_CSR(...., numCoefPorLinha =            9
+ criar estruturas de dados,  tempo de parede =   1.953125000000000E-003
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =       12
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =           41
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        3
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.33E-03
+
+      Solver escolhido                                      = PardisoEsparso      
+  call montarEstrutDadosSistEqAlq(optSolverF_ =PardisoEsparso      
+ em montarEstrutDadosSistEqAlq,   
+  em subroutine criarPonteirosMatEsparsa_CSR(nsd, ndof, neq, num
+          18
+  ++ subroutine montarLmStencilNodal_CSR(...., numCoefPorLinha =           18
+ criar estruturas de dados,  tempo de parede =   1.953125000000000E-003
+Informacao do sistema de equacoes 
+
+
+ e q u a t i o n    s y s t e m    d a t a              
+
+      number of equations . . . . . . . . . . . . (neq    ) =       36
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          242
+
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        6
+
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.19E-02
+
+      Solver escolhido                                      = PardisoEsparso      
+  ..... montando sistema de equacoes da potencial
+           1          41          12
+  +++ apos call montarEstrutDadosSistEqAlq(
+  +++ apos call dirichletConditions(
+  +++ apos call calcCoefSistAlgPotencial(
+  calculo dos coeficientes, tempo =   0.000000000000000E+000
+  em subroutine escreverSistemaAlgCSRemMTX(alhs, brhs, Ap, Ai, ... 
+          41          12          13          41
+  tempo de escrita =  1.953125000000000E-002
+ solver PardisoEsparso      , potencial   
+ simetria=.true.; etapa='full';
+ em pardiso G com, numThreads           4
+ [PARDISO]: License check was successful ... 
+ Begining factorization  ... 
+ Begining backsubstitution  ... 
+  valores nos extremos do vetor solucao,  potencial              1
+  0.60000000E+00  0.60000000E+00  0.60000000E+00  0.20000000E+00  0.20000000E+00  0.20000000E+00
+ -0.20000000E+00 -0.20000000E+00 -0.20000000E+00 -0.60000000E+00 -0.60000000E+00 -0.60000000E+00
+Euclid norms of computed solution:   0.15491933E+01
+ tempo de parede (potencial) =      0.2031, segundos
+ .............. montagem matriz   =      0.0020, segundos
+ .............. solver            =      0.2012, segundos
+  ..... montando sistema de equacoes da fluxo
+           2         242          36
+ call calcCoefSistAlgFluxo(...
+  calculo dos coeficientes, tempo =   0.000000000000000E+000
+  em subroutine escreverSistemaAlgCSRemMTX(alhs, brhs, Ap, Ai, ... 
+         242          36          37         242
+  tempo de escrita =  7.421875000000000E-002
+ solver PardisoEsparso      , fluxo       
+ simetria=.true.; etapa='full';
+ em pardiso G com, numThreads           4
+ [PARDISO]: License check was successful ... 
+ Begining factorization  ... 
+ Begining backsubstitution  ... 
+  valores nos extremos do vetor solucao,  fluxo                  1
+  0.40000000E+00  0.10118558E-15  0.40000000E+00  0.26659323E-16  0.40000000E+00 -0.26434983E-19
+  0.40000000E+00 -0.75522504E-16  0.40000000E+00 -0.20624442E-16  0.40000000E+00  0.17301797E-16
+Euclid norms of computed solution:   0.16970563E+01
+ tempo de parede (fluxo)     =      0.0254, segundos
+ .............. montagem matriz   =      0.0000, segundos
+ .............. solver            =      0.0254, segundos

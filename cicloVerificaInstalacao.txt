@@ -1,0 +1,32 @@
+ # instrucoes basicas oara executar um experimento 
+ # autor: bidu@lncc.br
+ # em 18.05.2016
+
+ # usar um script para compilar o simulador que usa o solver Gauss Skyline
+ # os objetos e o executaval estão no diretorio bin
+ # os fontes estao em fontes
+ # os arquivos de modulo estao em include
+ ./compilar.sh                        
+
+# criar um diretorio com o nome exp0100x0100 para realizar um experimento
+# com uma malha bidimensional de 100 x 50
+# pela simplicidade do modelo usamos um script para gerar o arquivo de dados
+# basico e depois fazemos as modificacoes que achar necessario na mao
+mkdir exp0100x0050
+ ./criarArqEntrada2D.sh 100 50  > exp0100x0050/input.dat
+# a nova versao do simulador usa uma forma de entrada de dados com palavras chaves
+# usamos um programa para modificar o input.dat criado pelo script 
+gfortran -J include fontes/converterInput_DS.F90 -o bin/converterInput_DS
+ (cd exp0100x0050; ../bin/converterInput_DS) 
+# é comum usarmos o script rodarExperimento para acionar o simulador
+# o script recebe o nome do diretorio onde existe o arquivo de entrada
+# e escreve os resultados nele
+# um arquivo chamado tela.txt é criado com um conteudo igual ao que sai 
+#  na tela durante a execucao do programa
+ ./rodarExperimento.sh exp0100x0050  
+
+ # um comando para fazer as comparacoes entre o resultados obtido atualmente
+ #  em uma nova maquina e um jah existente previamente
+ # somente as linhas com tempos e datas devem apresentar diferenças
+
+ (cd exp0100x0050; diff tela_GG0_1Thr.txt telaOriginal.txt)

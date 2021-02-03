@@ -8,7 +8,7 @@
  # os arquivos de modulo estao em include
  ./compilar.sh                        
 
-# criar um diretorio com o nome exp0100x0100 para realizar um experimento
+# criar um diretorio com o nome exp0100x0050 para realizar um experimento
 # com uma malha bidimensional de 100 x 50
 # pela simplicidade do modelo usamos um script para gerar o arquivo de dados
 # basico e depois fazemos as modificacoes que achar necessario na mao

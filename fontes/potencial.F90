@@ -151,7 +151,7 @@
       if(nsd==3) gf3 = grav(3)
       pss = 0.0 
 !
-      do 300 j=1,nen
+      do j=1,nen
            nj=estrutSistEqP_%ndof*j
                  djx=shg(1,j,l)*temp1
                  djy=shg(2,j,l)*temp1
@@ -162,7 +162,7 @@
 !
       elresf(nj)=elresf(nj)+pss*djn
 !
-      do 300 i=1,nen
+      do i=1,nen
       ni = estrutSistEqP_%ndof*i
                  dix=shg(1,i,l)
                  diy=shg(2,i,l) 
@@ -173,7 +173,8 @@
       if(nsd==3) eleffm(ni,nj)=eleffm(ni,nj)+ Kz*diz*djz
 
 !
-  300 continue
+       end do
+       end do
   400 continue  
 !
 !      computation of Dirichlet b.c. contribution

@@ -1472,30 +1472,34 @@
 !
 !.... form c1
 !
-      do 600 i=1,3
-      do 600 j=1,2
+      do i=1,3
+      do j=1,2
       c1(i,j) = rowdot(shl2(i,1,l),xl(j,1),tres,dois,nen)
-600   continue
+      end do
+      end do
 !
 !.... form t1
 !
-      do 700 i=1,3
-      do 700 j=1,2
-      do 700 k=1,3
+      do i=1,3
+      do j=1,2
+      do k=1,3
       t1(i,j)=t1(i,j)-t2(i,k)*(c1(k,1)*xs(1,j)+c1(k,2)*xs(2,j))
-700    continue
+      end do
+      end do
+      end do
 !
 !.... transformation from natural coor. to global coor.
 !
-      do 950 j=1,nen
-      do 950 i=1,3
+      do j=1,nen
+      do i=1,3
          do 800 k=1,2
          shg2(i,j,l)=shg2(i,j,l)+t1(i,k)*shl(k,j,l)
 800       continue
          do 900 k=1,3
          shg2(i,j,l)=shg2(i,j,l)+t2(i,k)*shl2(k,j,l)
 900       continue
-950    continue
+      end do
+      end do
 !
   960 continue
 !

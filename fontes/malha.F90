@@ -96,7 +96,7 @@
 !$OMP END PARALLEL DO
 
        do i=1, numnp
-       write(ilistaDosElemsPorNo,*), listaDosElemsPorNo(1:nen,i)
+       write(ilistaDosElemsPorNo) listaDosElemsPorNo(1:nen,i)
        end do
 !      write(ilistaDosElemsPorNo,*), listaDosElemsPorNo ! teste com arq.formatado
 !      write(ilistaDosElemsPorNo), listaDosElemsPorNo ! teste com arq.nao-formatado

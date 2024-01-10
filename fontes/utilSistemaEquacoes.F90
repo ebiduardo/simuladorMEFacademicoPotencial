@@ -13,39 +13,37 @@
 !
        module mUtilSistemaEquacoes
 
-       use mEstruturasDadosSistEq
-      ! use mSolverHYPRE, only : criarSistemaAlgHYPRE
-       use mSolverHYPRE, only : criarMatriz_HYPRE, criarVetor_HYPRE
-       use mSolverHYPRE, only : criarMatriz_HYPRE01, criarVetorBRHS_HYPRE, criarVetorSolucao_HYPRE
-
+       use mEstruturasDadosSistEq !, only : colht
+       use mSolverHYPRE, only : criarMatrizHYPRE, criarVetorHYPRE
 
 !funcoes e subrotinas
         public :: load, dirichletConditions
-        public :: btod, kdbc, pivots, colht, coldot, matadd
+        public :: kdbcF
+        !public :: btod, kdbc, pivots, coldot
         public :: montarEstrutDadosSistEqAlq
+        !private :: matadd
 
       contains
 
 !**** new **********************************************************************
 !
-      subroutine montarEstrutDadosSistEqAlq(optSolver_, umaEstSistEq_)
+      subroutine montarEstrutDadosSistEqAlq(umaEstSistEq_)
 !
       use mMalha,            only: x, conecNodaisElem, numnp, numel, nen, nsd
       use mMalha,            only: criarListaVizinhos, listaDosElemsPorNoCSR, numConexoesPorElem
+      use mMalha,            only: criarListaVizinhosCRS
       use mLeituraEscrita,   only: iecho
-!      use mGlobaisEscalares, only: mpi_comm
       use mSolverHypre, only: mpi_comm
 !
       implicit none
-      character(len=*)        :: optSolver_
-      type(estruturasArmazenamentoSistemaEq) :: umaEstSistEq_
+      type(estruturasArmazenamentoSistemaEq), intent(inout) :: umaEstSistEq_
 
       logical   :: simetria
       integer*4 :: meanbw
       real*8    :: t1, t2, t3
       integer*4 :: i, localSize
 
-      write(*,'(a,i2,a)',advance='NO') " em montarEstrutDadosSistEqAlq, "
+      write(*,'(a,i2,a)',advance='NO') " em montarEstrutDadosSistEqAlq, fev2019 "
       write(*,*) " "
     
       call timing(t1)
@@ -54,63 +52,88 @@
       allocate(umaEstSistEq_%idiag(umaEstSistEq_%neq+1)); umaEstSistEq_%idiag = 0  ! posicoes dos elementos da diagonal principal no vetor alhs    
       
       
-  if(optSolver_=="GaussSkyline") then
+  if(umaEstSistEq_%optSolver=="GaussSkyline") then
       call colht(umaEstSistEq_%idiag,umaEstSistEq_%lm,umaEstSistEq_%ndof,nen,numel,umaEstSistEq_%neq);
       call diag (umaEstSistEq_%idiag,umaEstSistEq_%neq,umaEstSistEq_%nalhs); 
-      if(.not.associated(umaEstSistEq_%alhs))allocate(umaEstSistEq_%alhs(umaEstSistEq_%nalhs));
-      umaEstSistEq_%alhs=0.0 
-  end if 
+      !stop
+      write(*,*) " nalhs =", umaEstSistEq_%nalhs
+      if(.not.associated(umaEstSistEq_%alhs)) then 
+          allocate(umaEstSistEq_%alhs(umaEstSistEq_%nalhs));
+          umaEstSistEq_%alhs=0.0 
+      endif
+      if(.not.umaEstSistEq_%simetria.and.(.not.associated(umaEstSistEq_%alhs)))then 
+          allocate(umaEstSistEq_%clhs(umaEstSistEq_%nalhs));
+          umaEstSistEq_%clhs=0.0 
+      end if
+	  umaEstSistEq_%Ap=> umaEstSistEq_%idiag; !posicoes dos elementos da diagonal principal no vetor alhs
+
+      if(.not.associated (listaDosElemsPorNoCSR) ) then
+        allocate(listaDosElemsPorNoCSR(nen,numnp)); listaDosElemsPorNoCSR=0
+
+      call criarListaVizinhosCRS(nen,numnp,numel,conecNodaisElem,umaEstSistEq_%nVizinMax)
+      !simetria=.true.
+		 print*, "umaEstSistEq_%numCoefPorLinha = ", umaEstSistEq_%numCoefPorLinha
+!      call criarGrafoEquacoesPorNo(umaEstSistEq_,  nsd, conecNodaisElem, listaDosElemsPorNoCSR, &
+!                                      numnp, nen, numConexoesPorElem)
+      end if
+	  
+   end if 
   
-  if(optSolver_=="PardisoEsparso") then
+  if(umaEstSistEq_%optSolver=="PardisoEsparso") then
 
       if(.not.associated (listaDosElemsPorNoCSR) ) then
         allocate(listaDosElemsPorNoCSR(nen,numnp)); listaDosElemsPorNoCSR=0
       end if
-
-      call criarListaVizinhos(nen, numnp, numel, conecNodaisElem, listaDosElemsPorNoCSR)
-      simetria=.true.
+      call criarListaVizinhosCRS(nen,numnp,numel,conecNodaisElem,umaEstSistEq_%nVizinMax)
+      !simetria=.true.
       umaEstSistEq_%Ap=> umaEstSistEq_%idiag; !posicoes dos elementos da diagonal principal no vetor alhs
       call criarPonteirosMatEsparsa_CSR(umaEstSistEq_, nsd, conecNodaisElem, listaDosElemsPorNoCSR, & 
-                                                             numnp, nen, numConexoesPorElem,  simetria)       
-      !if(.not.associated(umaEstSistEq_%alhs)) 
-      allocate(umaEstSistEq_%alhs(umaEstSistEq_%nalhs)); umaEstSistEq_%alhs=0.0
+                                                             numnp, nen, numConexoesPorElem)       
+      !write(*,    6000) 'Informacao do sistema de equacoes ',  &
+      !   umaEstSistEq_%neq, umaEstSistEq_%nalhs, meanbw,       &
+      !  (8.0*umaEstSistEq_%nalhs)/1000.0/1000.0,  umaEstSistEq_%optSolver
+      if(.not.associated(umaEstSistEq_%alhs)) then
+         allocate(umaEstSistEq_%alhs(umaEstSistEq_%nalhs));
+         umaEstSistEq_%alhs=0.0
+      end if
   endif 
 
-  if(optSolver_=="HYPREEsparso") then
-      umaEstSistEq_%Clower = 1 - 1
-      umaEstSistEq_%Cupper = umaEstSistEq_%neq-1
-      localSize=umaEstSistEq_%CUpper-umaEstSistEq_%Clower+1
+  if(umaEstSistEq_%optSolver=="HYPREEsparso") then
+      umaEstSistEq_%Flower = 1 !- 1
+      umaEstSistEq_%Fupper = umaEstSistEq_%neq!-1
+      localSize=umaEstSistEq_%FUpper-umaEstSistEq_%Flower+1
       if(.not.associated(umaEstSistEq_%rows)) allocate(umaEstSistEq_%rows(localSize))
       do i = 1, localSize
-      umaEstSistEq_%rows(i) = i - 1
+      umaEstSistEq_%rows(i) = i !- 1
       end do
      ! call criarSistemaAlgHYPRE(umaEstSistEq_, mpi_comm)
-      call criarMatriz_HYPRE01           (umaEstSistEq_, mpi_comm )
-      call criarVetorBRHS_HYPRE          (umaEstSistEq_, mpi_comm )
-      call criarVetorSolucao_HYPRE       (umaEstSistEq_, mpi_comm )
-      !call criarMatriz_HYPRE            (umaEstSistEq_%A_HYPRE, umaEstSistEq_%Clower, umaEstSistEq_%Cupper, mpi_comm )
-      !call criarVetor_HYPRE             (umaEstSistEq_%b_HYPRE, umaEstSistEq_%Clower, umaEstSistEq_%Cupper, mpi_comm )
-      !call criarVetor_HYPRE             (umaEstSistEq_%u_HYPRE, umaEstSistEq_%Clower, umaEstSistEq_%Cupper, mpi_comm )
+      !call criarMatriz_HYPRE01           (umaEstSistEq_, mpi_comm )
+      !call criarVetorBRHS_HYPRE          (umaEstSistEq_, mpi_comm )
+      !call criarVetorSolucao_HYPRE       (umaEstSistEq_, mpi_comm )
+      write(*,*) "call criarMatriz_HYPRE (umaEstSistEq_%A_HYPRE, umaEstSistEq_%Flower, umaEstSistEq_%Fupper, mpi_comm )"
+      call criarMatrizHYPRE (umaEstSistEq_%A_HYPRE, umaEstSistEq_%Flower, umaEstSistEq_%Fupper, mpi_comm )
+      call criarVetorHYPRE  (umaEstSistEq_%b_HYPRE, umaEstSistEq_%Flower, umaEstSistEq_%Fupper, mpi_comm )
+      call criarVetorHYPRE  (umaEstSistEq_%u_HYPRE, umaEstSistEq_%Flower, umaEstSistEq_%Fupper, mpi_comm )
 
-      
-       write(*,*) "optSolver_  =", optSolver_, umaEstSistEq_%Clower,umaEstSistEq_%CUpper
+       write(*,*) "optSolver_  =", umaEstSistEq_%optSolver, umaEstSistEq_%Flower,umaEstSistEq_%Fupper
        !stop
   endif 
 
-      if(.not.associated(umaEstSistEq_%brhs)) allocate(umaEstSistEq_%brhs(umaEstSistEq_%neq));
+      if(.not.associated(umaEstSistEq_%brhs))then
+       allocate(umaEstSistEq_%brhs(umaEstSistEq_%neq));
        umaEstSistEq_%brhs=0.0
+      end if
 ! 
       call timing(t2)
       write(*,*) "criar estruturas de dados,  tempo de parede = ", t2 - t1
       
       meanbw = umaEstSistEq_%nalhs/umaEstSistEq_%neq
       write(*,    6000) 'Informacao do sistema de equacoes ',  &
-         umaEstSistEq_%neq, umaEstSistEq_%nalhs, meanbw, (8.0*umaEstSistEq_%nalhs)/1000.0/1000.0, &
-         optSolver_
+         umaEstSistEq_%neq, umaEstSistEq_%nalhs, meanbw,       &
+        (8.0*umaEstSistEq_%nalhs)/1000.0/1000.0,  umaEstSistEq_%optSolver
       write(iecho,6000) 'Informacao do sistema de equacoes ',  &
-         umaEstSistEq_%neq, umaEstSistEq_%nalhs, meanbw, (8.0*umaEstSistEq_%nalhs)/1000.0/1000.0, &
-         optSolver_
-
+         umaEstSistEq_%neq, umaEstSistEq_%nalhs, meanbw,       &
+        (8.0*umaEstSistEq_%nalhs)/1000.0/1000.0,  umaEstSistEq_%optSolver
          
  6000 format(a///&
      ' e q u a t i o n    s y s t e m    d a t a              ',  //5x,&
@@ -135,20 +158,21 @@
 !.... remove above card for single-precision operation
 !
       integer*4 :: ndof, numnp, nlvect
-      integer*4:: id(ndof,*)
-      real*8  :: f(ndof,numnp,*),brhs(*)
+      integer*4 :: id(ndof,*)
+      real*8    :: f(ndof,numnp,*),brhs(*)
 !
-      integer*4:: nlv
-      integer*4:: i, j, k
+      integer*4 :: nlv
+      integer*4 :: i, j, k
 !
       do 300 i=1,ndof
 !
       do 200 j=1,numnp
       k = id(i,j)
+      ! k = abs(id(i,j))
       if (k.gt.0) then
 !
          do 100 nlv=1,nlvect
-         brhs(k) = brhs(k) + f(i,j,nlv)
+           brhs(k) = brhs(k) + f(i,j,nlv)
   100    continue
 !
       endif
@@ -184,6 +208,7 @@
       integer*4:: i, j, k, lv
       real*8  :: val
 !
+      write(*,*) " em subroutine dirichletConditions(id,d,f,ndof,numnp,nlvect)"
 !
       do 300 i=1,ndof
 !
@@ -191,16 +216,20 @@
 !
             k = id(i,j)
             if (k.gt.0) go to 200
+       !     if (k.lt.0) go to 200
             val = 0.d0
                   do 100 lv=1,nlvect
                   val = val + f(i,j,lv)
 100               continue
 !
             d(i,j) = val
+            !write(*,*) i, j, d(i,j)
 !
   200       continue
 !
  300  continue
+!     stop
+      write(*,*) " fim de dirichletConditions(id,d,f,ndof,numnp,nlvect)"
       return
       end subroutine
 !
@@ -223,7 +252,8 @@
       do 200 i=1,ndof
 !
          do 100 j=1,numnp
-         k = id(i,j)
+         !k = id(i,j)
+         k = abs(id(i,j))
          if (k.gt.0) then 
              d(i,j) = brhs(k)
          end if
@@ -232,9 +262,9 @@
   200    continue
 !
       return
-      end subroutine
+      end subroutine btod
 !**** new **********************************************************************
-      subroutine kdbc(eleffm,elresf,dl,nee)
+      subroutine kdbcF(eleffm,elresf,dl,lm,nee)
 !
 !.... program to adjust load vector for prescribed displacement
 !     boundary condition
@@ -243,25 +273,53 @@
 !
 !.... remove above card for single-precision operation
 !
-      integer*4:: nee
+      integer*4:: nee, lm(*)
       real*8  :: eleffm(nee,*),elresf(*),dl(*)
 !
       integer*4:: i,j
       real*8  :: val
 !
+!     write(*,'(a,4f10.5)') 'em kdbcF'
+!     write(*,'(a,4f10.5)') 'em kdbc, elresf =', elresf(1:4)
+!     write(*,'(a,16f10.5)') 'em kdbc, eleffm =', eleffm(1:4,1:4)
+!     write(*,*) "em subroutine kdbcF(eleffm,elresf,dl,lm,nee)"
+
+      write(*,*) "lm =", lm(1:nee) 
       do 200 j=1,nee
 !
       val=dl(j)
-      if(val.eq.0.0d0) go to 200
+   !   if(val.eq.0.0d0) cycle 
+      if(lm(j).gt.0) cycle 
 !
-      do 100 i=1,nee
-      elresf(i)=elresf(i)-eleffm(i,j)*val
-100   continue
+     do 100 i=1,j-1
+     elresf(i)=elresf(i)-eleffm(i,j)*val
+100 continue
+     do i=j+1,nee
+     elresf(i)=elresf(i)-eleffm(i,j)*val
+     end do
+
+      elresf(j)=elresf(j)+val
+
 !
 200   continue
+
+     do j=1,nee
+      val=dl(j)
+      if(lm(j).gt.0) cycle 
+      !??elresf(j)=elresf(j)+val
+      elresf(j)=val
+      eleffm(j,      j)=1.0
+      eleffm(1:j-1,  j)=0.0
+      eleffm(j+1:nee,j)=0.0
+      eleffm(j,  1:j-1)=0.0
+      eleffm(j,j+1:nee)=0.0
+     end do
+
+!     write(*,'(a,4f10.5)') 'em kdbcF, elresf =', elresf(1:4)
+!     write(*,'(a,16f10.5)') 'em kdbcF, eleffm =', eleffm(1:4,1:4)
 !
       return
-      end subroutine
+      end subroutine kdbcF
 !
 !**** new **********************************************************************
 !
@@ -362,7 +420,7 @@
       return
       end function
 !**** new **********************************************************************
-      subroutine matadd(a,b,c,ma,mb,mc,m,n,iopt)
+      subroutine matadd00(a,b,c,ma,mb,mc,m,n,iopt)
 !
 !.... program to add rectangular matrices
 !
@@ -410,6 +468,38 @@
  3200 continue
       return
 !
-      end subroutine
+      end subroutine matadd00
 
+!**** new **********************************************************************
+      subroutine kdbc(eleffm,elresf,dl,nee)
+!
+!.... program to adjust load vector for prescribed displacement
+!     boundary condition
+!
+      implicit none
+!
+!.... remove above card for single-precision operation
+!
+      integer*4:: nee
+      real*8  :: eleffm(nee,*),elresf(*),dl(*)
+!
+      integer*4:: i,j
+      real*8  :: val
+
+!     write(*,*) "em subroutine kdbc(eleffm,elresf,dl,nee)"
+!
+      do 200 j=1,nee
+!
+      val=dl(j)
+      if(val.eq.0.0d0) go to 200
+!
+      do 100 i=1,nee
+      elresf(i)=elresf(i)-eleffm(i,j)*val
+100   continue
+!
+200   continue
+!
+      return
+      end subroutine
+!
  end module

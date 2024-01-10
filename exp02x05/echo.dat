@@ -38,13 +38,13 @@ Informacao do sistema de equacoes
 
       number of equations . . . . . . . . . . . . (neq    ) =       12
 
-      number of terms in left-hand-side matrix  . (nalhs  ) =           47
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
 
-      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        3
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        0
 
-      memoria necessaria para a matriz do sistema (Mbytes)  =   0.38E-03
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.00E+00
 
-      Solver escolhido                                      = GaussSkyline                                                                    
+      Solver escolhido                                      = HYPREEsparso                                                                    
 Informacao do sistema de equacoes 
 
 
@@ -52,10 +52,10 @@ Informacao do sistema de equacoes
 
       number of equations . . . . . . . . . . . . (neq    ) =       36
 
-      number of terms in left-hand-side matrix  . (nalhs  ) =          282
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
 
-      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        7
+      mean half bandwidth . . . . . . . . . . . . (meanbw ) =        0
 
-      memoria necessaria para a matriz do sistema (Mbytes)  =   0.23E-02
+      memoria necessaria para a matriz do sistema (Mbytes)  =   0.00E+00
 
-      Solver escolhido                                      = GaussSkyline                                                                    
+      Solver escolhido                                      = HYPREEsparso                                                                    

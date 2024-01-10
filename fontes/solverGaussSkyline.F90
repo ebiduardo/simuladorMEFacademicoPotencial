@@ -16,8 +16,9 @@
 !
 !funcoes e subrotinas
         public :: backns, factns, back, factor
-        public :: diag, load, addnsl, addlhs, addrhs
-        public :: btod, kdbc, pivots, dirichletConditions, btdb, predct, colht
+        !public :: diag, load, addnsl, addlhs, addrhs
+        public :: addnsl, addlhs, addrhs
+        !public :: btod, pivots, dirichletConditions, btdb, predct, colht
 
         public :: coldot
         public :: matadd
@@ -28,30 +29,38 @@
 !
 !**** new **********************************************************************
 !
-       subroutine solverGaussSkyline(estrutSistEq_, simetria_, parte_, label_)
+     subroutine solverGaussSkyline(estrutSistEq_, parte_, label_)
 
-         use mEstruturasDadosSistEq 
+      use mEstruturasDadosSistEq 
 
-         implicit none
+      implicit none
 
        type (estruturasArmazenamentoSistemaEq) :: estrutSistEq_
-       logical, intent(in) :: simetria_
        character(LEN=4), intent(in) :: parte_
        character(LEN=*), intent(in) :: label_
 
-       write(*,*) " em solverGaussSkyline, etapa=", parte_,", simetria=", simetria_
-      !write(*,'(5f10.5)') estrutSistEq_%brhs(1:5)
-      !write(*,'(5f10.5)') estrutSistEq_%brhs(estrutSistEq_%neq-4: estrutSistEq_%neq)
+      write(*,*) " em solverGaussSkyline, etapa=", parte_,", simetria=", estrutSistEq_%simetria
+      !write(*,'(5f10.5)') estrutSistEq_%brhs(:)
+      !write(*,'(3f13.5)') estrutSistEq_%alhs(:)
+      !write(*,'(a,20(1x,i0))') "+++, em solverGaussSkyline, idiag=", estrutSistEq_%idiag(1:estrutSistEq_%neq)
 
-        if(parte_.eq."full".or.parte_.eq."fact") then 
-         if(simetria_) then
+      !write(*,*) "estrutSistEq_%alhs=", estrutSistEq_%alhs(1:10)
+       if(trim(parte_).eq."full".or.trim(parte_).eq."fact") then 
+      !write(*,*) "+++, em solverGaussSkyline, etapa=", parte_
+!      write(*,*) "+++, em solverGaussSkyline, alhs=", estrutSistEq_%alhs
+!      write(*,*) "+++, em solverGaussSkyline, brhs=", estrutSistEq_%brhs
+      !   print*, "estrutSistEq_%simetria =", estrutSistEq_%simetria
+        !stop 2000
+         if(estrutSistEq_%simetria) then
+        !stop 2001
             call factor(estrutSistEq_%alhs,                   estrutSistEq_%idiag,estrutSistEq_%neq)
          else
             call factns(estrutSistEq_%alhs,estrutSistEq_%clhs,estrutSistEq_%idiag,estrutSistEq_%neq)
          endif
         end if
+        !write(*,*) "estrutSistEq_%alhs=", estrutSistEq_%alhs
         if(parte_.eq."full".or.parte_.eq."back") then 
-         if(simetria_) then
+         if(estrutSistEq_%simetria) then
             call back  (estrutSistEq_%alhs,                    estrutSistEq_%brhs,estrutSistEq_%idiag,estrutSistEq_%neq)
          else
             call backns(estrutSistEq_%alhs,estrutSistEq_%clhs, estrutSistEq_%brhs,estrutSistEq_%idiag,estrutSistEq_%neq)
@@ -296,6 +305,8 @@
       integer*4:: jj, jjnext
       integer*4:: jjlast
       real*8  :: ajj, bj
+
+      write(*,'(a)',advance='yes') ' em back '
 !
 !.... forward reduction 
 ! 
@@ -367,12 +378,12 @@
       integer*4:: ii, ij, jj, jlngth, length, iilast, jjnext
       integer*4:: jjlast
       real*8  :: ajj, bj, temp 
-  !    real*8   ::  dot_product
       real*8, external   ::  ddot
 ! 
-!       write(*,*) ' em factor '
+      write(*,'(a)',advance='no') ' em factor,  '
 !     write(*,*) ' a(1:nalhs) =', a(1:nalhs)
-      jj = 0
+!     write(*,*) ' idiag(1:neq) =', idiag(1:neq)
+      jj = 1
       i=0; j=0; jlast=0; icolht=0; jcolht=0; istart=0; jm1=0; jtemp=0;
       ii=0;ij=0;jj=0;jlngth=0;length=0;iilast=0;jjnext=0;jjlast=0;
       ajj=0.0;bj=0.0;temp=0.0;
@@ -434,7 +445,7 @@
       end subroutine
 !
 ! **** new *********************************************************************
-       subroutine addlhsN(alhs,eleffm,lmT, idiag, nee, nel, ldiag,lsym)
+       subroutine addlhsN(alhs,eleffm, idiag, lmT, nee, nel, ldiag,lsym)
 ! 
 ! .... program to add element left-hand-side matrix to
 !         global left-hand-side matrix
@@ -450,8 +461,8 @@
 ! .... deactivate above card(s) for single-precision operation
 ! 
        integer*4:: nee, nel
-       real*8  :: alhs(*),eleffm(nee,nee)
-       integer*4, pointer :: lmT(:,:,:), idiag(:)
+       real*8  :: alhs(*), eleffm(nee,nee)
+       integer*4, pointer :: idiag(:), lmT(:,:,:)
        logical :: ldiag,lsym
 !
        integer*4:: i, j, l, k, m
@@ -468,6 +479,7 @@
 ! 
           do 100 j=1,nee
           k = lm(j)
+          k = abs(lm(j))
           if (k.gt.0) then
              l = idiag(k)
              alhs(l) = alhs(l) + eleffm(j,j)
@@ -478,10 +490,12 @@
 ! 
           do 400 j=1,nee
           k = lm(j)
+          k = abs(lm(j))
           if (k.gt.0) then
 ! 
              do 200 i=1,j
              m = lm(i)
+             m = abs(lm(i))
              if (m.gt.0) then
                 if (k.ge.m) then
                    l = idiag(k) - k + m
@@ -495,12 +509,14 @@
              if (.not. lsym) then
                 do 300 i = j,nee
                 m = lm(i)
+                m = abs(lm(i))
                if (m .gt. 0) then
                  if (k .ge. m) then
                    l = idiag(k) - k + m
                 else
                    l = idiag(m) - m + k
                  endif
+                  alhs(l) = alhs(l) + eleffm(i,j)
                endif
   300         continue
              endif
@@ -508,6 +524,10 @@
   400    continue
 ! 
        endif
+!       write(*,*) eleffm(:,1); write(*,*) eleffm(:,2)
+!       write(*,*) eleffm(:,3); write(*,*) eleffm(:,4)
+!       write(*,*) "nel =", nel, alhs(1:40)
+       !stop
 ! 
        return
        end subroutine
@@ -541,9 +561,9 @@
   100 continue
 !
       return
-      end subroutine
+      end subroutine addrhsN
 ! **** new *********************************************************************
-       subroutine addlhs(alhs,eleffm, lm, idiag, nee,ldiag,lsym)
+       subroutine addlhs(alhs,eleffm, idiag, lm, nee,ldiag,lsym)
 ! 
 ! .... program to add element left-hand-side matrix to
 !         global left-hand-side matrix
@@ -565,16 +585,15 @@
 !
        integer*4:: i, j, l, k, m
        integer*4, save ::  nel = 0
-
        
        nel = nel + 1
 !       write(*,*) "nel =", nel, " lm = ", lm((nel-1)*nee+1:nel*nee)
        if (ldiag) then
 ! 
           do 100 j=1,nee
-          k = lm(j)
+          k = abs(lm(j))
           if (k.gt.0) then
-             l = idiag(k)
+             l = idiag(abs(k))
              alhs(l) = alhs(l) + eleffm(j,j)
           endif
   100     continue
@@ -582,11 +601,12 @@
        else
 ! 
           do 400 j=1,nee
-          k = lm(j)
+          k = abs(lm(j))
           if (k.gt.0) then
 ! 
              do 200 i=1,j
-             m = lm(i)
+             m = abs(lm(i))
+             !write(*,*) "em addlhs, (k,m) = ", k, m
              if (m.gt.0) then
                 if (k.ge.m) then
                    l = idiag(k) - k + m
@@ -615,7 +635,7 @@
        endif
 ! 
        return
-       end subroutine
+       end subroutine addlhs
 !**** new **********************************************************************
       subroutine addrhs (brhs,elresf,lm,nee)
 !
@@ -631,17 +651,21 @@
       integer*4:: nee
 !
       integer*4:: k, j
+!     write(*,'(a,20f8.3)') "em addrhs, elresf =", elresf(1:4);
 !
       do 100 j=1,nee
-      k = lm(j)
+      k = abs(lm(j))
       if (k.gt.0) then 
           brhs(k) = brhs(k) + elresf(j)
-        !  write(*,*) k, brhs(k), j, elresf(j)
+          !brhs(abs(k)) = brhs(abs(k)) + elresf(j)
+!         write(*,'(a,i3,f8.3,i3,f8.3)') "em addrhs, ",  k, brhs(k), j, elresf(j)
       end if
   100 continue
+      !write(*,*) "brhs =", brhs(1:10); stop
+!     write(*,'(a,20f8.3)') "em addrhs, brhs =", brhs(1:10);
 !
       return
-      end subroutine
+      end subroutine addrhs
 
 !**** new **********************************************************************
       function coldot(a,b,n)
@@ -747,14 +771,16 @@
        character (len=*)  :: nomeArq
        logical :: ldiag,lsym
 !
-       integer*4:: i, j, l, k, m, p, eq
-       integer*4::  nel, no, lAnterior, ned, node
-       integer*4:: jjlast, jj, jcolht   
-       integer*4:: luSist = 2000
-       character(len=40), parameter :: formatoEscritaA='(2(i0,1x),e15.8)'
-       character(len=40), parameter :: formatoEscritaB='(e15.8)'
-       character(len=40), parameter :: formatoEscritaC='(e15.8, a)'
-
+      integer*4:: i, j, l, k, m, p, eq
+      integer*4::  nel, no, lAnterior, ned, node
+      integer*4:: jjlast, jj, jcolht   
+      integer*4:: luSist = 2000
+!234567
+      integer*4:: nalhsSemZeros
+      character(len=40), parameter :: formatoEscritaA='(2(i0,1x),e14.7)'
+      character(len=40), parameter :: formatoEscritaAL='(2(i0,1x),e15.8)'
+      character(len=40), parameter :: formatoEscritaB='(e15.8)'
+      character(len=40), parameter :: formatoEscritaC='(e15.8, a)'
 
 ! formato mtx, para o matlab
 !%%MatrixMarket matrix coordinate real symmetric
@@ -764,42 +790,56 @@
 !3 1 -0.3333333333
 !8 1 -0.1666666667
 
-      write(*,*) ' +++, em subroutine escreverSistemaSkylineEmMTX(alhs,idiag,lm,id,ien,nee,nen,numel,numnp)'
-      open(file=nomeArq, unit=luSist) 
+     write(*,*) ' +++, em subroutine escreverSistemaSkylineEmMTX(alhs,idiag,lm,id,...'
+     open(file=nomeArq, unit=luSist) 
+     nalhsSemZeros=idiag(neq)
+     write(*,'(3(i0,1x))')  neq, neq, nalhsSemZeros
+      do i=1,idiag(neq)
+         if(alhs(i) .eq. 0.0d0)  nalhsSemZeros = nalhsSemZeros - 1
+      end do
+     !write(*,'(3(i0,1x))')  neq, neq, nalhsSemZeros
 
      write(luSist,'(a)')'%% matriz A de coeficientes reais simetrica positiva definida ' 
      write(luSist,'(a)')'% produzida pelo metodo classico de galerkin para o metodo de elementos finitos '
-     write(luSist,'(a)')'% armazenamento em skyline '
-     write(luSist,'(a,3(i0,a))') '%  matriz ',neq, 'X',neq, ' com ', idiag(neq), ' coefs armazenados' 
-     write(luSist,'(3(i0,1x))')  neq, neq, idiag(neq)
+     write(luSist,'(2(a,i0))')'% armazenamento em skyline,  matriz ',neq, 'X',neq 
+     write(luSist,'(3(a,i0))') '% ', idiag(neq), ' coefs incluindo zeros e ', nalhsSemZeros, ' removendo os zeros no arquivo'  
+     write(luSist,'(3(i0,1x))')  neq, neq, nalhsSemZeros
+     !write(*,'(3(i0,1x))')  neq, neq, nalhsSemZeros
+     !write(*,'(a,6i3)') "idiag =",  idiag(1:6)
+     !write(*,'(a,6i3)') "idiag =",  idiag(neq-5:neq)
 
-     j = 1; i = 1
-     write(luSist,formatoEscritaA)  j, j-(idiag(j)-i), alhs(i)
-        do j=1,neq
-          jj     = idiag(j)
-          jjlast = jj
-          jcolht = jj - jjlast
-
-          if (jcolht.gt.1) then
-             do i =  jjlast+1, jcolht-1 + jjlast+1
-                write(luSist,formatoEscritaA) j,  j-(idiag(j)-i), alhs(i)
+     k = 0
+   !  write(*,*) "neq =",  neq
+     i = 1; j = i; jj = 1
+     ! write(luSist,formatoEscritaA)  j, j-(idiag(j)-i), alhs(i)
+      write(luSist,formatoEscritaAL) j-(idiag(j)-i), j, alhs(i)
+      do j=2,neq
+       jjlast = jj
+       jj     = idiag(j)
+       jcolht = jj - jjlast
+   !    write(*,*)  "escreverMatrizSkyline, jcolht=",  jcolht
+   !    write(*,*)  "jjlast+1, jcolht-1 + jjlast+1",  jjlast+1, jcolht-1 + jjlast+1
+         !B21052018  if (jcolht.gt.1) then
+             do i =  jjlast+1, jjlast+1 +  jcolht-1 
+                !Bfev23 if(alhs(i) .ne. 0.0d0) then
+                   k = k + 1
+      !            write(luSist,formatoEscritaAL) "  ",  j,  j-(idiag(j)-i), alhs(i)
+                  write(luSist,formatoEscritaAL)  j-(idiag(j)-i), j, alhs(i)
+     !              if (mod(k,50) == 0) write(*,*) j, idiag(j), k
+                   !write(*,formatoEscritaAL)   j-(idiag(j)-i), j, alhs(i)
+                !Bfev23 end if
              end do
-          end if
+          !B21052018 end if
         enddo
-
-        j = j - 1; i = i - 1
+       !j = j - 1; i = i - 1
        ! write(*,*) j,  j -( idiag(j) - i), alhs(i)
-
-   !   write(luSist,'( (a,i0,a))') '% lado direito com ',neq,' elementos' 
-   !   write(luSist,'(  3(i10))' )  neq 
        i = 1
-       write(luSist, formatoEscritaC ) brhs(i), "   BRHS"
+       write(luSist, formatoEscritaC ) brhs(i), "  BRHS"
        do i = 2, neq
-           write(luSist, formatoEscritaB ) brhs(i)
+           write(luSist, formatoEscritaB) brhs(i)
        end do
-
-      close(luSist) 
-
+       close(luSist) 
+     !stop
        return
        end subroutine
 !**** new **********************************************************************
@@ -807,10 +847,10 @@
 
        implicit none
 !
-       integer*4, intent(in)    :: nalhs, neq
+       integer*4, intent(in)  :: nalhs, neq
        real*8,  intent(in)    :: alhs(nalhs), vetX(neq), vetBOriginal(neq)
        real*8,  intent(inout) :: res(neq)
-       integer*4, intent(in)    :: idiag(neq)
+       integer*4, intent(in)  :: idiag(neq)
 !
        real*8  :: vetBcalculado(neq), norma
        integer*4:: i

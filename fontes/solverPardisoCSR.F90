@@ -2,32 +2,26 @@
 
         use mEstruturasDadosSistEq
         
-!         integer*4 pt(64), iparm(64)
-!         REAL*8  dparm(64)
-
-        
         logical :: primeiravezVel
 
       contains
 
 !=======================================================================
 !    
-      subroutine solverPardisoEsparso(estrutSistEq_, simetria, parte, label)
+      subroutine solverPardisoEsparso(estrutSistEq_, parte, label)
 
       use mEstruturasDadosSistEq 
 
       implicit none 
 !
       type (estruturasArmazenamentoSistemaEq) :: estrutSistEq_
-      logical, intent(in) :: simetria
       character(LEN=4), intent(in) :: parte
       character(LEN=*), intent(in) :: label
 
-! ! 
-      call solverPardisoPPD_Nodal(estrutSistEq_%Ap, estrutSistEq_%Ai, estrutSistEq_%alhs, estrutSistEq_%brhs, &
+! 
+        call solverPardisoPPD_Nodal(estrutSistEq_%Ap, estrutSistEq_%Ai, estrutSistEq_%alhs, estrutSistEq_%brhs, &
                      estrutSistEq_%neq, estrutSistEq_%nalhs, estrutSistEq_%pt, estrutSistEq_%iparm,           &
-                     estrutSistEq_%dparm, simetria, parte)
-                         
+                     estrutSistEq_%dparm, estrutSistEq_%simetria, parte)
 
       end subroutine solverPardisoEsparso
 !
@@ -35,20 +29,18 @@
 !  
 
       subroutine solverPardisoPPD_Nodal(ia, ja, a, b, neq, nonzeros, pt, iparm, dparm, simetria, parte)
-
       implicit none
-!
-        INTEGER*4, INTENT(IN)  :: NEQ, NONZEROS
-        INTEGER*4, intent(in)  :: ia(neq+1), ja(nonzeros)
-        REAL*8, INTENT(IN)   :: a(nonzeros)
 
-        REAL*8, INTENT(INOUT):: b(neq)
-        LOGICAL, INTENT(IN)  :: simetria
-        character(LEN=4), INTENT(IN) :: parte
-        
+        INTEGER*4, intent(in)  :: ia(neq+1), ja(nonzeros)
+        REAL*8, INTENT(IN)     :: a(nonzeros)
+        REAL*8, INTENT(INOUT)        :: b(neq)
+        INTEGER*4, INTENT(IN)  :: NEQ, NONZEROS
+
         INTEGER*4, INTENT(INOUT) :: pt(64), iparm(64)        
         real*8, INTENT(INOUT)    :: dparm(64)
-!
+        LOGICAL, INTENT(IN)          :: simetria
+        character(LEN=4), INTENT(IN) :: parte
+
         REAL*8,  save :: ddum
         INTEGER, save :: maxfct, mnum, mtype, phase, nrhs, error,  msglvl
         INTEGER, save :: idum, solver
@@ -115,7 +107,7 @@
         IF (error.EQ.-12 ) WRITE(*,*) 'Wrong username or hostname'
         STOP ' (error .NE. 0) '
       ELSE
-        WRITE(*,*) '[PARDISO]: License check was successful ... '
+  !      WRITE(*,*) '[PARDISO]: License check was successful ... '
       END IF
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! 
@@ -129,9 +121,9 @@
                     idum, nrhs, iparm, msglvl, ddum, ddum, error, dparm)
          call timing(t2)
 
-! #ifdef mostrarTempos
-!          write(*,*) "reordering: ", label, ", tempo de parede = ", t2 - t1
-! #endif
+#ifdef mostrarTempos
+         write(*,*) "reordering, tempo de parede = ", t2 - t1
+#endif
 
       IF (error .NE. 0) THEN
         WRITE(*,*) 'The following ERROR was detected: ', error
@@ -151,9 +143,9 @@
       CALL pardiso (pt, maxfct, mnum, mtype, phase, neq, a, ia, ja,  &
                     idum, nrhs, iparm, msglvl, ddum, ddum, error, dparm) 
       call timing(t2)
-! #ifdef mostrarTempos
-!       write(*,*) "factorization: ", label, ", tempo = ", t2 - t1
-! #endif
+#ifdef mostrarTempos
+        write(*,*) "factorization, tempo de parede = ", t2 - t1
+#endif
 
     IF (error .NE. 0) THEN
        WRITE(*,*) 'The following ERROR was detected: ', error
@@ -161,8 +153,6 @@
     ENDIF 
 
       endif  !     if(parte=='fact'.or. parte=='full') then
-
-
 
 ! 
       if(parte=='back'.or. parte=='full') then
@@ -177,9 +167,9 @@
       CALL pardiso (pt, maxfct, mnum, mtype, phase, neq, a, ia, ja, &
                    idum, nrhs, iparm, msglvl, b, x, error, dparm) 
        call timing(t2)
-! #ifdef mostrarTempos
-!       write(*,*) "backsubstitution: ",label, ", tempo = ", t2 - t1
-! #endif
+#ifdef mostrarTempos
+      write(*,*) "backsubstitution, tempo de parede = ", t2 - t1
+#endif
 
        call timing(tt2)
 ! #ifdef mostrarTempos
@@ -215,66 +205,10 @@
       end subroutine 
 
 !
+
 ! **** new *********************************************************************
 !
-       subroutine addlhsCSR01(estrutSistEq_,eleffm, lm, nee )
-! 
-! .... program to add element left-hand-side matrix to
-!         global left-hand-side matrix
-! 
-! 
-       implicit none
-! 
-! .... deactivate above card(s) for single-precision operation
-! 
-       type (estruturasArmazenamentoSistemaEq) :: estrutSistEq_  
-       real*8  :: eleffm(:,:)
-       integer*4:: nee
-       integer*4, intent(in):: lm(nee)
-       
-       integer*4:: i, j, linha, coluna
-       integer*4:: inicio, fim, jj
-       integer, pointer :: lmT(:,:,:)
-
-! 
-!      nel = nel + 1 ! ? por que nao passar o parametro nel?
-                     !  resposta: esta é uma variavel auxiliar
-      ! nee = size(estrutSistEq_%lm,1)*size(estrutSistEq_%lm,2)
-      ! allocate (lm(nee))
-       !lm(:)=reshape(estrutSistEq_%lm(:,:,nel),(/nee/))
-       !nee = size(eleffm,1) 
-       
-    !   lm(:) =reshape(lmT(:,:,nel),(/nee/)); 
-
-       do j=1,nee
-          coluna = lm(j)
-          if (coluna.gt.0) then
-             do i=1,nee
-                linha = lm(i)
-                if (linha.gt.0) then
-                   inicio=estrutSistEq_%Ap(coluna)
-                   fim=estrutSistEq_%Ap(coluna+1)-1
-                   do jj=inicio, fim
-                      if(estrutSistEq_%Ai(jj)==linha) then
-              !          write(500 , '(3i3,e15.5)', advance='NO') nel, linha, jj, alhs(jj)
-                         estrutSistEq_%alhs(jj)= estrutSistEq_%alhs(jj)+eleffm(i,j)
-              !          write(500 ,'(2e15.5)')  eleffm(i,j), alhs(jj)
-                      endif
-                   enddo
-                endif
-             enddo
-          endif
-       enddo
-! 
-       return
-       end subroutine addlhsCSR01
-       
-       
-       
-!
-! **** new *********************************************************************
-!
-       subroutine addlhsCSR(alhs,eleffm,lm,Ap,Ai,nee)
+       subroutine addlhsCSR(alhs,eleffm,Ap,Ai,lm,nee)
 ! 
 ! .... program to add element left-hand-side matrix to
 !         global left-hand-side matrix
@@ -290,29 +224,34 @@
 !
        integer :: i, j, linha, coluna
        integer :: inicio, fim, jj
+       character(40) :: formatoALHS
+       formatoALHS = "(10f8.4)"
 ! 
-!      write(*,*) "em addlhsCSR00"
-          do 400 j=1,nee
-          coluna = lm(j)
+     !write(*,*) "em addlhsCSR, lm =  ", lm(1:nee)
+     !write(*,formatoALHS) eleffm(1,1:nee)
+     !write(*,formatoALHS) eleffm(2,1:nee)
+     !write(*,formatoALHS) eleffm(3,1:nee)
+     !if(nee==4) write(*,formatoALHS) eleffm(4,1:nee)
+          do   j=1,nee
+          coluna = abs(lm(j))
           if (coluna.gt.0) then
-! 
-             do 200 i=1,nee
-             linha = lm(i)
-
+             do i=1,nee
+             linha = abs(lm(i))
              if (linha.gt.0) then
-
                 inicio=Ap(coluna)
                 fim=Ap(coluna+1)-1
                  do jj=inicio, fim
                       if(Ai(jj)==linha) then
                           alhs(jj)= alhs(jj)+eleffm(i,j)
+                          !write(*,'(3(1x,i0), 2e10.3)') i, j, jj, eleffm(i,j), alhs(jj)
                       endif
                  enddo
              endif
-  200       continue
+           enddo
 ! 
           endif
-  400    continue
+      enddo
+!     write(*,formatoAlhs) "em addlhsCSR, alhs =  ",alhs(1:6)
 ! 
        return
        end subroutine addlhsCSR

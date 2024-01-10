@@ -22,32 +22,34 @@
 !
 !**** new **********************************************************************
 !
-      subroutine montarSistEqAlgFluxo(optsolver_, estrutSistEqF_, estrutSistEqP_)
+      subroutine montarSistEqAlgFluxo(estrutSistEqF_, estrutSistEqP_)
+      type (estruturasArmazenamentoSistemaEq) :: estrutSistEqF_, estrutSistEqP_
+      call montarSistEqAlgFluxo0(estrutSistEqF_%optsolver, estrutSistEqF_, estrutSistEqP_)
+      end subroutine montarSistEqAlgFluxo
+
+      subroutine montarSistEqAlgFluxo0(optsolver_, estrutSistEqF_, estrutSistEqP_)
 !
       use mMalha,              only: x, conecNodaisElem, numel, nen, nsd, numnp
       use mUtilSistemaEquacoes,only: load, dirichletConditions
 !
       implicit none
 !
-      character(len=*), intent(in) :: optSolver_
-      type (estruturasArmazenamentoSistemaEq) :: estrutSistEqF_, estrutSistEqP_
+      character(len=*), intent(in                          ) :: optSolver_
+      type (estruturasArmazenamentoSistemaEq), intent(inout) :: estrutSistEqF_, estrutSistEqP_
 
       real*8 :: t1, t2, t3
-
-      print*, " ..... montando sistema de equacoes da fluxo"
+      print*, " ..... montando sistema de equacoes de fluxo"
       write(*,*) estrutSistEqF_%ndof, estrutSistEqF_%nalhs, estrutSistEqF_%neq 
-
       if (estrutSistEqF_%nlvect.gt.0) call load                (estrutSistEqF_%id,estrutSistEqF_%f,estrutSistEqF_%brhs,&
                                 estrutSistEqF_%ndof,numnp,estrutSistEqF_%nlvect)
       if (estrutSistEqF_%nlvect.gt.0) call dirichletConditions (estrutSistEqF_%id,estrutSistEqF_%u,estrutSistEqF_%f,&
                                 estrutSistEqF_%ndof,numnp,estrutSistEqF_%nlvect)
 ! 
       call timing(t1)
-      write(*,*) "call calcCoefSistAlgFluxo(..."
       call calcCoefSistAlgFluxo(optSolver_, estrutSistEqF_, estrutSistEqP_, x, conecNodaisElem, numnp, numel, nen, nsd )
       call timing(t2)
       write(*,*) " calculo dos coeficientes, tempo = ", t2 - t1
-      end subroutine montarSistEqAlgFluxo
+      end subroutine montarSistEqAlgFluxo0
 !
 !**** new **********************************************************************
 !
@@ -55,15 +57,15 @@
 
       use mGlobaisEscalares,  only: zero, one, two, four, npint, nrowsh
       use mGlobaisArranjos,   only: mat, c, grav
-      use mfuncoesDeForma,    only: oneshl, oneshg, shlt, shlq, shgq,shlq3d, shg3d
+      use mfuncoesDeForma,   only: oneshl, oneshg, shlt, shlq3d, shg3d, shgq, shlq, shlt3D
       use mmalha,             only: local
 
-      use mUtilSistemaEquacoes,      only: kdbc 
+      use mUtilSistemaEquacoes,      only: kdbcF
 
       use mSolverGaussSkyline, only: addrhs, addlhs
-      use mSolverPardiso,    only: addlhsCSR, addlhsCSR01
-      use mSolverHypre,      only: addnslHYPRE, atribuirValoresVetor_HYPRE, adicionarValoresVetor_HYPRE
-      use mSolverHypre,       only: fecharMatriz_HYPRE, fecharVetor_HYPRE
+      use mSolverPardiso,    only: addlhsCSR!, addlhsCSR01
+      use mSolverHypre,      only: addnslHYPRE, atribuirValoresVetorHYPRE, adicionarValoresVetorHYPRE
+      use mSolverHypre,       only: fecharMatrizHYPRE, fecharVetorHYPRE
 
 
       implicit none
@@ -90,6 +92,7 @@
 
 
 !
+      print*, " em calcCoefSistAlgFluxo, nen =", nen
       !write(*,*) (i,  brhs(i), i=1,neq); stop
       pi  =four*datan(one)
       dpi =two*pi
@@ -104,6 +107,7 @@
       if(nen==2) call oneshl(shl,w,npint,nen) 
       if(nen==3) call shlt  (shl,w,npint,nen)
       if(nen==4) call shlq  (shl,w,npint,nen)
+      if(nen==4.and.nsd==3) call shlt3D(shl,w,npint,nen)
       if(nen==8) call shlq3d(shl,w,npint,nen)
 !
 !      consistent matrix
@@ -138,15 +142,21 @@
 !
       if(nen==2) call oneshg(xl,det,shl,shg,nen,npint,nsd,um,nel,um)
       if(nen==3) call shgq (xl,det,shl,shg,npint,nel,quad,nen)
-      if(nen==4) call shgq (xl,det,shl,shg,npint,nel,quad,nen)
+      if(nen==4.and.nsd==2) call shgq (xl,det,shl,shg,npint,nel,quad,nen)
+      if(nen==4.and.nsd==3) call shg3d (xl,det,shl,shg,npint,nel,nen)
       if(nen==8) call shg3d(xl,det,shl,shg,npint,nel,nen)
 !
       h2=zero
       if(nen==2) h2=h2+(xl(1,2)-xl(1,1))**2+(xl(2,2)-xl(2,1))**2
 
-      if(nen==4) then
+      if(nsd==2.and.nen==4) then
          h2=xl(1,2)*xl(2,3)+xl(1,1)*xl(2,2)+xl(1,3)*xl(2,1) &
            -xl(1,1)*xl(2,3)-xl(1,2)*xl(2,1)-xl(1,3)*xl(2,2)
+      endif
+
+      if(nsd==3.and.nen==4) then
+         h2=h2+(xl(1,1)-xl(1,2))**2+(xl(2,1)-xl(2,4))**2
+         h2=h2+(xl(3,1)-xl(3,4))**2 
       endif
 
       if(nen==8) then
@@ -161,6 +171,7 @@
       delta1 = 1.0
       delta2 = 1.0
       delta = delta1*(h)**delta2
+      delta = 1.0
       deltax = delta
       deltay = delta
       if(nsd==3) deltaz = delta
@@ -256,29 +267,27 @@
       lmLocal(:)=reshape(estrutSistEqF_%lm(:,:,nel),(/nee/))
       lsym=.true.
       if (optSolver_=='GaussSkyline')   then
-         call addlhs   (estrutSistEqF_%alhs, eleff, lmLocal, estrutSistEqF_%idiag, nee, diag, lsym) 
+         call addlhs   (estrutSistEqF_%alhs, eleff, estrutSistEqF_%idiag, lmLocal, nee, diag, lsym) 
       endif
       if (optSolver_=='PardisoEsparso') then
         ! call addlhsCSR01 (estrutSistEqF_, eleff, nee) 
-         call addlhsCSR   (estrutSistEqF_%alhs, eleff, lmLocal, estrutSistEqF_%Ap, estrutSistEqF_%Ai,  nee)
+         call addlhsCSR   (estrutSistEqF_%alhs, eleff, estrutSistEqF_%Ap, estrutSistEqF_%Ai, lmLocal,  nee)
       endif
       if (optSolver_=='HYPREEsparso')   then
-      !   call addnslHYPRE01 (estrutSistEqF_, eleff, nel)   
-          call addnslHYPRE   (estrutSistEqF_%A_HYPRE, eleff, lmLocal, estrutSistEqF_%idiag, nee, diag, lsym)
+          call addnslHYPRE   (estrutSistEqF_%A_HYPRE, eleff, estrutSistEqF_%idiag, lmLocal, nee, diag, lsym)
       endif
       call addrhs     (estrutSistEqF_%brhs, elref, lmLocal, nee)
 
   500 continue
   
       if (optSolver_=='HYPREEsparso')   then
-       do i = 1, estrutSistEqP_%neq
-           estrutSistEqP_%rows(i) = i-1
+       do i = 1, estrutSistEqF_%neq
+           estrutSistEqF_%rows(i) = i
        end do
-      !call atribuirValoresVetor_HYPRE(estrutSistEqF_%b_HYPRE, 1, estrutSistEqF_%neq, estrutSistEqF_%rows, estrutSistEqF_%brhs)
-      call adicionarValoresVetor_HYPRE(estrutSistEqF_%b_HYPRE, 1, estrutSistEqF_%neq, estrutSistEqF_%rows, estrutSistEqF_%brhs)
-         call fecharMatriz_HYPRE            (estrutSistEqF_%A_HYPRE, estrutSistEqF_%parcsr_A)
-         call fecharVetor_HYPRE             (estrutSistEqF_%b_HYPRE, estrutSistEqF_%par_b   )
-         call fecharVetor_HYPRE             (estrutSistEqF_%u_HYPRE, estrutSistEqF_%par_u   )
+      call adicionarValoresVetorHYPRE(estrutSistEqF_%b_HYPRE, 1, estrutSistEqF_%neq, estrutSistEqF_%rows, estrutSistEqF_%brhs)
+         call fecharMatrizHYPRE            (estrutSistEqF_)  !%A_HYPRE)
+         call fecharVetorHYPRE             (estrutSistEqF_) !%b_HYPRE)
+         call fecharVetorHYPRE             (estrutSistEqF_)  !%u_HYPRE)
 
       endif
 

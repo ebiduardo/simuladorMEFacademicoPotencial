@@ -24,7 +24,6 @@
       integer*4:: nsd, numel, numnp, nen
       integer*4:: numConexoesPorElem 
 
-
 !
 !     funcoes e subrotinas
       public :: nconec
@@ -96,7 +95,7 @@
 !$OMP END PARALLEL DO
 
        do i=1, numnp
-       write(ilistaDosElemsPorNo) listaDosElemsPorNo(1:nen,i)
+       write(ilistaDosElemsPorNo,*) listaDosElemsPorNo(1:nen,i)
        end do
 !      write(ilistaDosElemsPorNo,*), listaDosElemsPorNo ! teste com arq.formatado
 !      write(ilistaDosElemsPorNo), listaDosElemsPorNo ! teste com arq.nao-formatado
@@ -617,5 +616,118 @@
       end do
     
       end subroutine
+
+      subroutine criarListaVizinhosCRS00(nen,numnp,numel,conecElem,nVizinMax)
+      implicit none
+!     Objetivo: cria a matriz listaDosElemsPorNo: .... indices dos elementos que possuem o no
+      integer nen,numnp,numel,nVizinMax
+      integer, dimension(nen,numel)  :: conecElem
+      integer, allocatable  :: listaDosElemsPorNo(:,:)!(nVizinMax,numnp)
+      integer :: no,nel,l,numVizAtual, i, j, cont, noElemento
+      integer :: listaNumVizPorNo(numnp)
+      !
+      listaNumVizPorNo=0
+      do nel=1, numel
+         do l=1, nen
+            no=conecElem(l,nel)
+            listaNumVizPorNo(no)=listaNumVizPorNo(no)+1
+          end do
+      end do
+
+      nVizinMax=maxval(listaNumVizPorNo)
+      print*, "nVizinMax=", nVizinMax, ", em noh ...", maxloc(listaNumVizPorNo)
+      
+      allocate(listaDosElemsPorNoCSR(nVizinMax, numnp))
+      listaDosElemsPorNoCSR = 0 
+
+      listaNumVizPorNo=0
+      do nel=1, numel
+         do l=1, nen
+            no=conecElem(l,nel)
+            listaNumVizPorNo(no) = listaNumVizPorNo(no) + 1 
+            listaDosElemsPorNoCSR(listaNumVizPorNo(no),no) = nel
+         end do
+      end do
+
+      do nel=1, numnp
+            write(*,'(a,i0,1x,50(1x,i0))' ) "listaVizinhos do noh ", nel,  listaDosElemsPorNoCSR(:,nel) 
+      end do
+
+!       stop
+!    
+      end subroutine criarListaVizinhosCRS00
+
+
+      subroutine criarListaVizinhosCRS(nen,numnp,numel,conecElem,nVizinMax)!,lmStencilEq, neq)
+      implicit none
+!     Objetivo: cria a matriz listaDosElemsPorNo: .... indices dos elementos que possuem o no
+      integer nen,numnp,numel,nVizinMax
+      integer, dimension(nen,numel)  :: conecElem
+      integer, allocatable  :: listaDosElemsPorNo(:,:)!(nVizinMax,numnp)
+      integer, allocatable  :: lmStencilEq(:,:) !(nVizinMax,numnp)
+      integer :: no,nel,l,numVizAtual, i, j, cont, noElemento, elemViz
+      integer :: listaNumVizPorNo(numnp)
+
+      write(*,*) "em subroutine criarListaVizinhosCRS(nen,numnp,numel,conecElem,nVizinMax)"
+      listaNumVizPorNo=0
+      nVizinMax=0
+      do nel=1, numel
+         do l=1, nen
+            cont=0
+           no=conecElem(l,nel)
+           listaNumVizPorNo(no)=listaNumVizPorNo(no)+1
+          end do
+      end do
+
+      nVizinMax=maxval(listaNumVizPorNo)
+      !print*, "nVizinMax=", nVizinMax
+      print*, "nVizinMax=", nVizinMax, ", em noh ...", maxloc(listaNumVizPorNo)
+      allocate(listaDosElemsPorNo(nVizinMax+1, numnp))
+      listaDosElemsPorNo = 0
+      do nel=1, numel
+         do l=1, nen
+            no=conecElem(l,nel)
+            listaDosElemsPorNo(nVizinMax+1,no) = listaDosElemsPorNo(nVizinMax+1,no) + 1 
+            numVizAtual                        = listaDosElemsPorNo(nVizinMax+1,no)
+            !numVizAtual = listaDosElemsPorNo(nVizinMax+1,no) + 1 
+            !listaDosElemsPorNo(nVizinMax+1,no) = numVizAtual
+            listaDosElemsPorNo(numVizAtual,no) = nel
+         end do
+      end do
+
+      allocate(listaDosElemsPorNoCSR(nVizinMax, numnp))
+!      allocate(lmStencilEq(nVizinMax, neq))
+
+      do no=1, numnp
+            listaDosElemsPorNoCSR(:,no)=listaDosElemsPorNo(1:nVizinMax,no)
+      end do
+      do no=1, numnp
+      !      write(*,'(a,i0,1x,a,50(1x,i0))' ) "listaVizinhos do noh ", no, " ...",   listaDosElemsPorNoCSR(1:listaNumVizPorNo(no),no) 
+      end do
+    !B1  no = 9
+    !B1  do nel= 1, listaNumVizPorNo(no)
+    !B1       elemViz= listaDosElemsPorNoCSR(nel,no) 
+    !B1       write(*,*) no, elemViz, conecElem(:,elemViz)
+    !B1  end do
+!      stop
+      deallocate(listaDosElemsPorNo)
+      end subroutine
+
+subroutine ordenarLMstencil(LMstencilEq,numCoefPorLinha)
+  implicit none
+  integer*4,  intent(in)    :: numCoefPorLinha
+  integer*4,  intent(inout) :: LMstencilEq(numCoefPorLinha)
+  integer*8 :: menorEq, n, nn , tmp
+  do n = 1, numCoefPorLinha
+    menorEq=n
+    do nn = n+1, numCoefPorLinha
+       if(abs(LMstencilEq(nn))<abs(LMstencilEq(menorEq))) menorEq = nn
+    end do
+    if(n == menorEq) cycle
+    tmp                  = LMstencilEq(n)
+    LMstencilEq(n)       = LMstencilEq(menorEq)
+    LMstencilEq(menorEq) = tmp
+  enddo
+end subroutine ordenarLMstencil
 
       end module

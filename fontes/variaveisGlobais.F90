@@ -17,9 +17,10 @@
 !
         integer*4, allocatable :: npar(:)
         real*8               :: etime(6)
-        character*4          :: title(20)
+        character(len=80)    :: title
         integer*4, allocatable :: mat(:)
         real*8,  allocatable :: grav(:), bf(:,:), c(:,:)
+        logical :: listaSolverDisponivel(3)
 
       end module ! mGlobaisArranjos
 
@@ -34,9 +35,12 @@
         real*8, parameter  :: four=4.0d0, five=5.0d0, six=6.0d0
         real*8, parameter  :: pt1667=0.1666666666666667d0
         real*8, parameter  :: one=1.0d0, two=2.0d0, three=3.0d0
+        real*8, parameter  :: pt8=0.8d0
+        real*8, parameter  :: pt45=0.45d0
+        real*8, parameter  :: pi=3.14159265359
+
         integer*4:: id0
-        character(len=10)  :: optSolver
-!        integer*4 :: mpi_comm
+        integer*4:: optSolver
 
       end module mGlobaisEscalares
 

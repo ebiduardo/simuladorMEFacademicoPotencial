@@ -14,16 +14,21 @@
 !
       module mLeituraEscrita
 !
-      implicit none
+!      implicit none
 !
       integer*4:: iin, iecho, icoords, iconects, iconectsL
-      integer*4:: ignuplotPotencial, ignuplotFluxo, iparaview
+      integer*4:: ignuplotPotencial, ignuplotFluxo
+      integer*4 :: iparaview
+      integer*4 :: iparaviewPotencial, iparaviewFluxo, iparaviewPerm, iparaviewMat
+      integer*4:: tipo_arq_saida, passosPorImpressao
+      logical :: plotProfundidade
 !
 !     funcoes e subrotinas
       public :: echo, leituraValoresCondContorno, leituraGeracaoCoordenadas
       public :: printf, printd, printp, prntel
       public :: printResultado, prtgnup, prtvB
       public :: escreverArqParaview, escreverPontosNodais, escreverConectividades
+      public :: escreverArquivosSaida_Potencial, escreverArquivosSaida_Fluxo
       public :: escreverTiposElementos, escreverEscalaresNodais
       public :: leituraGeracaoConectividades
       public :: genel1
@@ -268,48 +273,51 @@
       logical pflag
 !
       id(1:ndof,1:numnp) = 0
-      call igen(id,ndof, iin)
+      call igen(id, ndof, iin)
 !
       if (iprtin.eq.0) then
          nn=0
-         do 200 n=1,numnp
+         do n=1,numnp
          pflag = .false.
 !
-         do 100 i=1,ndof
+         do  i=1,ndof
          if (id(i,n).ne.0) pflag = .true.
     !       !print*, i, 'id =',  id(i,n)
-  100    continue
+         end do 
 !
          if (pflag) then      
             nn = nn + 1
             if (mod(nn,50).eq.1) write(iecho,1000) (i,i=1,ndof)
             write(iecho,2000) n,(id(i,n),i=1,ndof)
          endif
-  200    continue
+       end do 
       endif
-!
 !.... establish equation numbers
-!
       neq = 0
-!
-      do 400 n=1,numnp
-!
-      do 300 i=1,ndof
+      do  n=1,numnp
+      do  i=1,ndof
       if (id(i,n).eq.0) then
          neq = neq + 1
          id(i,n) = neq
       else
          id(i,n) = 1 - id(i,n)
       endif
+      end do 
+      end do 
+      print *, "id =", id
+      stop
 
-!
-  300 continue
-!
-  400 continue
+      do  n=1,numnp
+      do  i=1,ndof
+      if (id(i,n).ne.0) then
+         id(i,n) = neq - id(i,n) + 1
+      else
+      endif
+      end do 
+      end do 
+      print *, "id =", id
 
-!
       return
-!
  1000 format('1',' n o d a l   b o u n d a r y   c o n d i t i o n & 
               c o  d e s'/// &
       5x,' node no.',3x,6(6x,'dof',i1:)//)
@@ -436,7 +444,7 @@
             if (j.eq.0) write(iecho,1000) nlv
             if (j.eq.1) write(iecho,2000)
          else
-            if (j.eq.0) call printf(f,ndof,numnp,nlv)
+            if (j.eq.0) call printf(f,ndof,numnp,nlv, iecho)
 !
             if (j.eq.1) then
                rotulo=" n o d a l  b o d y  f o r c e s  "
@@ -455,7 +463,7 @@
       end subroutine
 
 !**** new **********************************************************************
-      subroutine printf(f,ndof,numnp,nlv)
+      subroutine printf(f,ndof,numnp,nlv, iecho)
 !
 !.... program to print prescribed force and boundary condition data
 !
@@ -463,7 +471,7 @@
 !
 !.... remove above card for single precision operation
 !
-      integer*4 :: ndof, numnp, nlv
+      integer*4 :: ndof, numnp, nlv, iecho
       real*8 :: f(ndof,numnp,*)
 !
       logical lzero
@@ -575,10 +583,12 @@
 !
       if(tipo==1) then
 	write(iconects,*) "# Conectividades nodais"
+        write(*,*) "em prntel, Conectividades nodais, nen=", nen
 	do n=1,numel
 	  write(iconects,2000) n,mat(n),(conectElem(i,n),i=1,nen)
 	end do
       end if
+  !      stop
 
       if(tipo==2) then
 	write(iconectsL,*) "# Conectividades ladais"
@@ -655,234 +665,7 @@
 !
  2000 format(6(1pe13.6,2x))
       end subroutine
-!**** new **********************************************************************
-    subroutine escreverArqParaview(campo, dim1, dim2, nen, conectElem, tipo, rotulo, tamRot)
-    use mMalha, only: x, nsd, numel
 
-    implicit none
-    integer*4, intent(in) :: dim1, dim2
-    double precision, intent(in) :: campo(dim1, dim2)
-    integer*4:: nen
-    integer*4:: conectElem(nen,numel)
-    integer*4:: tipo  !tipo=1 para elemento, e tipo=2 para no
-    integer*4:: tamRot
-
-    character(len=tamRot) :: rotulo
-    
-    write(iparaview,'(a)')'# vtk DataFile Version 3.0'
-    write(iparaview,'(a)')'vtk output'
-    write(iparaview,'(a)')'ASCII'
-    write(iparaview,'(a)')'DATASET UNSTRUCTURED_GRID'
-    write(iparaview,'(a,i10,a)')'POINTS', dim2,' float '
-
-    call escreverPontosNodais  (x, dim2, nsd)
-! 
-    write(iparaview,'(a,i10,i10)')'CELLS', numel , (nen+1) * numel
-    call escreverConectividades(conectElem, numel, nen, nsd)
-! 
-    write(iparaview,'(a,i10)')'CELL_TYPES ', numel
-    call escreverTiposElementos(numel, nsd)
-! 
-
-    if(tipo==1) write(iparaview,'(a,i10)')'CELL_DATA ', numel
-
-    if(tipo==2) write(iparaview,'(a,i10)')'POINT_DATA',  dim1*dim2
-
-    write(iparaview,'(3a)')'SCALARS ', trim(rotulo), ' float '
-    write(iparaview,'(a)')'LOOKUP_TABLE default'
-
-    call escreverEscalaresNodais(campo, dim1, dim2,rotulo,tamRot)
-
-    end subroutine escreverArqParaview
-
-!**** new **********************************************************************
-      subroutine escreverPontosNodais  (coords, numnp, nsd)
-      implicit none
-      integer*4, intent(in) :: numnp, nsd
-      real*8,  intent(in) :: coords(nsd,numnp)
-!
-      real*8  :: coordZ = 0.0 
-      integer*4:: d, i
-!
-      if(nsd==2) then
-	  do i=1,numnp
-	      write(iparaview,'(3(1x, 1pe15.8))') (coords(d,i),d=1,nsd), coordZ 
-	  end do
-      end if
-
-      if(nsd==3) then
-	  do i=1,numnp
-	      write(iparaview,'(3(1x, 1pe15.8))') (coords(d,i),d=1,nsd)
-	  end do
-      end if
-      end subroutine escreverPontosNodais
-
-
-!**** new **********************************************************************
-      subroutine escreverConectividades(conectElem, numel, nen, nsd)
-      implicit none
-      integer*4, intent(in)  :: numel, nen, nsd
-      integer*4, intent(in)  :: conectElem(nen,numel)
-!
-      integer*4 n, i
-!
-      if(nsd==2) then
-	do  n=1,numel
-	  write(iparaview,'(i10,9(2x,i10))') nen, (conectElem(i,n)-1, i = 1, nen) 
-	end do
-      end if
-
-      if(nsd==3) then
-	do  n=1,numel
-	  write(iparaview,'(i10,18(2x,i10))') nen, (conectElem(i,n)-1, i = 1, nen) 
-	end do
-      end if
-
- end subroutine escreverConectividades
-
-!**** new **********************************************************************
-      subroutine escreverTiposElementos(numel, nsd)
-      implicit none
-      integer*4, intent(in)   :: numel, nsd
-!
-      integer*4:: i
-!
-      if(nsd==2) then
-	do  i =1,numel
-	  write(iparaview,'(a)') '9'!trim(adjustl(tipo))
-	end do
-      end if 
-!
-      if(nsd==3) then
-	do  i =1,numel
-	  write(iparaview,'(a)') '12'!trim(adjustl(tipo))
-	end do
-      end if 
-      end subroutine escreverTiposElementos
-
-!**** new **********************************************************************
-      subroutine escreverEscalaresNodais(v, tam1, tam2, rotulo, tamRot)
-      implicit none
-      integer*4, intent(in)  :: tam1,tam2
-      real*8, intent(in)   :: v(tam1,tam2)
-      integer*4:: tamRot
-      character(len=tamRot) :: rotulo
-!
-      character(len=tamRot+5) ::  rotuloN
-      integer*4:: i,j
-      character(len=5):: eixo
-      real*8 :: limite
-
-      limite=1.e-20
-      do i=1,tam1
-
-!        if(i>1) then
-           write(eixo,'(i0)') i
-           if(rotulo.ne.'potencial') then
-           rotuloN=trim(rotulo)//'Dir'//trim(eixo)
-           write(iparaview,'(3a)')'SCALARS ', trim(rotuloN), ' float '
-           write(iparaview,'(a)')'LOOKUP_TABLE default'
-           endif
-!        endif
-
-        do j=1, tam2
-             write(iparaview,*) v(i,j)
-        end do
-       
-      end do
-
-      end subroutine escreverEscalaresNodais
-
-!**** new **********************************************************************
-
-    subroutine escreverArqParaviewIntermed(campo, dim1, dim2, rotulo, tamRot)
-    use mMalha, only: x, nsd, numel, numnp
-
-    implicit none
-    integer*4, intent(in) :: dim1, dim2
-    double precision, intent(in) :: campo(dim1, dim2)
-
-    integer*4:: tamRot
-    character(len=tamRot) :: rotulo
-
-     if(rotulo.ne.'velocidade') then
-     write(iparaview,'(3a)')'SCALARS ', trim(rotulo), ' float '
-     write(iparaview,'(a)')'LOOKUP_TABLE default'
-     endif
-
-     call escreverEscalaresNodais(campo, dim1, dim2, rotulo, tamRot)
-
-     end subroutine escreverArqParaviewIntermed
-
-
-!**** new **********************************************************************
-! *** BEGIN -- ROTINA PARA ESCREVER MALHA PARA O PARAVIEW (AUTOR: KADU/PROMEC 06/2011)
-
-    subroutine escreverArqParaview_geo()
-
-    use mMalha, only: x, conecNodaisElem, nsd, numel, numnp
-
-    implicit none
-    integer*4:: i , iparaview_geo  
-
-      iparaview_geo  = 31
-      open(unit=iparaview_geo , file= 'modelo.geo')
-
-      write(iparaview_geo,'(a)')'Title1'
-      write(iparaview_geo,'(a)')'Title2'
-      write(iparaview_geo,'(a)')'node id given'
-      write(iparaview_geo,'(a)')'element id given'
-      write(iparaview_geo,'(a)')'coordinates'
-      write(iparaview_geo,'(i8)')  numnp
-
-      do i = 1, numnp
-      WRITE (iparaview_geo,'(I8,3E12.5)') I,x(1,i),x(2,i),0.d0
-      enddo
-
-      WRITE (iparaview_geo,'(A,/,A,/,A,/,I8)')                     &
-                                'part 1'           ,    &
-                                'malha'            ,    &
-                                'quad4'            ,    &
-                                 numel
-
-
-      WRITE (iparaview_geo,'(5I8)')  (I,conecNodaisElem(1,i),conecNodaisElem(2,i),conecNodaisElem(3,i), &
-                                                      conecNodaisElem(4,i),i=1, numel ) 
-
-     end subroutine escreverArqParaview_geo
-
-
-!**** new **********************************************************************
-! *** BEGIN -- ROTINA PARA ESCREVER ESCALAR POR ELEMENTO PARA O PARAVIEW (AUTOR: KADU/PROMEC 06/2011)
-
-    subroutine escreverArqParaview_res(campo, ndim , npasso, var)
-
-    implicit none
-    integer*4, intent(in) :: ndim, npasso
-    double precision, intent(in) :: campo(ndim)
-    character*1, intent(in) :: var
-
-    integer*4:: i
-    character*30 :: filename
-    integer*4, parameter :: iparaview_res=41
-
-    write (filename(1:3),'(i3.3)') npasso
-    if (var=='p') write (filename,'(a)')   'potencial'//'.'//filename(1:3)
-    if (var=='s') write (filename,'(a)') 'saturation'//'.'//filename(1:3)
-
-    open  (unit=iparaview_res,file=filename,form='formatted')
-
-       write (iparaview_res,'(a,i5,1x,a)') 'Ensight Escalar passo ',npasso
-       write (iparaview_res,'(a/a)') 'part 1','quad4' 
-       write (iparaview_res,'(1p,6e12.5)') (campo(i),i=1,ndim)
-
-    close  (unit=iparaview_res)
-
-
-    end subroutine escreverArqParaview_res
-
-
-!
 !=======================================================================
 !     
       subroutine prt(nen,nsd,numel,conectElem,t0,u,iunit)
@@ -1034,7 +817,8 @@
 !
       ignuplotPotencial = 30
       ignuplotFluxo   = 31
-      iparaview       = 32
+      iparaviewPotencial = 32
+      iparaviewFluxo= 33
 !
       nomeIn='input.dat'
       if(comDS_.eqv..true.) nomeIn='inputDS.dat'
@@ -1047,9 +831,6 @@
       open(unit=icoords   ,file= 'coordenadas.dat')
       open(unit=iconects  ,file= 'conectsNodais.dat')
 !
-      open(unit=ignuplotPotencial ,file= 'resultadoP.dat')
-      open(unit=ignuplotFluxo     ,file= 'resultadoF.dat')
-      open(unit=iparaview ,file= 'resultado.vtk')
 
       return 
 
@@ -1069,7 +850,854 @@
       close(iconects )
       close(ignuplotPotencial )
       close(ignuplotFluxo   )
-      close(iparaview)
+      close(iparaviewPotencial)
+      close(iparaviewFluxo)
     end subroutine fecharArquivos
+
+   subroutine escreverArquivosSaida_Potencial(estrutSistEqP, passoTempo, tempo)
+         use mEstruturasDadosSistEq, only: estruturasArmazenamentoSistemaEq
+         !use mMalha, only: nsd, numelFratura, numnpFratura, numnp, nen
+         !use mMalha, only: conecNodaisElem, conecNodaisFratura,nosFratura_impressao_global
+         use mMalha, only: nsd, numnp, nen
+         use mMalha, only: conecNodaisElem
+
+         type(estruturasArmazenamentoSistemaEq), intent(in) :: estrutSistEqP
+         integer, intent(in) :: passoTempo
+         real*8, intent(in) :: tempo
+         
+        ! real*8 :: pressao(2,numnpFratura), pressaoF(numnpFratura), saltoP(numnpFratura)
+         integer :: cont, no, i
+
+         character(21) :: labelTempo
+
+         tipo_arq_saida=1
+         if (tipo_arq_saida == 1) then
+         
+             call escreverArquivoVTU_Pressao(estrutSistEqP%u, estrutSistEqP%ndof, numnp, passoTempo)
+         else if (tipo_arq_saida == 2) then
+         
+           call escreverArqUnicoVTU(estrutSistEqP%u(1,:), passoTempo)
+!             call escreverArqUnicoVTU(estrutSistEqP%uIterAnt(1,:), passoTempo)
+            
+         else if (tipo_arq_saida == 0) then
+         
+            !call gerarLabel(labelTempo,tempo) !BD_Jan2024 
+           
+            if(passoTempo==0) then
+               !open(unit=iparaviewPotencial ,file= './out/resultadoPotencial.vtk')
+               open(unit=iparaviewPotencial ,file= 'resultadoPotencial.vtk')
+                  call escreverArqParaview(estrutSistEqP%u, estrutSistEqP%ndof, numnp, nen, &
+                     conecNodaisElem, 2, trim(labelTempo), len(trim(labelTempo)), iparaviewPotencial)
+            else
+                  call escreverArqParaviewIntermed(estrutSistEqP%u, estrutSistEqP%ndof, numnp, 'potencial', &
+                     trim(labelTempo), len(trim(labelTempo)), iparaviewPotencial)
+            end if
+         end if
+      end subroutine escreverArquivosSaida_Potencial
+!
+!=================================================================================
+!   
+      subroutine escreverArquivosSaida_Fluxo(estrutSistEqF, passoTempo, tempo)
+!
+         use mEstruturasDadosSistEq, only: estruturasArmazenamentoSistemaEq
+         !use mMalha, only: nsd, numnp, nen, nosFratura_impressao_global
+         !use mMalha, only: conecNodaisElem, conecNodaisFratura, numelFratura, numnpFratura
+         use mMalha, only: nsd, numnp, nen
+         use mMalha, only: conecNodaisElem
+
+         type(estruturasArmazenamentoSistemaEq), intent(in) :: estrutSistEqF
+         integer, intent(in) :: passoTempo
+         real*8, intent(in) :: tempo
+
+         character(21) :: labelTempo
+         
+         integer :: cont, no, i
+         
+         if (tipo_arq_saida == 1) then
+             call escreverArquivoVTU_Velocidade(estrutSistEqF%u, nsd, numnp, passoTempo)
+             
+         elseif (tipo_arq_saida == 0) then
+            !call gerarLabel(labelTempo,tempo) !DB_Jan2024
+
+            if(passoTempo==1) then
+               open(unit=iparaviewFluxo     ,file= './out/resultadoFluxo.vtk')
+               call escreverArqParaviewVector(estrutSistEqF%u, estrutSistEqF%ndof, numnp, nen, &
+                     conecNodaisElem, 2, trim(labelTempo), len(trim(labelTempo)), iparaviewFluxo)  
+            else
+!                      
+               call escreverArqParaviewIntermed(estrutSistEqF%u, estrutSistEqF%ndof, numnp, 'velocidade',   &
+                    trim(labelTempo), len(trim(labelTempo)), iparaviewFluxo)
+            endif
+         end if
+         
+      end subroutine escreverArquivosSaida_Fluxo
+!
+!=================================================================================
+!
+    subroutine escreverArqParaviewMateriais(campo, nen, conectElem, rotulo, tamRot, iparaview)
+    use mMalha, only: x, nsd, numel, numnp
+
+    implicit none
+    integer*4, intent(in) :: iparaview
+    integer, intent(in) :: campo(numel)
+    integer*4:: nen
+    integer*4:: conectElem(nen,numel)
+    integer*4:: tamRot, j
+
+    character(len=tamRot) :: rotulo
+    
+    write(iparaview,'(a)')'# vtk DataFile Version 3.0'
+    write(iparaview,'(a)')'vtk output'
+    write(iparaview,'(a)')'ASCII'
+    write(iparaview,'(a)')'DATASET UNSTRUCTURED_GRID'
+    write(iparaview,'(a,i10,a)')'POINTS', numnp,' float '
+
+    call escreverPontosNodais  (x, numnp, nsd, iparaview)
+! 
+    write(iparaview,'(a,i10,i10)')'CELLS', numel , (nen+1) * numel
+    call escreverConectividades(conectElem, numel, nen, nsd, iparaview)
+! 
+    write(iparaview,'(a,i10)')'CELL_TYPES ', numel
+    call escreverTiposElementos(numel, nen, iparaview)
+! 
+    write(iparaview,'(a,i10)')'CELL_DATA ', numel
+
+    write(iparaview,'(3a)')'SCALARS ', trim(rotulo), ' float '
+    write(iparaview,'(a)')'LOOKUP_TABLE default'
+
+!    call escreverEscalaresNodais(campo, dim1, dim2,rotulo,tamRot,iparaview)
+     do j=1, numel
+        write(iparaview,*) campo(j)
+     end do
+     
+    end subroutine escreverArqParaviewMateriais
+!
+!=================================================================================
+!
+    subroutine escreverArqParaview(campo, dim1, dim2, nen, conectElem, tipo, rotulo, tamRot, iparaview)
+    use mMalha, only: x, nsd, numel
+
+    implicit none
+    integer*4, intent(in) :: dim1, dim2, iparaview
+    double precision, intent(in) :: campo(dim1, dim2)
+    integer*4:: nen
+    integer*4:: conectElem(nen,numel)
+    integer*4:: tipo  !tipo=1 para elemento, e tipo=2 para no
+    integer*4:: tamRot
+
+    character(len=tamRot) :: rotulo
+    
+    write(iparaview,'(a)')'# vtk DataFile Version 3.0'
+    write(iparaview,'(a)')'vtk output'
+    write(iparaview,'(a)')'ASCII'
+    write(iparaview,'(a)')'DATASET UNSTRUCTURED_GRID'
+    write(iparaview,'(a,i10,a)')'POINTS', dim2,' float '
+
+    call escreverPontosNodais  (x, dim2, nsd, iparaview)
+! 
+    write(iparaview,'(a,i10,i10)')'CELLS', numel , (nen+1) * numel
+    call escreverConectividades(conectElem, numel, nen, nsd, iparaview)
+! 
+    write(iparaview,'(a,i10)')'CELL_TYPES ', numel
+    call escreverTiposElementos(numel, nen, iparaview)
+!      call escreverTiposElementos_old(numel, nsd, iparaview)
+! 
+
+    if(tipo==1) write(iparaview,'(a,i10)')'CELL_DATA ', numel
+
+    if(tipo==2) write(iparaview,'(a,i10)')'POINT_DATA',  dim2
+
+    write(iparaview,'(3a)')'SCALARS ', trim(rotulo), ' float '
+    write(iparaview,'(a)')'LOOKUP_TABLE default'
+
+    call escreverEscalaresNodais(campo, dim1, dim2,rotulo,tamRot,iparaview)
+
+    end subroutine escreverArqParaview
+!
+!=================================================================================
+!
+    subroutine escreverArqParaviewVector(campo, dim1, dim2, nen, conectElem, tipo, rotulo, tamRot, iparaview)
+    use mMalha, only: x, nsd, numel
+
+    implicit none
+    integer*4, intent(in) :: dim1, dim2, iparaview
+    double precision, intent(in) :: campo(dim1, dim2)
+    integer*4:: nen
+    integer*4:: conectElem(nen,numel)
+    integer*4:: tipo  !tipo=1 para elemento, e tipo=2 para no
+    integer*4:: tamRot
+
+    character(len=tamRot) :: rotulo
+    
+    write(iparaview,'(a)')'# vtk DataFile Version 3.0'
+    write(iparaview,'(a)')'vtk output'
+    write(iparaview,'(a)')'ASCII'
+    write(iparaview,'(a)')'DATASET UNSTRUCTURED_GRID'
+    write(iparaview,'(a,i10,a)')'POINTS', dim2,' float '
+
+    call escreverPontosNodais  (x, dim2, nsd, iparaview)
+! 
+    write(iparaview,'(a,i10,i10)')'CELLS', numel , (nen+1) * numel
+    call escreverConectividades(conectElem, numel, nen, nsd, iparaview)
+! 
+    write(iparaview,'(a,i10)')'CELL_TYPES ', numel
+    call escreverTiposElementos(numel, nen, iparaview)
+!      call escreverTiposElementos_old(numel, nsd, iparaview)
+! 
+    if(tipo==1) write(iparaview,'(a,i10)')'CELL_DATA ', numel
+
+    if(tipo==2) write(iparaview,'(a,i10)')'POINT_DATA',  dim2
+
+    write(iparaview,'(3a)')'VECTORS ', trim(rotulo), ' float '
+
+    if(tipo==1) call escreverVetoresNodais(campo, dim1, numel,rotulo,tamRot,iparaview)
+    if(tipo==2) call escreverVetoresNodais(campo, dim1, dim2, rotulo,tamRot,iparaview)
+
+    end subroutine escreverArqParaviewVector
+!
+!=================================================================================
+!
+      subroutine escreverPontosNodais  (coords, numnp, nsd, iparaview)
+      implicit none
+      integer*4, intent(in) :: numnp, nsd, iparaview
+      real*8,  intent(in) :: coords(nsd,numnp)
+!
+      real*8  :: coordZ = 0.0 
+      integer*4:: d, i
+!
+      if(nsd==2) then
+	  do i=1,numnp
+	      write(iparaview,'(3(1x, 1pe15.8))') (coords(d,i),d=1,nsd), coordZ 
+	  end do
+      end if
+
+      if(nsd==3) then
+	  do i=1,numnp
+	      write(iparaview,'(3(1x, 1pe15.8))') (coords(d,i),d=1,nsd)
+	  end do
+      end if
+      end subroutine escreverPontosNodais
+!
+!=================================================================================
+!
+      subroutine escreverConectividades(conectElem, numel, nen, nsd, iparaview)
+      implicit none
+      integer*4, intent(in)  :: numel, nen, nsd, iparaview
+      integer*4, intent(in)  :: conectElem(nen,numel)
+!
+      integer*4 n, i
+!
+      if(nsd==2) then
+	do  n=1,numel
+	  write(iparaview,'(i10,9(2x,i10))') nen, (conectElem(i,n)-1, i = 1, nen) 
+	end do
+      end if
+
+      if(nsd==3) then
+	do  n=1,numel
+	  write(iparaview,'(i10,18(2x,i10))') nen, (conectElem(i,n)-1, i = 1, nen) 
+	end do
+      end if
+
+ end subroutine escreverConectividades
+!
+!=================================================================================
+!
+      subroutine escreverTiposElementos(numel, nen, iparaview)
+      
+      use mMalha, only: nsd
+      
+      implicit none
+      integer*4, intent(in)   :: numel, nen, iparaview
+!
+      integer*4:: i
+      character*2 :: tipo
+!
+      if (nen==3) then !triangulo
+         tipo = "5"
+      else if (nen==4.and.nsd==2) then !quadrilátero
+         tipo = "9"
+      else if (nen==4.and.nsd==3) then !tetraedro
+         tipo = "10"
+      else if(nen==8) then !hexaedro
+         tipo = "12"
+      else
+         write(*,*) "Erro: subrotina 'escreverTiposElementos' nao esta implementada para esse tipo de elemento. Valor de nen: ", nen
+         stop 1
+      end if
+
+      do i = 1, numel
+         write(iparaview,'(a)') trim(adjustl(tipo))
+      end do
+
+      end subroutine escreverTiposElementos
+!
+!=================================================================================
+!
+      subroutine escreverTiposElementos_old(numel, nsd, iparaview)
+      implicit none
+      integer*4, intent(in)   :: numel, nsd, iparaview
+!
+      integer*4:: i
+!
+      if(nsd==2) then
+	do  i =1,numel
+	  write(iparaview,'(a)') '9'!trim(adjustl(tipo))
+	end do
+      end if 
+!
+      if(nsd==3) then
+	do  i =1,numel
+	  write(iparaview,'(a)') '12'!trim(adjustl(tipo))
+	end do
+      end if 
+      end subroutine escreverTiposElementos_old
+!
+!=================================================================================
+!
+      subroutine escreverEscalaresNodais(v, tam1, tam2, rotulo, tamRot, iparaview)
+      implicit none
+      integer*4, intent(in)  :: tam1,tam2,iparaview
+      real*8, intent(in)   :: v(tam1,tam2)
+      integer*4:: tamRot
+      character(len=tamRot) :: rotulo
+!
+      character(len=tamRot+5) ::  rotuloN
+      integer*4:: i,j
+      character(len=5):: eixo
+      real*8 :: limite
+
+      limite=1.e-20
+      do i=1,tam1
+
+        if(i>1) then
+           write(eixo,'(i0)') i
+           if(rotulo.ne.'potencial') then
+           rotuloN=trim(rotulo)//'Dir'//trim(eixo)
+           write(iparaview,'(3a)')'SCALARS ', trim(rotuloN), ' float '
+           write(iparaview,'(a)')'LOOKUP_TABLE default'
+           endif
+        endif
+
+        do j=1, tam2
+             write(iparaview,*) v(i,j)
+        end do
+       
+      end do
+
+      end subroutine escreverEscalaresNodais
+!
+!=================================================================================
+!
+      subroutine escreverVetoresNodais(v, tam1, tam2, rotulo, tamRot, iparaview)
+      implicit none
+      integer*4, intent(in)  :: tam1,tam2,iparaview
+      real*8, intent(in)   :: v(tam1,tam2)
+      integer*4:: tamRot
+      character(len=tamRot) :: rotulo
+!
+      character(len=tamRot+5) ::  rotuloN
+      integer*4:: i,j
+      character(len=5):: eixo
+      real*8 :: limite
+      
+      real*8   :: vPrint(tam1,tam2)
+
+      
+      vPrint=v
+      
+      limite=1.e-20
+
+      write(eixo,'(i0)') i
+      if(rotulo.ne.'potencial') then
+       rotuloN=trim(rotulo)//'Dir'//trim(eixo)
+      endif
+      
+      
+      do j=1, tam2
+        if(tam1==2) then
+           if(abs(vPrint(1,j))<limite) vPrint(1,j)=0.d0
+           if(abs(vPrint(2,j))<limite) vPrint(2,j)=0.d0
+              
+           write(iparaview,*) vPrint(1:tam1,j), '   0.0'
+        else
+        
+           if(abs(vPrint(1,j))<limite) vPrint(1,j)=0.d0
+           if(abs(vPrint(2,j))<limite) vPrint(2,j)=0.d0
+           if(abs(vPrint(3,j))<limite) vPrint(3,j)=0.d0
+
+           write(iparaview,*) vPrint(1:tam1,j)
+        endif
+      end do
+
+      end subroutine escreverVetoresNodais
+!
+!=================================================================================
+!
+      subroutine escreverEscalaresPorElemento(v, tam1, tam2, rotulo, tamRot, iparaview)
+      implicit none
+      integer*4, intent(in)  :: tam1,tam2,iparaview
+      real*8, intent(in)   :: v(tam1,tam2)
+      integer*4:: tamRot
+      character(len=tamRot) :: rotulo
+!
+      character(len=tamRot+5) ::  rotuloN
+      integer*4:: i,j
+      character(len=5):: eixo
+      real*8 :: limite
+
+      limite=1.e-20
+      do i=1,tam1
+
+        if(i>1) then
+           write(eixo,'(i0)') i
+           if(rotulo.ne.'potencial') then
+           rotuloN=trim(rotulo)//'Dir'//trim(eixo)
+           write(iparaview,'(3a)')'SCALARS ', trim(rotuloN), ' float '
+           write(iparaview,'(a)')'LOOKUP_TABLE default'
+           endif
+        endif
+
+        do j=1, tam2
+             write(iparaview,*) v(i,j)
+        end do
+
+      end do
+
+      end subroutine escreverEscalaresPorElemento
+!
+!=================================================================================
+!
+    subroutine escreverArqParaviewIntermed(campo, dim1, dim2, nomeCampo, rotulo, tamRot,iparaview)
+    use mMalha, only: x, nsd, numel, numnp!, numelFratura
+
+    implicit none
+    integer*4, intent(in) :: dim1, dim2, iparaview
+    double precision, intent(in) :: campo(dim1, dim2)
+
+    integer*4:: tamRot
+    character(len=tamRot) :: rotulo
+    character(len=*) :: nomeCampo
+
+     if(nomeCampo.eq.'potencial')then
+            write(iparaview,'(3a)')'SCALARS ', trim(rotulo), ' float '
+            write(iparaview,'(a)')'LOOKUP_TABLE default'
+            call escreverEscalaresNodais(campo, dim1, dim2, rotulo, tamRot, iparaview)
+     else    
+        write(iparaview,'(3a)')'VECTORS ', trim(rotulo), ' float '
+        call escreverVetoresNodais(campo, dim1, dim2,rotulo,tamRot,iparaview)
+     endif
+
+     end subroutine escreverArqParaviewIntermed
+!
+!=================================================================================
+!
+! *** BEGIN -- ROTINA PARA ESCREVER MALHA PARA O PARAVIEW (AUTOR: KADU/PROMEC 06/2011)
+
+    subroutine escreverArqParaview_geo()
+
+    use mMalha, only: x, conecNodaisElem, nsd, numel, numnp
+
+    implicit none
+    integer*4:: i , iparaview_geo  
+
+      iparaview_geo  = 31
+      open(unit=iparaview_geo , file= 'modelo.geo')
+
+      write(iparaview_geo,'(a)')'Title1'
+      write(iparaview_geo,'(a)')'Title2'
+      write(iparaview_geo,'(a)')'node id given'
+      write(iparaview_geo,'(a)')'element id given'
+      write(iparaview_geo,'(a)')'coordinates'
+      write(iparaview_geo,'(i8)')  numnp
+
+      do i = 1, numnp
+      WRITE (iparaview_geo,'(I8,3E12.5)') I,x(1,i),x(2,i),0.d0
+      enddo
+
+      WRITE (iparaview_geo,'(A,/,A,/,A,/,I8)')                     &
+                                'part 1'           ,    &
+                                'malha'            ,    &
+                                'quad4'            ,    &
+                                 numel
+
+
+      WRITE (iparaview_geo,'(5I8)')  (I,conecNodaisElem(1,i),conecNodaisElem(2,i),conecNodaisElem(3,i), &
+                                                      conecNodaisElem(4,i),i=1, numel ) 
+
+     end subroutine escreverArqParaview_geo
+!
+!=================================================================================
+!
+! *** BEGIN -- ROTINA PARA ESCREVER ESCALAR POR ELEMENTO PARA O PARAVIEW (AUTOR: KADU/PROMEC 06/2011)
+
+    subroutine escreverArqParaview_res(campo, ndim , npasso, var)
+
+    implicit none
+    integer*4, intent(in) :: ndim, npasso
+    double precision, intent(in) :: campo(ndim)
+    character*1, intent(in) :: var
+
+    integer*4:: i
+    character*30 :: filename
+    integer*4, parameter :: iparaview_res=41
+
+    write (filename(1:3),'(i3.3)') npasso
+    if (var=='p') write (filename,'(a)')   'potencial'//'.'//filename(1:3)
+    if (var=='s') write (filename,'(a)') 'saturation'//'.'//filename(1:3)
+
+    open  (unit=iparaview_res,file=filename,form='formatted')
+
+       write (iparaview_res,'(a,i5,1x,a)') 'Ensight Escalar passo ',npasso
+       write (iparaview_res,'(a/a)') 'part 1','quad4' 
+       write (iparaview_res,'(1p,6e12.5)') (campo(i),i=1,ndim)
+
+    close  (unit=iparaview_res)
+
+
+    end subroutine escreverArqParaview_res
+!
+!=================================================================================
+! 
+    subroutine escreverArquivoVTU_Velocidade(velocidade, nsd, numnp, tempo)
+       use mGlobaisEscalares, only: zero
+       use mGlobaisArranjos,  only: mat!, matFratura
+       !use mMalha,            only: numel, numelFratura, nen, nenFratura, x, conecNodaisElem, conecNodaisFratura
+       use mMalha,            only: numel, nen, x, conecNodaisElem
+
+       real*8,  intent(in) :: velocidade(nsd, numnp)
+       integer, intent(in) :: numnp, nsd, tempo
+
+       character(50) :: fileName, tempFormat
+       integer :: node, nel, idFile, idCellType
+       integer :: sinalProfundidade
+
+       idFile = 500000000
+
+       write(fileName, "(a, i8.8, a)") "./out/campoVel-", tempo, ".vtu"
+!       open(unit=idFile, file=trim(dir_saidaLocal)//fileName)
+       open(unit=idFile, file=fileName)
+
+       write(idFile,"(a)") '<?xml version="1.0"?>'
+       write(idFile,"(a)") '<VTKFile type="UnstructuredGrid" version="0.1">'
+       write(idFile,"(a)") '<UnstructuredGrid>'
+       write(idFile, "(a23, i10, a17, i10, a2)") '<Piece NumberOfPoints="', numnp, '" NumberOfCells="', numel, '">'
+
+!        write(idFile,"(a)") '<PointData>'
+       write(idFile,"(a)") '<PointData Vectors="v">'
+       write(tempFormat, "(a1, i10, a12)") "(", numnp, "(es15.7,1x))"
+
+       write(idFile,"(a, i1,a)") '<DataArray type="Float64" Name="v" NumberOfComponents="3" format="ascii">'
+       do node=1,numnp
+          write(idFile, tempFormat, advance="no") velocidade(1:nsd,node)!, sinalProfundidade*velocidade(nsd,node)
+          if (nsd == 2) write(idFile, tempFormat, advance="no") 0d0
+          write(idFile, *)
+       end do
+       write(idFile,"(a)") '</DataArray>'       
+!        write(idFile,"(a, i1,a)") '<DataArray type="Float32" Name="v" NumberOfComponents="', nsd,'" format="ascii">'
+!        write(idFile, tempFormat) velocidade(:,:)
+!        write(idFile,"(a)") '</DataArray>'
+
+       write(idFile,"(a)") '</PointData>'
+
+       write(idFile,"(a)") '<CellData>'
+
+       write(idFile,"(a)") '<DataArray type="Int32" Name="materiais" format="ascii">'
+       write(tempFormat, "(a1, i10, a12)") "(", numel, "(i3,1x))"
+       write(idFile, tempFormat) mat(:)
+       write(idFile,"(a)") '</DataArray>'
+
+       write(idFile,"(a)") '</CellData>'
+
+       write(idFile,"(a)") '<Points>'
+       write(idFile,"(a)") '<DataArray type="Float32" NumberOfComponents="3" format="ascii">'
+       write(tempFormat, "(a1, i10, a12, a1)") "(", numnp*3, "(es15.7, 1x)", ")"
+       if (plotProfundidade) then
+         sinalProfundidade = -1
+       else
+         sinalProfundidade = 1
+       end if
+       select case(nsd)
+          case(2)
+             write(idFile, tempFormat) (x(1,node), sinalProfundidade*x(2,node), zero, node=1, numnp)
+          case(3)
+             write(idFile, tempFormat) (x(1:2,node), sinalProfundidade*x(3,node), node=1, numnp)
+          case default
+             write(*,*) "Erro na subrotina 'escreverArquivoVTU': nao implementado para a dimensao igual a ", nsd
+       end select
+       write(idFile,"(a)") '</DataArray>'
+       write(idFile,"(a)") '</Points>'
+
+       write(idFile,"(a)") '<Cells>'
+
+       write(idFile,"(a)") '<DataArray type="Int32" Name="connectivity" format="ascii">'
+       ! Conectividade dos elementos da rocha intacta
+       write(tempFormat, "(a1, i2, a9, a1)") "(", nen, "(i10, 1x)", ")"
+       write(idFile, tempFormat) (conecNodaisElem(:, nel)-1, nel=1, numel)
+       write(idFile,"(a)") '</DataArray>'
+
+       write(idFile,"(a)") '<DataArray type="Int32" Name="offsets" format="ascii">'
+       ! Offsets dos elementos da rocha intacta
+       write(tempFormat, "(a1, i10, a9, a1)") "(", numel, "(i10, 1x)", ")"
+       write(idFile, tempFormat) (nen*nel, nel=1, numel)
+       write(idFile,"(a)") '</DataArray>'
+
+       write(idFile,"(a)") '<DataArray type="Int32" Name="types" format="ascii">'
+       ! Tipos dos elementos da rocha intacta
+       write(tempFormat, "(a1, i10, a9, a1)") "(", numel, "(i10, 1x)", ")"
+       idCellType = cellTypeVTK(nen)
+       write(idFile, tempFormat) (idCellType, nel=1, numel)
+       write(idFile,"(a)") '</DataArray>'
+
+       write(idFile,"(a)") '</Cells>'
+
+       write(idFile,"(a)") '</Piece>'
+       write(idFile,"(a)") '</UnstructuredGrid>'
+       write(idFile,"(a)") '</VTKFile>'
+
+       close(idFile)
+    end subroutine escreverArquivoVTU_Velocidade
+!
+!=================================================================================
+!
+    subroutine escreverArquivoVTU_Pressao(pressao, ndof, numnp, tempo)
+       use mGlobaisEscalares, only: zero
+       use mGlobaisArranjos,  only: mat!, matFratura
+       !use mMalha,            only: nsd, numel, numelFratura, nen, nenFratura, x, conecNodaisElem, conecNodaisFratura
+       use mMalha,            only: nsd, numel, nen, x, conecNodaisElem
+
+       real*8,  intent(in) :: pressao(ndof, numnp)
+       integer, intent(in) :: ndof, numnp, tempo
+
+       character(50) :: fileName, tempFormat
+       integer :: node, nel, idFile, idCellType
+       integer :: sinalProfundidade
+
+       idFile = 500000000
+
+       !write(fileName, "(a, i8.8, a)") "./out/campoPressao-", tempo, ".vtu"
+       write(fileName, "(a, i8.8, a)") "campoPressao-", tempo, ".vtu"
+!       open(unit=idFile, file=trim(dir_saidaLocal)//fileName)
+       open(unit=idFile, file=fileName)
+
+       write(idFile,"(a)") '<?xml version="1.0"?>'
+       write(idFile,"(a)") '<VTKFile type="UnstructuredGrid" version="0.1">'
+       write(idFile,"(a)") '<UnstructuredGrid>'
+       write(idFile, "(a23, i10, a17, i10, a2)") '<Piece NumberOfPoints="', numnp, '" NumberOfCells="', numel, '">'
+
+       write(idFile,"(a)") '<PointData>'
+       write(tempFormat, "(a1, i10, a12)") "(", ndof*numnp, "(es15.7,1x))"
+
+       write(idFile,"(a, i1,a)") '<DataArray type="Float32" Name="p" NumberOfComponents="', ndof,'" format="ascii">'
+       write(idFile, tempFormat) pressao(:,:)
+       write(idFile,"(a)") '</DataArray>'
+
+       write(idFile,"(a)") '</PointData>'
+
+       write(idFile,"(a)") '<CellData>'
+
+       write(idFile,"(a)") '<DataArray type="Int32" Name="materiais" format="ascii">'
+       write(tempFormat, "(a1, i10, a12)") "(", numel, "(i3,1x))"
+       write(idFile, tempFormat) mat(:)
+       write(idFile,"(a)") '</DataArray>'
+
+       write(idFile,"(a)") '</CellData>'
+
+       write(idFile,"(a)") '<Points>'
+       write(idFile,"(a)") '<DataArray type="Float32" NumberOfComponents="3" format="ascii">'
+       write(tempFormat, "(a1, i10, a12, a1)") "(", numnp*3, "(es15.7, 1x)", ")"
+       if (plotProfundidade) then
+         sinalProfundidade = -1
+       else
+         sinalProfundidade = 1
+       end if
+       select case(nsd)
+          case(2)
+             write(idFile, tempFormat) (x(1,node), sinalProfundidade*x(2,node), zero, node=1, numnp)
+          case(3)
+             write(idFile, tempFormat) (x(1:2,node), sinalProfundidade*x(3,node), node=1, numnp)
+          case default
+             write(*,*) "Erro na subrotina 'escreverArquivoVTU': nao implementado para a dimensao igual a ", nsd
+       end select
+       write(idFile,"(a)") '</DataArray>'
+       write(idFile,"(a)") '</Points>'
+
+       write(idFile,"(a)") '<Cells>'
+
+       write(idFile,"(a)") '<DataArray type="Int32" Name="connectivity" format="ascii">'
+       ! Conectividade dos elementos da rocha intacta
+       write(tempFormat, "(a1, i2, a9, a1)") "(", nen, "(i10, 1x)", ")"
+       write(idFile, tempFormat) (conecNodaisElem(:, nel)-1, nel=1, numel)
+       write(idFile,"(a)") '</DataArray>'
+
+       write(idFile,"(a)") '<DataArray type="Int32" Name="offsets" format="ascii">'
+       ! Offsets dos elementos da rocha intacta
+       write(tempFormat, "(a1, i10, a9, a1)") "(", numel, "(i10, 1x)", ")"
+       write(idFile, tempFormat) (nen*nel, nel=1, numel)
+       write(idFile,"(a)") '</DataArray>'
+
+       write(idFile,"(a)") '<DataArray type="Int32" Name="types" format="ascii">'
+       ! Tipos dos elementos da rocha intacta
+       write(tempFormat, "(a1, i10, a9, a1)") "(", numel, "(i10, 1x)", ")"
+       idCellType = cellTypeVTK(nen)
+       write(idFile, tempFormat) (idCellType, nel=1, numel)
+       write(idFile,"(a)") '</DataArray>'
+
+       write(idFile,"(a)") '</Cells>'
+
+       write(idFile,"(a)") '</Piece>'
+       write(idFile,"(a)") '</UnstructuredGrid>'
+       write(idFile,"(a)") '</VTKFile>'
+
+       close(idFile)
+    end subroutine escreverArquivoVTU_Pressao
+!
+!=================================================================================
+!
+    subroutine escreverArquivoVTU_Fraturas_Velocidade(velocidade, nsd, numnpFratura, tempo)
+       real*8, intent(in)  :: velocidade(nsd, numnpFratura)
+       integer, intent(in) :: nsd, numnpFratura, tempo
+       character(50) :: fileName, tempFormat
+       integer :: node, nel, idFile, idCellType
+       integer :: sinalProfundidade
+      end subroutine escreverArquivoVTU_Fraturas_Velocidade
+!
+!=================================================================================
+!    
+      subroutine escreverArquivoVTU_Fraturas_Pressao(pressao, salto, pressaoF, ndof, numnpFratura, tempo)
+       real*8, intent(in)  :: pressao(ndof,numnpFratura), salto(numnpFratura), pressaoF(numnpFratura)
+       integer, intent(in) :: ndof, numnpFratura, tempo
+       character(50) :: fileName, tempFormat
+       integer :: node, nel, idFile, idCellType
+       integer :: sinalProfundidade
+    end subroutine escreverArquivoVTU_Fraturas_Pressao
+
+    subroutine escreverArqUnicoVTU(pressao, iteracao_tempo)
+       use mGlobaisEscalares, only: zero!, numPassosTempo, deltaT
+       use mMalha, only: numnp, nsd, numel, nen, x, conecNodaisElem
+
+       integer:: numPassosTempo
+       real :: deltaT
+       real*8, intent(in) :: pressao(numnp)
+       integer, intent(in) :: iteracao_tempo
+
+       character(50) :: fileName, tempFormat
+       integer :: node, nel, idFile, idCellType, i
+
+       idFile = 500000000
+
+       write(fileName, "(a, i6.6, a)") "campos.vtu"
+       open(unit=idFile, file=fileName, position='append')
+
+       if (iteracao_tempo == 0) then
+          write(idFile, "(a)") '<?xml version="1.0"?>'
+          write(idFile, "(a)") '<VTKFile type="UnstructuredGrid" version="0.1">'
+          write(idFile, "(a)", advance="no") '<UnstructuredGrid TimeValues="'
+
+          do i=0, numPassosTempo, passosPorImpressao
+             write(idFile, "(es15.7,1x)", advance="no") i*deltaT
+          end do
+          write(idFile, "(a)") '">'
+
+          write(idFile, "(a23, i10, a17, i10, a2)") '<Piece NumberOfPoints="', numnp, '" NumberOfCells="', numel, '">'
+          write(idFile,"(a)") '<PointData>'
+       end if
+
+       write(tempFormat, "(a1, i10, a12)") "(", numnp, "(es15.7,1x))"
+
+       write(idFile,"(a, i5.5, a)") '<DataArray type="Float32" Name="p" TimeStep="',&
+                              iteracao_tempo/passosPorImpressao, '" format="ascii">'
+       write(idFile, tempFormat) pressao(:)
+       write(idFile,"(a)") '</DataArray>'
+
+       if ((iteracao_tempo == numPassosTempo) .or. (iteracao_tempo + passosPorImpressao > numPassosTempo)) then
+          write(idFile,"(a)") '</PointData>'
+          write(idFile,"(a)") '<Points>'
+          write(idFile,"(a)") '<DataArray type="Float32" NumberOfComponents="3" format="ascii">'
+          write(tempFormat, "(a1, i10, a12, a1)") "(", numnp*3, "(es15.7, 1x)", ")"
+          select case(nsd)
+             case(2)
+                write(idFile, tempFormat) (x(1:2,node), zero, node=1, numnp)
+             case(3)
+                write(idFile, tempFormat) (x(1:3,node), node=1, numnp)
+             case default
+                write(*,*) "Erro na subrotina 'escreverArqUnicoVTU': nao implementado para a dimensao igual a ", nsd
+          end select
+          write(idFile,"(a)") '</DataArray>'
+          write(idFile,"(a)") '</Points>'
+
+          write(idFile,"(a)") '<Cells>'
+          write(idFile,"(a)") '<DataArray type="Int32" Name="connectivity" format="ascii">'
+          write(tempFormat, "(a1, i2, a9, a1)") "(", nen, "(i10, 1x)", ")"
+          write(idFile, tempFormat) (conecNodaisElem(:, nel)-1, nel=1, numel)
+          write(idFile,"(a)") '</DataArray>'
+          write(idFile,"(a)") '<DataArray type="Int32" Name="offsets" format="ascii">'
+          write(tempFormat, "(a1, i10, a9, a1)") "(", numel, "(i10, 1x)", ")"
+          write(idFile, tempFormat) (nen*nel, nel=1, numel)
+          write(idFile,"(a)") '</DataArray>'
+          write(idFile,"(a)") '<DataArray type="Int32" Name="types" format="ascii">'
+          write(tempFormat, "(a1, i10, a9, a1)") "(", numel, "(i10, 1x)", ")"
+          idCellType = cellTypeVTK(nen)
+          write(idFile, tempFormat) (idCellType, nel=1, numel)
+          write(idFile,"(a)") '</DataArray>'
+          write(idFile,"(a)") '</Cells>'
+          write(idFile,"(a)") '</Piece>'
+          write(idFile,"(a)") '</UnstructuredGrid>'
+          write(idFile,"(a)") '</VTKFile>'
+       end if
+
+       close(idFile)
+    end subroutine escreverArqUnicoVTU
+
+    function cellTypeVTK(nen)
+    
+       use mMalha, only:nsd
+       
+       integer, intent(in) :: nen
+       integer :: cellTypeVTK
+
+       select case(nen)
+          case(2)
+             ! VTK_LINE
+             cellTypeVTK = 3
+          case(3)
+             ! VTK_TRIANGLE
+             cellTypeVTK = 5
+          case(4)
+             ! VTK_QUAD
+             if(nsd==2) cellTypeVTK = 9
+             if(nsd==3) cellTypeVTK = 10
+          case(6)
+             ! VTK_QUADRATIC_TRIANGLE
+             cellTypeVTK = 22
+          case(8)
+             ! VTK_BIQUADRATIC_QUAD
+             cellTypeVTK = 12
+          case(9)
+             ! VTK_BIQUADRATIC_QUAD
+             cellTypeVTK = 28
+          case default
+             write(*, "(a23, i2, a24)") "Error on function cellTypeVTK: Cell type of ", nen," nodes, not implemented!"
+             stop
+       end select
+    end function cellTypeVTK
+
+      subroutine escreverValoresReferencia(estrutSistEqP)
+         use mEstruturasDadosSistEq, only: estruturasArmazenamentoSistemaEq
+         use mMalha, only: numnp
+
+         type(estruturasArmazenamentoSistemaEq), intent(in) :: estrutSistEqP
+         integer :: no, idArq
+
+         idArq=50000000
+         open(unit=idArq, file="p_ref.inc")
+         write(idArq, "(a)") "*valores_potencial_ref{"
+         do no=1, numnp
+            write(idArq, "(2i10,es15.7)") no, 0, estrutSistEqP%u(1,no)
+         end do
+         write(idArq,*)
+         write(idArq, "(a)") "}"
+         close(idArq)
+      end subroutine escreverValoresReferencia
 
       end module

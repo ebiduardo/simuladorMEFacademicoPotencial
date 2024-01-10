@@ -23,7 +23,130 @@
        public :: shg3d, shlq, shg2q, shl2q, shlq3d
 
        contains
+       
+   subroutine shgSurface_points(xl, det, shl, shg, nen, npoints, nsd)
+      !
+      !  program to calculate global derivatives of shape functions and
+      !     jacobian determinants at the integration points
+      !
+      !     xl(j,i)    = global coordinates of nodes
+      !     det(l)     = jacobian determinant
+      !     shl(1,i,l) = local ("xi") derivative of shape function
+      !     shl(2,i,l) = local ("eta") derivative of shape function
+      !     shl(3,i,l) = local shape function
+      !     shg(1,i,l) = x-derivative of shape function
+      !     shg(2,i,l) = y-derivative of shape function
+      !     shg(3,i,l) = shl(3,i,l)
+      !              l = integration-point number
+      !           nint = number of integration points
+      !
 
+      ! program to calculate global derivatives of shape functions
+      !    and jacobian determinants for a codimensional one element at the set of points:
+      !    surface element if nsd==3 or line element of nsd == 2
+      !
+      !        xl(i,j) = global coordinates of nodes
+      !     shl(1,j,l) = local ("xi") derivative of shape function j at a point l (nsd==2)
+      !     shl(2,j,l) = local ("eta") derivative of shape function j at a point l (nsd==3)
+      !   shl(nsd,j,l) = value of shape function j at a point l
+      !     shg(1,j,l) = global x-derivative of shape function j at a point l
+      !     shg(2,j,l) = global y-derivative of shape function j at a point l
+      !     shg(3,j,l) = global z-derivative of shape function j at a point l
+      ! shg(nsd+1,j,l) = shl(nsd,i,l)
+      !         det(l) = square root of the determinant of the g matrix at a point l
+      !        npoints = number of points
+      !
+      !              l = point number
+
+      integer :: l
+      integer, intent(in) :: npoints, nen, nsd
+      real*8, intent(in)  :: xl(nsd, nen)
+      real*8, intent(in)  :: shl(nsd,  nen, npoints)
+      real*8, intent(out) :: shg(nsd+1,nen, npoints)
+      real*8, intent(out) :: det(npoints)
+
+      do l = 1, npoints
+         call shgSurface_point(xl, det(l), shl(:,:,l), shg(:,:,l), nen, nsd)
+      end do
+   end subroutine shgSurface_points
+
+   subroutine shgSurface_point(xl, det, shl, shg, nen, nsd)
+
+      ! program to calculate global derivatives of shape functions
+      !    and jacobian determinants for a codimensional one element at a given point:
+      !    surface element if nsd==3 or line element of nsd == 2
+      !
+      !      xl(i,j) = global coordinates of nodes
+      !     shl(1,j) = local ("xi") derivative of shape function j at a given point (nsd==2)
+      !     shl(2,j) = local ("eta") derivative of shape function j at a given point (nsd==3)
+      !   shl(nsd,j) = value of shape function j at a given point
+      !     shg(1,j) = global x-derivative of shape function j at a given point
+      !     shg(2,j) = global y-derivative of shape function j at a given point
+      !     shg(3,j) = global z-derivative of shape function j at a given point
+      ! shg(nsd+1,j) = shl(nsd,i)
+      !          det = square root of the determinant of the g matrix
+      !
+      !       d(i,j) = local j-derivative of the i-coordinate of a given point
+      !            g = first fundamental form (d^T d)
+      !         detG = determinant of matrix g
+      !        g_inv = inverse of matrix g
+
+      integer, intent(in) :: nen, nsd
+      real*8, intent(in)  :: xl(nsd,nen), shl(nsd,nen)
+      real*8, intent(out) :: shg(nsd+1,nen), det
+
+      real*8 :: d(nsd,nsd-1), g(nsd-1,nsd-1), g_inv(nsd-1,nsd-1), detG
+      integer :: i,j,no
+
+      d=0.d0
+      g=0.d0
+      g_inv=0.d0
+      detG=0.d0
+
+      if(nen == 1) return
+
+      do i=1,nsd
+         do j=1,nsd-1
+            d(i,j) = dot_product(xl(i,:),shl(j,:))
+         end do
+      end do
+
+      do i=1,nsd-1
+         do j=1,nsd-1
+            g(i,j) = dot_product(d(:,i),d(:,j))
+         end do
+      end do
+
+      if (nsd==2) then
+         detG = g(1,1)
+         g_inv = 1d0/detG
+      else if (nsd==3) then
+         detG = g(1,1)*g(2,2) - g(1,2)*g(2,1)
+         g_inv(1,1) = g(2,2)
+         g_inv(2,2) = g(1,1)
+         g_inv(1,2) = -g(1,2)
+         g_inv(2,1) = -g(2,1)
+         g_inv(:,:) = g_inv(:,:)/detG
+      else
+         print*, "Erro na subrotina shgSurface_point: nsd deve ser 2 ou 3"
+      end if
+
+      if (detG <= 0d0) then
+         print*, "Erro na subrotina shgSurface_point: determinante negativo"
+         stop
+      endif
+      det = sqrt(detG)
+
+      do no=1,nen
+         do i=1,nsd
+            shg(i,no) = 0d0
+            do j=1,nsd-1
+               shg(i,no) = shg(i,no) + d(i,j)*dot_product(g_inv(j,:),shl(1:nsd-1,no))
+            end do
+         end do
+         shg(nsd+1,no) = shl(nsd,no)
+      end do
+   end subroutine shgSurface_point
 
 !**** new *************************************************************
       subroutine oneshl(shl,w,npint,nen)
@@ -861,13 +984,15 @@
 !
       do 300 j=1,2
       do 200 i=1,2
-!     print*, "shg e xl=", shg(i,1,l),xl(j,1)
       xs(i,j) = rowdot(shg(i,1,l),xl(j,1),tres,dois,nen)
-!     print*, "xs=", i,j,xs(i,j)
   200 continue
   300 continue
 !
       det(l) = xs(1,1)*xs(2,2)-xs(1,2)*xs(2,1)
+!       print*,"shg", shg(1,1:4,l)
+!       print*,"xl", xl(1,1:4)
+!       print*, "l=", l, det(l), xs(1,1),xs(2,2),xs(1,2),xs(2,1)
+      
       if (det(l).le.zero) then
          write(iecho,1000) nel
          write(*,1000) nel
@@ -1412,7 +1537,7 @@
       integer*4, parameter :: dois = 2, tres = 3
 
 !
-      do 960 l=1,npint
+      do l=1,npint
 !
       if (.not.quad) then
          do 100 i=1,3
@@ -1472,36 +1597,37 @@
 !
 !.... form c1
 !
-      do i=1,3
-      do j=1,2
+      do  i=1,3
+      do  j=1,2
       c1(i,j) = rowdot(shl2(i,1,l),xl(j,1),tres,dois,nen)
       end do
       end do
 !
 !.... form t1
 !
-      do i=1,3
-      do j=1,2
-      do k=1,3
+      do  i=1,3
+      do  j=1,2
+      do  k=1,3
       t1(i,j)=t1(i,j)-t2(i,k)*(c1(k,1)*xs(1,j)+c1(k,2)*xs(2,j))
       end do
       end do
       end do
+
 !
 !.... transformation from natural coor. to global coor.
 !
       do j=1,nen
       do i=1,3
-         do 800 k=1,2
+      do k=1,2
          shg2(i,j,l)=shg2(i,j,l)+t1(i,k)*shl(k,j,l)
-800       continue
-         do 900 k=1,3
+      end do
+         do  k=1,3
          shg2(i,j,l)=shg2(i,j,l)+t2(i,k)*shl2(k,j,l)
-900       continue
+      end do
       end do
       end do
 !
-  960 continue
+      end do
 !
  1000 format(///,'non-positive determinant in element number  ',i10,&
                ' in element group  ',i10)
@@ -1715,8 +1841,8 @@
       real*8 :: shl(4,nen,*),w(*)
 !
       real*8 :: ra(27),sa(27),ta(27)
-      real*8 :: r2,r3a,w3a,r3b,w3b
-      integer*4:: i,j
+      real*8 :: r2,r3a,w3a,r3b,w3b,w1
+      integer :: i,j
       real*8  :: eight
 
       data  r2/0.577350269189626d00/, &
@@ -1724,7 +1850,16 @@
      &r3b/0.d00/,w3b/0.888888888888889d00/
 
       eight = five+three
+!
+!inserido por tuane
+       if (npint.eq.1) then
+          ra(1) = zero
+          sa(1) = zero
+          ta(1) = zero
+          w1=2.d0
+          w(1) = w1*w1*w1
 
+       endif
 !
        if (npint.eq.6) then
 
@@ -1759,7 +1894,41 @@
       endif
 
        if (npint.eq.8) then
+       
+!       ra(1) =-r2
+!       sa(1) =-r2
+!       ta(1) =-r2
+! 
+!       ra(2) = r2
+!       sa(2) =-r2
+!       ta(2) =-r2
+! 
+!       ra(3) = r2
+!       sa(3) = r2
+!       ta(3) =-r2
+! 
+!       ra(4) =-r2
+!       sa(4) = r2
+!       ta(4) =-r2
+! 
+!       ra(5) = -r2
+!       sa(5) = -r2
+!       ta(5) = -r2
+! 
+!       ra(6) = r2
+!       sa(6) = -r2
+!       ta(6) = r2
+!    
+! 
+!       ra(7) = r2
+!       sa(7) = r2
+!       ta(7) = r2
+! 
+!       ra(8) = -r2
+!       sa(8) = r2
+!       ta(8) = r2
 
+      !original
       ra(1) = -r2
       sa(1) = -r2
       ta(1) = -r2
@@ -1768,24 +1937,24 @@
       sa(2) =-r2
       ta(2) =-r2
 
-      ra(3) = -r2
-      sa(3) =r2
-      ta(3) = -r2
+      ra(3) =-r2
+      sa(3) = r2
+      ta(3) =-r2
 
       ra(4) = r2
       sa(4) = r2
-      ta(4) = -r2
+      ta(4) =-r2
 
-      ra(5) = -r2
-      sa(5) = -r2
-      ta(5) =r2
+      ra(5) =-r2
+      sa(5) =-r2
+      ta(5) = r2
 
       ra(6) = r2
-      sa(6) = -r2
+      sa(6) =-r2
       ta(6) = r2
    
 
-      ra(7) = -r2
+      ra(7) =-r2
       sa(7) = r2
       ta(7) = r2
 
@@ -1968,49 +2137,89 @@
 
        endif
 
-
       if (nen.eq.8) then
       do 20 j=1,npint
 
-      shl(4,1,j) = (one - ra(j))*(one - sa(j))*(one - ta(j))/eight
-      shl(4,2,j) = (one + ra(j))*(one - sa(j))*(one - ta(j))/eight
-      shl(4,3,j) = (one + ra(j))*(one + sa(j))*(one - ta(j))/eight
-      shl(4,4,j) = (one - ra(j))*(one + sa(j))*(one - ta(j))/eight
-      shl(4,5,j) = (one - ra(j))*(one - sa(j))*(one + ta(j))/eight
-      shl(4,6,j) = (one + ra(j))*(one - sa(j))*(one + ta(j))/eight
-      shl(4,7,j) = (one + ra(j))*(one + sa(j))*(one + ta(j))/eight
-      shl(4,8,j) = (one - ra(j))*(one + sa(j))*(one + ta(j))/eight
+           shl(1,1,j) = -(one - sa(j))*(one - ta(j))/eight
+           shl(2,1,j) = -(one - ra(j))*(one - ta(j))/eight
+           shl(3,1,j) = -(one - ra(j))*(one - sa(j))/eight
+           shl(4,1,j) =  (one - ra(j))*(one - sa(j))*(one - ta(j))/eight
 
+           shl(1,2,j) =  (one - sa(j))*(one - ta(j))/eight           
+           shl(2,2,j) = -(one + ra(j))*(one - ta(j))/eight           
+           shl(3,2,j) = -(one + ra(j))*(one - sa(j))/eight
+           shl(4,2,j) =  (one + ra(j))*(one - sa(j))*(one - ta(j))/eight
 
-      shl(3,1,j) = -(one - ra(j))*(one - sa(j))/eight
-      shl(3,2,j) = -(one + ra(j))*(one - sa(j))/eight
-      shl(3,3,j) = -(one + ra(j))*(one + sa(j))/eight
-      shl(3,4,j) = -(one - ra(j))*(one + sa(j))/eight
-      shl(3,5,j) = (one - ra(j))*(one - sa(j))/eight
-      shl(3,6,j) = (one + ra(j))*(one - sa(j))/eight
-      shl(3,7,j) = (one + ra(j))*(one + sa(j))/eight
-      shl(3,8,j) = (one - ra(j))*(one + sa(j))/eight
+           shl(1,3,j) =  (one + sa(j))*(one - ta(j))/eight           
+           shl(2,3,j) =  (one + ra(j))*(one - ta(j))/eight
+           shl(3,3,j) = -(one + ra(j))*(one + sa(j))/eight
+           shl(4,3,j) =  (one + ra(j))*(one + sa(j))*(one - ta(j))/eight           
 
+           shl(1,4,j) = -(one + sa(j))*(one - ta(j))/eight           
+           shl(2,4,j) =  (one - ra(j))*(one - ta(j))/eight
+           shl(3,4,j) = -(one - ra(j))*(one + sa(j))/eight
+           shl(4,4,j) =  (one - ra(j))*(one + sa(j))*(one - ta(j))/eight
 
-
-      shl(2,1,j) = -(one - ra(j))*(one - ta(j))/eight
-      shl(2,2,j) = -(one + ra(j))*(one - ta(j))/eight
-      shl(2,3,j) = (one + ra(j))*(one - ta(j))/eight
-      shl(2,4,j) = (one - ra(j))*(one - ta(j))/eight
-      shl(2,5,j) = -(one - ra(j))*(one + ta(j))/eight
-      shl(2,6,j) = -(one + ra(j))*(one + ta(j))/eight
-      shl(2,7,j) = (one + ra(j))*(one + ta(j))/eight
-      shl(2,8,j) = (one - ra(j))*(one + ta(j))/eight
-
-
-      shl(1,1,j) = -(one - sa(j))*(one - ta(j))/eight
-      shl(1,2,j) = (one - sa(j))*(one - ta(j))/eight
-      shl(1,3,j) = (one + sa(j))*(one - ta(j))/eight
-      shl(1,4,j) = -(one + sa(j))*(one - ta(j))/eight
-      shl(1,5,j) = -(one - sa(j))*(one + ta(j))/eight
-      shl(1,6,j) = (one - sa(j))*(one + ta(j))/eight
-      shl(1,7,j) = (one + sa(j))*(one + ta(j))/eight
-      shl(1,8,j) = -(one + sa(j))*(one + ta(j))/eight
+           shl(1,5,j) = -(one - sa(j))*(one + ta(j))/eight           
+           shl(2,5,j) = -(one - ra(j))*(one + ta(j))/eight
+           shl(3,5,j) =  (one - ra(j))*(one - sa(j))/eight
+           shl(4,5,j) =  (one - ra(j))*(one - sa(j))*(one + ta(j))/eight
+           
+           shl(1,6,j) =  (one - sa(j))*(one + ta(j))/eight           
+           shl(2,6,j) = -(one + ra(j))*(one + ta(j))/eight
+           shl(3,6,j) =  (one + ra(j))*(one - sa(j))/eight           
+           shl(4,6,j) =  (one + ra(j))*(one - sa(j))*(one + ta(j))/eight
+           
+           shl(1,7,j) =  (one + sa(j))*(one + ta(j))/eight
+           shl(2,7,j) =  (one + ra(j))*(one + ta(j))/eight           
+           shl(3,7,j) =  (one + ra(j))*(one + sa(j))/eight           
+           shl(4,7,j) =  (one + ra(j))*(one + sa(j))*(one + ta(j))/eight
+           
+           shl(1,8,j) = -(one + sa(j))*(one + ta(j))/eight           
+           shl(2,8,j) =  (one - ra(j))*(one + ta(j))/eight
+           shl(3,8,j) =  (one - ra(j))*(one + sa(j))/eight
+           shl(4,8,j) =  (one - ra(j))*(one + sa(j))*(one + ta(j))/eight
+!       
+!       
+!       shl(4,1,j) = (one - ra(j))*(one - sa(j))*(one - ta(j))/eight
+!       shl(4,2,j) = (one + ra(j))*(one - sa(j))*(one - ta(j))/eight
+!       shl(4,3,j) = (one + ra(j))*(one + sa(j))*(one - ta(j))/eight
+!       shl(4,4,j) = (one - ra(j))*(one + sa(j))*(one - ta(j))/eight
+!       shl(4,5,j) = (one - ra(j))*(one - sa(j))*(one + ta(j))/eight
+!       shl(4,6,j) = (one + ra(j))*(one - sa(j))*(one + ta(j))/eight
+!       shl(4,7,j) = (one + ra(j))*(one + sa(j))*(one + ta(j))/eight
+!       shl(4,8,j) = (one - ra(j))*(one + sa(j))*(one + ta(j))/eight
+! 
+! 
+!       shl(3,1,j) = -(one - ra(j))*(one - sa(j))/eight
+!       shl(3,2,j) = -(one + ra(j))*(one - sa(j))/eight
+!       shl(3,3,j) = -(one + ra(j))*(one + sa(j))/eight
+!       shl(3,4,j) = -(one - ra(j))*(one + sa(j))/eight
+!       shl(3,5,j) = (one - ra(j))*(one - sa(j))/eight
+!       shl(3,6,j) = (one + ra(j))*(one - sa(j))/eight
+!       shl(3,7,j) = (one + ra(j))*(one + sa(j))/eight
+!       shl(3,8,j) = (one - ra(j))*(one + sa(j))/eight
+! 
+! 
+! 
+!       shl(2,1,j) = -(one - ra(j))*(one - ta(j))/eight
+!       shl(2,2,j) = -(one + ra(j))*(one - ta(j))/eight
+!       shl(2,3,j) = (one + ra(j))*(one - ta(j))/eight
+!       shl(2,4,j) = (one - ra(j))*(one - ta(j))/eight
+!       shl(2,5,j) = -(one - ra(j))*(one + ta(j))/eight
+!       shl(2,6,j) = -(one + ra(j))*(one + ta(j))/eight
+!       shl(2,7,j) = (one + ra(j))*(one + ta(j))/eight
+!       shl(2,8,j) = (one - ra(j))*(one + ta(j))/eight
+! 
+! 
+!       shl(1,1,j) = -(one - sa(j))*(one - ta(j))/eight
+!       shl(1,2,j) = (one - sa(j))*(one - ta(j))/eight
+!       shl(1,3,j) = (one + sa(j))*(one - ta(j))/eight
+!       shl(1,4,j) = -(one + sa(j))*(one - ta(j))/eight
+!       shl(1,5,j) = -(one - sa(j))*(one + ta(j))/eight
+!       shl(1,6,j) = (one - sa(j))*(one + ta(j))/eight
+!       shl(1,7,j) = (one + sa(j))*(one + ta(j))/eight
+!       shl(1,8,j) = -(one + sa(j))*(one + ta(j))/eight
 
 
 
@@ -2389,7 +2598,9 @@
 
       return
       end subroutine
+!
 !**** new **********************************************************************
+!
       function rowdot(a,b,ma,mb,n)
 !
 !.... program to compute the dot product of vectors stored row-wise
@@ -2412,5 +2623,1078 @@
 !
      return
    end function
+!   
+!**** new **********************************************************************
+!
+    subroutine shlten(shlen, nen)
+        !  Calcula funcoes de interpolacao e suas derivadas locais para
+        !     elementos triangulares nos nos do elemento
+        !
+        !  - ----------------------------------------------- - -------------------- -
+        !
+        !            s,t = local element coordinates ("xi", "eta", resp.)
+        !   shlen(1,i,l) = local ("xi") derivative of shape function i in node l
+        !   shlen(2,i,l) = local ("eta") derivative of shape function i in node l
+        !   shlen(3,i,l) = local shape function i in node l
+        !            nen = number of element nodes
+        !
+        implicit none
 
+        integer :: l, nen
+        real*8 :: r, s
+        real*8 :: shlen(3, nen, nen), ra(nen), sa(nen)
+
+        if (nen == 3) then
+            ra(1) = one
+            sa(1) = zero
+            ra(2) = zero
+            sa(2) = one
+            ra(3) = zero
+            sa(3) = zero
+        end if
+
+        do l = 1, nen
+            r = ra(l)
+            s = sa(l)
+            shlen(1, 1, l) = one
+            shlen(2, 1, l) = zero
+            shlen(3, 1, l) = r
+            shlen(1, 2, l) = zero
+            shlen(2, 2, l) = one
+            shlen(3, 2, l) = s
+            shlen(1, 3, l) = -one
+            shlen(2, 3, l) = -one
+            shlen(3, 3, l) = 1 - r - s
+        end do
+        return
+    end subroutine
+!   
+!**** new **********************************************************************
+!
+    subroutine shlqen(shlen, nen) !alterei esta rotina... corrigi a numeração
+    
+        !  Calcula funcoes de interpolacao e suas derivadas locais para
+        !     elementos quadrangulares nos nos do elemento
+        !
+        !  - ----------------------------------------------- - -------------------- -
+        !
+        !            s,t = local element coordinates ("xi", "eta", resp.)
+        !   shlen(1,i,l) = local ("xi") derivative of shape function i in node l
+        !   shlen(2,i,l) = local ("eta") derivative of shape function i in node l
+        !   shlen(3,i,l) = local shape function i in node l
+        !            nen = number of element nodes
+        !
+        implicit none
+
+        integer :: l, nen
+        real*8 :: onemr, onems, onepr, oneps
+        real*8 :: r, s
+        real*8 :: shlen(3, nen, nen), ra(nen), sa(nen)
+
+        if (nen == 4) then
+            ra(1) = -one
+            sa(1) = -one
+            ra(2) =  one
+            sa(2) = -one
+            ra(3) =  one
+            sa(3) =  one
+            ra(4) = -one
+            sa(4) =  one
+        end if
+
+        do l = 1, nen
+            r = ra(l)
+            s = sa(l)
+            onepr = one + r
+            onemr = one - r
+            oneps = one + s
+            onems = one - s
+
+            shlen(1, 1, l) = -onems * pt25
+            shlen(2, 1, l) = -onemr * pt25
+            shlen(3, 1, l) = onemr * onems * pt25
+            
+            shlen(1, 2, l) = onems * pt25
+            shlen(2, 2, l) = -onepr * pt25
+            shlen(3, 2, l) = onepr * onems * pt25
+
+            shlen(1, 3, l) = oneps * pt25
+            shlen(2, 3, l) = onepr * pt25
+            shlen(3, 3, l) = onepr * oneps * pt25
+            
+            shlen(1, 4, l) = -oneps * pt25
+            shlen(2, 4, l) = onemr * pt25
+            shlen(3, 4, l) = onemr * oneps * pt25
+            
+            
+            
+        end do
+        return
+    end subroutine
+!   
+!**** new **********************************************************************
+!
+    subroutine shlqen3D(shl, nen)
+        !  Calcula funcoes de interpolacao e suas derivadas locais para
+        !     elementos quadrangulares nos nos do elemento
+        !
+        !  - ----------------------------------------------- - -------------------- -
+        !
+        !            s,t = local element coordinates ("xi", "eta", resp.)
+        !   shlen(1,i,l) = local ("xi") derivative of shape function i in node l
+        !   shlen(2,i,l) = local ("eta") derivative of shape function i in node l
+        !   shlen(3,i,l) = local shape function i in node l
+        !            nen = number of element nodes
+        !
+        implicit none
+
+        integer :: j, nen
+        real*8 :: onemr, onems, onepr, oneps, onept, onemt
+        real*8 :: r, s, t, eight
+        real*8 :: shl(4, nen, nen), ra(nen), sa(nen), ta(nen)
+        
+        eight=8.d0
+        
+        if (nen == 8) then
+          ra(1) =-one
+          sa(1) =-one
+          ta(1) =-one
+
+          ra(2) = one
+          sa(2) =-one
+          ta(2) =-one
+
+          ra(4) =-one
+          sa(4) = one
+          ta(4) =-one
+
+          ra(3) = one
+          sa(3) = one
+          ta(3) =-one
+
+          ra(5) =-one
+          sa(5) =-one
+          ta(5) = one
+
+          ra(6) = one
+          sa(6) =-one
+          ta(6) = one
+   
+          ra(8) =-one
+          sa(8) = one
+          ta(8) = one
+
+          ra(7) = one
+          sa(7) = one
+          ta(7) = one
+
+        end if
+        
+        do j=1,nen
+        
+           shl(1,1,j) = -(one - sa(j))*(one - ta(j))/eight
+           shl(2,1,j) = -(one - ra(j))*(one - ta(j))/eight
+           shl(3,1,j) = -(one - ra(j))*(one - sa(j))/eight
+           shl(4,1,j) =  (one - ra(j))*(one - sa(j))*(one - ta(j))/eight
+
+           shl(1,2,j) =  (one - sa(j))*(one - ta(j))/eight           
+           shl(2,2,j) = -(one + ra(j))*(one - ta(j))/eight           
+           shl(3,2,j) = -(one + ra(j))*(one - sa(j))/eight
+           shl(4,2,j) =  (one + ra(j))*(one - sa(j))*(one - ta(j))/eight
+
+           shl(1,3,j) =  (one + sa(j))*(one - ta(j))/eight           
+           shl(2,3,j) =  (one + ra(j))*(one - ta(j))/eight
+           shl(3,3,j) = -(one + ra(j))*(one + sa(j))/eight
+           shl(4,3,j) =  (one + ra(j))*(one + sa(j))*(one - ta(j))/eight           
+
+           shl(1,4,j) = -(one + sa(j))*(one - ta(j))/eight           
+           shl(2,4,j) =  (one - ra(j))*(one - ta(j))/eight
+           shl(3,4,j) = -(one - ra(j))*(one + sa(j))/eight
+           shl(4,4,j) =  (one - ra(j))*(one + sa(j))*(one - ta(j))/eight
+
+           shl(1,5,j) = -(one - sa(j))*(one + ta(j))/eight           
+           shl(2,5,j) = -(one - ra(j))*(one + ta(j))/eight
+           shl(3,5,j) =  (one - ra(j))*(one - sa(j))/eight
+           shl(4,5,j) =  (one - ra(j))*(one - sa(j))*(one + ta(j))/eight
+           
+           shl(1,6,j) =  (one - sa(j))*(one + ta(j))/eight           
+           shl(2,6,j) = -(one + ra(j))*(one + ta(j))/eight
+           shl(3,6,j) =  (one + ra(j))*(one - sa(j))/eight           
+           shl(4,6,j) =  (one + ra(j))*(one - sa(j))*(one + ta(j))/eight
+           
+           shl(1,7,j) =  (one + sa(j))*(one + ta(j))/eight
+           shl(2,7,j) =  (one + ra(j))*(one + ta(j))/eight           
+           shl(3,7,j) =  (one + ra(j))*(one + sa(j))/eight           
+           shl(4,7,j) =  (one + ra(j))*(one + sa(j))*(one + ta(j))/eight
+           
+           shl(1,8,j) = -(one + sa(j))*(one + ta(j))/eight           
+           shl(2,8,j) =  (one - ra(j))*(one + ta(j))/eight
+           shl(3,8,j) =  (one - ra(j))*(one + sa(j))/eight
+           shl(4,8,j) =  (one - ra(j))*(one + sa(j))*(one + ta(j))/eight
+
+      end do
+
+!         if (nen == 8) then
+!           ra(1) =-one
+!           sa(1) =-one
+!           ta(1) =-one
+! 
+!           ra(2) = one
+!           sa(2) =-one
+!           ta(2) =-one
+! 
+!           ra(3) =-one
+!           sa(3) = one
+!           ta(3) =-one
+! 
+!           ra(4) = one
+!           sa(4) = one
+!           ta(4) =-one
+! 
+!           ra(5) =-one
+!           sa(5) =-one
+!           ta(5) = one
+! 
+!           ra(6) = one
+!           sa(6) =-one
+!           ta(6) = one
+!    
+!           ra(7) =-one
+!           sa(7) = one
+!           ta(7) = one
+! 
+!           ra(8) = one
+!           sa(8) = one
+!           ta(8) = one
+! 
+!         end if
+
+!         do j=1,nen
+! 
+!            shl(4,1,j) = (one - ra(j))*(one - sa(j))*(one - ta(j))/eight
+!            shl(4,2,j) = (one + ra(j))*(one - sa(j))*(one - ta(j))/eight
+!            shl(4,3,j) = (one + ra(j))*(one + sa(j))*(one - ta(j))/eight
+!            shl(4,4,j) = (one - ra(j))*(one + sa(j))*(one - ta(j))/eight
+!            shl(4,5,j) = (one - ra(j))*(one - sa(j))*(one + ta(j))/eight
+!            shl(4,6,j) = (one + ra(j))*(one - sa(j))*(one + ta(j))/eight
+!            shl(4,7,j) = (one + ra(j))*(one + sa(j))*(one + ta(j))/eight
+!            shl(4,8,j) = (one - ra(j))*(one + sa(j))*(one + ta(j))/eight
+! 
+!            shl(3,1,j) = -(one - ra(j))*(one - sa(j))/eight
+!            shl(3,2,j) = -(one + ra(j))*(one - sa(j))/eight
+!            shl(3,3,j) = -(one + ra(j))*(one + sa(j))/eight
+!            shl(3,4,j) = -(one - ra(j))*(one + sa(j))/eight
+!            shl(3,5,j) =  (one - ra(j))*(one - sa(j))/eight
+!            shl(3,6,j) =  (one + ra(j))*(one - sa(j))/eight
+!            shl(3,7,j) =  (one + ra(j))*(one + sa(j))/eight
+!            shl(3,8,j) =  (one - ra(j))*(one + sa(j))/eight
+! 
+!            shl(2,1,j) = -(one - ra(j))*(one - ta(j))/eight
+!            shl(2,2,j) = -(one + ra(j))*(one - ta(j))/eight
+!            shl(2,3,j) =  (one + ra(j))*(one - ta(j))/eight
+!            shl(2,4,j) =  (one - ra(j))*(one - ta(j))/eight
+!            shl(2,5,j) = -(one - ra(j))*(one + ta(j))/eight
+!            shl(2,6,j) = -(one + ra(j))*(one + ta(j))/eight
+!            shl(2,7,j) =  (one + ra(j))*(one + ta(j))/eight
+!            shl(2,8,j) =  (one - ra(j))*(one + ta(j))/eight
+! 
+! 
+!            shl(1,1,j) = -(one - sa(j))*(one - ta(j))/eight
+!            shl(1,2,j) =  (one - sa(j))*(one - ta(j))/eight
+!            shl(1,3,j) =  (one + sa(j))*(one - ta(j))/eight
+!            shl(1,4,j) = -(one + sa(j))*(one - ta(j))/eight
+!            shl(1,5,j) = -(one - sa(j))*(one + ta(j))/eight
+!            shl(1,6,j) =  (one - sa(j))*(one + ta(j))/eight
+!            shl(1,7,j) =  (one + sa(j))*(one + ta(j))/eight
+!            shl(1,8,j) = -(one + sa(j))*(one + ta(j))/eight
+! 
+!       end do
+      
+      return
+    end subroutine
+!
+!**** new **********************************************************************
+!
+         subroutine gerarPtosIntegracaoLaterais2D
+         use mMalha, only: nsd
+         use mGlobaisEscalares, only: npint!, npintFratura
+         integer :: npintFratura = 2
+         select case(npint)
+            case(1)
+               npintFratura = 1
+            case(3)
+               npintFratura = 2
+            case(4)
+               if(nsd==2) npintFratura = 2
+               if(nsd==3) npintFratura = 3
+            case(7)
+               npintFratura = 3
+            case(8)
+               npintFratura = 4
+            case(9)
+               npintFratura = 3
+            case(16)
+               npintFratura = 4
+            case(25)
+               npintFratura = 5
+            case(36)
+               npintFratura = 6
+            case(49)
+               npintFratura = 7
+            case(64)
+               npintFratura = 8
+         end select
+      end subroutine gerarPtosIntegracaoLaterais2D
+!
+!**** new **********************************************************************
+!
+     subroutine shl1D_elemNodes(shlen, nen)
+      !  Calcula funcoes de interpolacao e suas derivadas locais avaliadas nos nos.
+      !  Implementacao para elementos unidimensionais
+      !
+      !  - ----------------------------------------------- - -------------------- -
+      !
+      !            r = local element coordinate ("xi")
+      !   shlen(1,i,l) = local ("xi") derivative of shape function i in node l
+      !   shlen(2,i,l) = local shape function i in node l
+      !            nen = number of element nodes
+      !            nsd = number of the space dimension
+      !
+
+      real*8, intent(out) :: shlen(2, nen, nen)
+      integer, intent(in)     :: nen
+
+      real*8 :: r(nen)
+      integer :: l
+
+      call masterNodeCoords1D(r, nen)
+
+      do l = 1, nen
+         call shl1D_point(r(l), nen, shlen(:,:,l))
+      end do
+   end subroutine shl1D_elemNodes
+!
+!**** new *************************************************************
+!
+   subroutine shl1D_intPoints(shl, w, nint, nen)
+      !
+      !  Calculate integration-rule weights, shape functions
+      !     and local derivatives for an one-dimensional element
+      !
+      !              r = local element coordinate ("xi")
+      !     shl(1,i,l) = local ("xi") derivative of shape function
+      !     shl(2,i,l) = local  shape function
+      !           w(l) = integration-rule weight
+      !              i = local node number
+      !              l = integration point number
+      !           nint = number of integration points
+      !
+      integer, intent(in) :: nint, nen
+      real*8, intent(out) :: shl(2, nen, nint), w(nint)
+      integer :: l
+      real*8 :: r(nint)
+
+      !Atribuicao dos pesos e posicoes da quadratura
+      call masterIntCoords1D(r, w, nint)
+
+      !Atribuicao dos valores das shape functions
+      do l = 1, nint
+         call shl1D_point(r(l), nen, shl(:,:,l))
+      end do
+   end subroutine shl1D_intPoints
+!
+!**** new *************************************************************
+!
+   subroutine shl1D_point(r, nen, shl)
+      ! Shape functions and its first derivative evaluated at a given point r
+      real *8, intent(in)  :: r
+      integer, intent(in)      :: nen
+      real *8, intent(out) :: shl(2,nen)
+      integer                 :: i, j, k
+      real*8              :: aa, aax, bb, daj, rElemNodes(nen)
+
+      call masterNodeCoords1D(rElemNodes, nen)
+
+      if (nen == 1) then
+         shl(1,1) = zero
+         shl(2,1) = one
+         return
+      end if
+
+      do i = 1, nen
+         aa = one
+         bb = one
+         aax = zero
+         do j = 1, nen
+            daj = one
+            if (i /= j)then
+               aa = aa * ( r - rElemNodes(j))
+               bb = bb * ( rElemNodes(i) - rElemNodes(j))
+               do k = 1, nen
+                  if (k /= i .and. k /= j) daj = daj * ( r - rElemNodes(k))
+               end do
+               aax = aax + daj
+            endif
+         end do
+         shl(2,i) = aa/bb
+         shl(1,i) = aax/bb
+      end do
+   end subroutine shl1D_point
+!
+!**** new *************************************************************
+!
+ subroutine shg1D_point(xl, det, shl, shg, nen, nsd)
+
+      ! program to calculate global derivatives of shape functions
+      !    and jacobian determinants for the one-dimensional element
+
+      !     xl(i,j) = global coordinates of nodes
+      !  shl(1,j,l) = local ("xi") derivative of shape function j on integration point l
+      !  shl(2,j,l) = value of shape function j on integration point l
+      !  shg(1,j,l) = global ("arc-length") derivative of shape function j on integration point l
+      !  shg(2,j,l) = shl(2,i,l)
+      !      det(l) = euclidean length
+      !           i = global coordinate number
+      !           j = local node number
+      !           l = integration-point number
+      !        nint = number of integration points
+
+      integer, intent(in)     :: nen, nsd
+      real*8, intent(in)  :: xl(nsd,nen), shl(2,nen)
+      real*8, intent(out) :: shg(2,nen), det
+      integer :: sinal
+      real*8 :: projecao
+      real*8  :: diff(nsd), length, sinTheta, cosTheta
+
+      integer                 :: i
+
+      if(nen == 1) return
+
+      det = det1D(xl, shl, nen, nsd)
+
+      if (det <= zero) then
+         write(*, "(a)") "Error: shg1D_point found a non-positive determinant"
+         stop
+      end if
+
+        diff(1) = xl(1,2) - xl(1,1)
+        diff(2) = xl(2,2) - xl(2,1)
+        length = sqrt(diff(1)*diff(1) + diff(2)*diff(2))
+        sinTheta = abs(diff(2))/length
+        if (diff(2) > zero) then
+            cosTheta = diff(1)/length
+        else if (diff(2) < zero) then
+            cosTheta = -diff(1)/length
+        else
+            cosTheta = -abs(diff(1))/length
+        end if
+        
+        projecao=diff(1)*cosTheta+diff(2)*sinTheta
+        if(projecao>0)  then
+           sinal=1
+        else
+           sinal=-1
+        endif
+      
+      do i=1,nen
+         shg(1,i)=sinal*shl(1,i)/det
+         shg(2,i)=shl(2,i)
+      end do
+   end subroutine shg1D_point
+
+   subroutine shg1D_points(xl, det, shl, shg, nen, npoints, nsd)
+      !
+      !  program to calculate global derivatives of shape functions and
+      !     jacobian determinants at the integration points
+      !
+      !     xl(j,i)    = global coordinates
+      !     det(l)     = jacobian determinant
+      !     shl(1,i,l) = local ("xi") derivative of shape function
+      !     shl(2,i,l) = local ("eta") derivative of shape function
+      !     shl(3,i,l) = local  shape function
+      !     shg(1,i,l) = x-derivative of shape function
+      !     shg(2,i,l) = y-derivative of shape function
+      !     shg(3,i,l) = shl(3,i,l)
+      !              l = integration-point number
+      !           nint = number of integration points
+      !
+      integer :: l
+      integer, intent(in) :: npoints, nen, nsd
+      real*8, intent(in) :: xl(nsd, nen)
+      real*8, intent(in) :: shl(2, nen, npoints)
+      real*8, intent(out) :: shg(2, nen, npoints)
+      real*8, intent(out) :: det(npoints)
+
+      do l = 1, npoints
+         call shg1D_point(xl, det(l), shl(:,:,l), shg(:,:,l), nen, nsd)
+      end do
+   end subroutine shg1D_points
+   
+    
+   subroutine shgCodimOneSurface_point(xl, det, shl, shg, nen, nsd)
+
+      ! program to calculate global derivatives of shape functions
+      !    and jacobian determinants for a codimensional one surface element at a given point:
+      !    surface element if nsd==3 or curve element of nsd == 2
+      !
+      !      xl(i,j) = global coordinates of nodes
+      !     shl(1,j) = local ("xi") derivative of shape function j at a given point (nsd==2)
+      !     shl(2,j) = local ("eta") derivative of shape function j at a given point (nsd==3)
+      !   shl(nsd,j) = value of shape function j at a given point
+      !     shg(1,j) = global x-derivative of shape function j at a given point
+      !     shg(2,j) = global y-derivative of shape function j at a given point
+      !     shg(3,j) = global z-derivative of shape function j at a given point
+      ! shg(nsd+1,j) = shl(nsd,i)
+      !          det = square root of the determinant of the g matrix
+      !
+      !       d(i,j) = local j-derivative of the i-coordinate of a given point
+      !            g = first fundamental form (d^T d)
+      !         detG = determinant of matrix g
+      !        g_inv = inverse of matrix g
+
+      integer, intent(in) :: nen, nsd
+      real*8, intent(in)  :: xl(nsd,nen), shl(nsd,nen)
+      real*8, intent(out) :: shg(nsd+1,nen), det
+
+      real*8 :: d(nsd,nsd-1), g(nsd-1,nsd-1), g_inv(nsd-1,nsd-1), detG
+      integer :: i,j,no
+
+      if(nen == 1) return
+
+      do i=1,nsd
+         do j=1,nsd-1
+            d(i,j) = dot_product(xl(i,:),shl(j,:))
+         end do
+      end do
+
+      do i=1,nsd-1
+         do j=1,nsd-1
+            g(i,j) = dot_product(d(:,i),d(:,j))
+         end do
+      end do
+
+      if (nsd==2) then
+         detG = g(1,1)
+         g_inv = 1d0/detG
+      else if (nsd==3) then
+         detG = g(1,1)*g(2,2) - g(1,2)*g(2,1)
+         g_inv(1,1) = g(2,2)
+         g_inv(2,2) = g(1,1)
+         g_inv(1,2) = -g(1,2)
+         g_inv(2,1) = -g(2,1)
+         g_inv(:,:) = g_inv(:,:)/detG
+      else
+         print*, "Erro na subrotina shgSurface_point: nsd deve ser 2 ou 3"
+         stop
+      end if
+
+      if (detG <= 0d0) then
+         print*, "Erro na subrotina shgSurface_point: determinante nulo ou negativo"
+         stop
+      end if
+      det = sqrt(detG)
+
+      do no=1,nen
+         do i=1,nsd
+            shg(i,no) = 0d0
+            do j=1,nsd-1
+               shg(i,no) = shg(i,no) + d(i,j)*dot_product(g_inv(j,:),shl(1:nsd-1,no))
+            end do
+         end do
+         shg(nsd+1,no) = shl(nsd,no)
+      end do
+   end subroutine shgCodimOneSurface_point
+
+   subroutine shgCodimOneSurface_points(xl, det, shl, shg, nen, npoints, nsd)
+      ! program to calculate global derivatives of shape functions
+      !    and jacobian determinants for a codimensional one surface element at the set of points:
+      !    surface element if nsd==3 or line element of nsd == 2
+      !
+      !        xl(i,j) = global coordinates of nodes
+      !     shl(1,j,l) = local ("xi") derivative of shape function j at a point l (nsd==2)
+      !     shl(2,j,l) = local ("eta") derivative of shape function j at a point l (nsd==3)
+      !   shl(nsd,j,l) = value of shape function j at a point l
+      !     shg(1,j,l) = global x-derivative of shape function j at a point l
+      !     shg(2,j,l) = global y-derivative of shape function j at a point l
+      !     shg(3,j,l) = global z-derivative of shape function j at a point l
+      ! shg(nsd+1,j,l) = shl(nsd,i,l)
+      !         det(l) = square root of the determinant of the g matrix at a point l
+      !        npoints = number of points
+      !
+      !              l = point number
+
+      integer :: l
+      integer, intent(in) :: npoints, nen, nsd
+      real*8, intent(in) :: xl(nsd, nen)
+      real*8, intent(in) :: shl(nsd, nen, npoints)
+      real*8, intent(out) :: shg(nsd+1, nen, npoints)
+      real*8, intent(out) :: det(npoints)
+
+      do l = 1, npoints
+         call shgCodimOneSurface_point(xl, det(l), shl(:,:,l), shg(:,:,l), nen, nsd)
+      end do
+   end subroutine shgCodimOneSurface_points
+
+   subroutine masterNodeCoords1D(r, nen)
+      ! Set the master element coordinates of the nodes
+      integer, intent(in)     :: nen
+      real*8, intent(out) :: r(nen)
+
+      select case(nen)
+         case (1)
+            r(1) = zero
+
+         case (2)
+            r(1) = -one
+            r(2) = one
+
+         case (3)
+            r(1)= -one
+            r(2)= one
+            r(3)= zero
+
+         case (4)
+            r(1) = -one
+            r(2) = one
+            r(3) = -.333333333333333d0
+            r(4) =  .333333333333333d0
+
+         case (5)
+            r(1)= -one
+            r(2)=  one
+            r(3)= -pt5
+            r(4)= zero
+            r(5)= pt5
+
+         case (6)
+            r(1) = -one
+            r(2) =  one
+            r(3) = -.6d0
+            r(4) = -.2d0
+            r(5) =  .2d0
+            r(6) =  .6d0
+
+         case (7)
+            r(1) = -one
+            r(2) =  one
+            r(3) = -.666666666666666d0
+            r(4) = -.333333333333333d0
+            r(5) = zero
+            r(6) =  .333333333333333d0
+            r(7) =  .666666666666666d0
+
+         case (8)
+            r(1) = -one
+            r(2) =  one
+            r(3) = -0.71428571428571d0
+            r(4) = -0.42857142857143d0
+            r(5) = -0.14285714285714d0
+            r(6) = 0.14285714285714d0
+            r(7) = 0.42857142857143d0
+            r(8) = 0.71428571428571d0
+
+         case default
+            write(*, "(a, i2, a)") 'Error: subrotina masterNodeCoords1D não está implementada para elementos 1D com ', &
+               nen, ' nós!'
+            stop
+      end select
+
+   end subroutine masterNodeCoords1D
+
+   subroutine masterIntCoords1D(r, w, nint)
+      ! Set the master element coordinates of the integration points and its respective weights
+      integer, intent(in)     :: nint
+      real*8, intent(out) :: r(nint), w(nint)
+      real*8, parameter   :: five9=0.5555555555555555d0
+      real*8, parameter   :: eight9=0.8888888888888888d0
+
+      !Atribuicao dos pesos e posicoes da quadratura
+      select case(nint)
+         case(1)
+            w(1) = two
+            r(1) = zero
+
+         case (2)
+            w(1) = one
+            w(2) = one
+            r(1)=-.577350269189626d0
+            r(2)= .577350269189625d0
+
+         case (3)
+            w(1) = five9
+            w(2) = five9
+            w(3) = eight9
+            r(1)=-.774596669241483d0
+            r(2)= .774596669241483d0
+            r(3)= zero
+
+         case (4)
+            w(1) = .347854845137454d0
+            w(2) = .347854845137454d0
+            w(3) = .652145154862546d0
+            w(4) = .652145154862546d0
+            r(1)=-.861136311594053d0
+            r(2)= .861136311594053d0
+            r(3)=-.339981043584856d0
+            r(4)= .339981043584856d0
+
+         case (5)
+            w(1) = .236926885056189d0
+            w(2) = .236926885056189d0
+            w(3) = .478628670499366d0
+            w(4) = .478628670499366d0
+            w(5) = .568888888888888d0
+            r(1)=-.906179845938664d0
+            r(2)= .906179845938664d0
+            r(3)=-.538469310105683d0
+            r(4)= .538469310105683d0
+            r(5)= zero
+
+         case (6)
+            w(1) = .171324492397170d0
+            w(2) = .171324492397170d0
+            w(3) = .360761573048139d0
+            w(4) = .360761573048139d0
+            w(5) = .467913934572691d0
+            w(6) = .467913934572691d0
+            r(1)=-.932469514203152d0
+            r(2)= .932469514203152d0
+            r(3)=-.661209386466265d0
+            r(4)= .661209386466365d0
+            r(5)=-.238619186083197d0
+            r(6)= .238619186083197d0
+
+         case (7)
+            w(1) = .129484966168870d0
+            w(2) = .129484966168870d0
+            w(3) = .279705391489277d0
+            w(4) = .279705391489277d0
+            w(5) = .381830050505119d0
+            w(6) = .381830050505119d0
+            w(7) = .417959183673469d0
+            r(1)=-.949107912342759d0
+            r(2)= .949107912342759d0
+            r(3)=-.741531185599394d0
+            r(4)= .741531185599394d0
+            r(5)=-.405845151377397d0
+            r(6)= .405845151377397d0
+            r(7)= zero
+
+         case (8)
+            w(1) = .101228536290376d0
+            w(2) = .101228536290376d0
+            w(3) = .222381034453374d0
+            w(4) = .222381034453374d0
+            w(5) = .313706645877887d0
+            w(6) = .313706645877887d0
+            w(7) = .362683783378362d0
+            w(8) = .362683783378362d0
+            r(1)=-.960289856497536d0
+            r(2)= .960289856497536d0
+            r(3)=-.796666477413627d0
+            r(4)= .796666477413627d0
+            r(5)=-.525532409916329d0
+            r(6)= .525532409916329d0
+            r(7)=-.183434642495650d0
+            r(8)= .183434642495650d0
+
+         case default
+            write(*, "(a, i2, a)") 'Error: subrotina masterIntCoords1D não está implementada para elementos 1D com ', &
+               nint, ' pontos de integração!'
+            stop
+      end select
+   end subroutine masterIntCoords1D
+
+   function det1D(xl, shl, nen, nsd)
+      real*8 :: det1D
+      integer, intent(in)     :: nen, nsd
+      real*8, intent(in)  :: xl(nsd,nen), shl(2,nen)
+
+      integer    :: i
+      real*8 :: x(nsd)
+
+      x(:) = zero
+      do i=1,nen
+         x(:) = x(:) + shl(1,i)*xl(:,i)
+      end do
+      det1D = dsqrt(dot_product(x, x))
+   end function det1D
+   
+              subroutine shltPoint3D(r,s,t,nen,shl)
+              ! Shape functions and its first derivatives evaluated at a given point of coords (r,s)
+
+              use mGlobaisEscalares, only: one, zero
+
+              real*8, intent(in)  :: r,s,t
+              integer, intent(in) :: nen
+              real*8, intent(out) :: shl(4,nen)
+
+              real*8 :: u
+
+              u = 1d0-r-s-t
+
+              shl(1,1) = one
+              shl(2,1) = zero
+              shl(3,1) = zero
+              shl(4,1) = r
+
+              shl(1,2) = zero
+              shl(2,2) = zero
+              shl(3,2) = one
+              shl(4,2) = t
+
+              shl(1,3) = zero
+              shl(2,3) = one
+              shl(3,3) = zero
+              shl(4,3) = s
+
+              shl(1,4) = -one
+              shl(2,4) = -one
+              shl(3,4) = -one
+              shl(4,4) = u
+           end subroutine shltPoint3D
+
+           subroutine shlt3D(shl,w,npint,nen)
+              !       use mGlobaisEscalares
+              !
+              !.... program to calculate integration-rule weights, shape functions
+              !        and local derivatives for a triangular element
+              !
+              !        r, s, t = local element coordinates
+              !        shl(j,i,l) = local ("j") derivative of shape function
+              !        shl(3,i,l) = local  shape function
+              !              w(l) = integration-rule weight
+              !              npint = number of integration points, eq. 1 or 4
+              !
+
+              integer*4, intent(in) :: npint, nen
+              real*8, intent(out) :: shl(4,nen,npint),w(npint)
+
+              integer :: i
+              real*8 :: r(npint), s(npint), t(npint)
+
+              call masterIntCoords3D_tetra(r, s, t, w, npint)
+              do i=1,npint
+                  call shltPoint3D(r(i), s(i), t(i), nen, shl(:,:,i))
+              end do
+
+           end subroutine shlt3D
+
+           subroutine shlten3D(shl,nen)
+              !       use mGlobaisEscalares
+              !
+              !.... program to calculate integration-rule weights, shape functions
+              !        and local derivatives for a triangular element
+              !
+              !        c1, c2, c3 = local element coordinates ("l1", "l2", "l3".)
+              !        shl(j,i,l) = local ("j") derivative of shape function
+              !        shl(3,i,l) = local  shape function
+              !                 i = local node number
+
+              integer*4, intent(in) :: nen
+              real*8, intent(out) :: shl(4,nen,nen)
+
+              integer :: i
+              real*8 :: r(nen), s(nen), t(nen)
+
+              call masterNodeCoords3D_tetra(r, s, t, nen)
+              do i=1,nen
+                  call shltPoint3D(r(i), s(i), t(i), nen, shl(:,:,i))
+              end do
+
+           end subroutine shlten3D
+
+
+
+   subroutine masterIntCoords3D_tetra(r, s, t, w, nint)
+      ! Set the master element coordinates of the integration points and its respective weights
+
+      use mGlobaisEscalares, only: one, zero, pt25, pt45, pt5, pt8, pt1667, six
+
+      integer, intent(in)     :: nint
+      real*8, intent(out) :: r(nint), s(nint), t(nint), w(nint)
+
+      !Atribuicao dos pesos e posicoes da quadratura
+      select case(nint)
+         case(1)
+            w(1) = one/six
+
+            r(1) = pt25
+            s(1) = pt25
+            t(1) = pt25
+
+         case (4)
+            w(1) = pt25/six
+            w(2) = pt25/six
+            w(3) = pt25/six
+            w(4) = pt25/six
+
+            r(1) = 0.58541020d0
+            s(1) = 0.13819660d0
+            t(1) = 0.13819660d0
+
+            r(2) = 0.13819660d0
+            s(2) = 0.58541020d0
+            t(2) = 0.13819660d0
+
+            r(3) = 0.13819660d0
+            s(3) = 0.13819660d0
+            t(3) = 0.58541020d0
+
+            r(4) = 0.13819660d0
+            s(4) = 0.13819660d0
+            t(4) = 0.13819660d0
+
+         case (5)
+            w(1) = pt45/six
+            w(2) = pt45/six
+            w(3) = pt45/six
+            w(4) = pt45/six
+            w(5) = -pt8/six
+
+            r(1) = pt5
+            s(1) = pt1667
+            t(1) = pt1667
+
+            r(2) = pt1667
+            s(2) = pt5
+            t(2) = pt1667
+
+            r(3) = pt1667
+            s(3) = pt1667
+            r(3) = pt5
+
+            r(4) = pt1667
+            s(4) = pt1667
+            t(4) = pt1667
+
+            r(5) = pt25
+            s(5) = pt25
+            t(5) = pt25
+
+         case default
+            write(*, "(a, i2, a)") 'Error: subrotina masterIntCoords3D_tetra não está implementada para tetraedros com ', &
+               nint, ' pontos de integração!'
+            stop
+      end select
+   end subroutine masterIntCoords3D_tetra
+
+   subroutine masterNodeCoords3D_tetra(r, s, t, nen)
+      ! Set the master element coordinates of the integration points and its respective weights
+
+      use mGlobaisEscalares, only: one, zero
+
+      integer, intent(in) :: nen
+      real*8, intent(out) :: r(nen), s(nen), t(nen)
+
+      !Atribuicao dos pesos e posicoes da quadratura
+      select case(nen)
+         case (4)
+            r(1) = one
+            s(1) = zero
+            t(1) = zero
+
+            r(2) = zero
+            s(2) = one
+            t(2) = zero
+
+            r(3) = zero
+            s(3) = zero
+            t(3) = one
+
+            r(4) = zero
+            s(4) = zero
+            t(4) = zero
+
+         case default
+            write(*, "(a, i2, a)") 'Error: subrotina masterNodeCoords3D_tetra nao esta implementada para tetraedros com ', &
+               nen, ' nos!'
+            stop
+      end select
+   end subroutine masterNodeCoords3D_tetra
+
+      subroutine shg3D_Josue(xl,det,shl,shg,npint,nel,nen)
+
+         use mLeituraEscrita, only: iecho
+         !
+         !.... program to calculate global derivatives of shape functions and
+         !        jacobian determinants for a  quadrilateral element
+         !
+         !        xl(j,i)    = global coordinates
+         !        det(l)     = jacobian determinant
+         !        shl(1,i,l) = local ("xi") derivative of shape function
+         !        shl(2,i,l) = local ("eta") derivative of shape function
+         !        shl(3,i,l) = local ("zeta") derivative of shape function
+         !        shl(4,i,l) = local  shape function
+         !        shg(1,i,l) = x-derivative of shape function
+         !        shg(2,i,l) = y-derivative of shape function
+         !        shg(3,i,l) = z-derivative of shape funciton
+         !        dx_dr(i,j) = jacobian matrix (derivative of x_i with respect to r_j )
+         !                 i = global coordinate number
+         !                 j = local coordinate number
+         !                 l = integration-point number
+         !              npint = number of integration points, eq. 1 or 4
+         !
+         implicit none
+         !
+         !.... remove above card for single precision operation
+         !
+
+         integer*4, intent(in) :: npint, nel, nen
+         real*8, intent(in) :: xl(3,nen), shl(4,nen,npint)
+         real*8, intent(out) :: det(npint), shg(4,nen,npint)
+         !
+         real*8 :: dx_dr(3,3)
+         integer*4 i, j, l
+         real*8 cof11, cof12, cof13, cof21, cof22, cof23, cof31, cof32, cof33
+         real*8 temp1, temp2, temp3
+         shg=shl
+
+         do l=1,npint
+            do i=1,3
+               do j=1,3
+                  dx_dr(i,j) = dot_product(shl(j,:,l),xl(i,:))
+               end do
+            end do
+
+            !.. definition of the cofactors
+            !.. (recall the definition of matrix inverse : A^-1 = (cof)^T / det A) => (dx_dr)^-1 = (cof)^T / det
+
+            cof11 = dx_dr(2,2)*dx_dr(3,3) - dx_dr(2,3)*dx_dr(3,2)
+            cof12 = dx_dr(2,3)*dx_dr(3,1) - dx_dr(2,1)*dx_dr(3,3)
+            cof13 = dx_dr(2,1)*dx_dr(3,2) - dx_dr(2,2)*dx_dr(3,1)
+
+            cof21 = dx_dr(3,2)*dx_dr(1,3) - dx_dr(3,3)*dx_dr(1,2)
+            cof22 = dx_dr(3,3)*dx_dr(1,1) - dx_dr(3,1)*dx_dr(1,3)
+            cof23 = dx_dr(3,1)*dx_dr(1,2) - dx_dr(3,2)*dx_dr(1,1)
+
+            cof31 = dx_dr(1,2)*dx_dr(2,3) - dx_dr(1,3)*dx_dr(2,2)
+            cof32 = dx_dr(1,3)*dx_dr(2,1) - dx_dr(1,1)*dx_dr(2,3)
+            cof33 = dx_dr(1,1)*dx_dr(2,2) - dx_dr(1,2)*dx_dr(2,1)
+
+            det(l) = dx_dr(1,1)*cof11 + dx_dr(1,2)*cof12 + dx_dr(1,3)*cof13
+
+            if (det(l) < zero) then
+               write(iecho,"(a,i0,a,i3)") "Error in shg3D: non-positive determinant in element number ", &
+                                           nel, " and integration point ", l
+               write(*,    "(a,i0,a,i3)") "Error in shg3D: non-positive determinant in element number ", &
+                                           nel, " and integration point ", l
+               stop ' em shg3d'
+            endif
+
+            do i=1,nen
+
+               temp1 = shl(1,i,l)
+               temp2 = shl(2,i,l)
+               temp3 = shl(3,i,l)
+
+               shg(1,i,l) = (temp1*cof11 + temp2*cof12 + temp3*cof13)/det(l)
+               shg(2,i,l) = (temp1*cof21 + temp2*cof22 + temp3*cof23)/det(l)
+               shg(3,i,l) = (temp1*cof31 + temp2*cof32 + temp3*cof33)/det(l)
+            end do
+         end do
+
+      end subroutine shg3D_Josue
+
+      
      end module

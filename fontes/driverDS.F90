@@ -48,6 +48,8 @@
 !
       use mGlobaisEscalares, only: exec
       use mLeituraEscrita,   only: abrirArquivos, fecharArquivos
+      use mPotencial,        only: estrutSistEqP
+      use mFluxo,            only: estrutSistEqF
 
       implicit none
 
@@ -84,6 +86,12 @@
       write(*,*) "optSolverP= ", optSolverP
       write(*,*) "optSolverF= ", optSolverF
 
+      estrutSistEqP%optSolver=optSolverP
+      estrutSistEqP%simetria=.true.
+
+      estrutSistEqF%optSolver=optSolverF
+      estrutSistEqF%simetria=.true.
+
       print*, "      call abrirArquivos  ()"
 !
      comDS = .false.
@@ -91,11 +99,7 @@
 
       call abrirArquivos  (comDS)
 
-     if(comDS) then
       print*, " call preprocessadorDS ()"; call preprocessamentoDS()  
-     else
-      print*, " call preprocessador ()";   call preprocessamento()  
-     endif
 !
       if(exec==1)  then
           print*, "      call processamento  ()"
@@ -107,118 +111,6 @@
 !
 end program poisson
 
-!**** new **********************************************************************
-      subroutine preprocessamento ()
-      use mLeituraEscrita,   only: leituraGeracaoCoordenadas,  leituraCodigosCondContorno, prntel
-      use mLeituraEscrita,   only: leituraValoresCondContorno, leituraGeracaoConectividades
-      
-      use mGlobaisArranjos,  only: etime, title, mat
-      use mGlobaisEscalares, only: exec, iprtin, npint
-      use mMalha,            only: numnp, numel, nen, nsd
-      use mMalha,            only: x, conecNodaisElem
-      use mLeituraEscrita,   only: iin, iecho, icoords, echo
-      use mLeituraEscrita,   only: prntel
-        
-      use mPotencial,        only: estrutSistEqP
-      use mFluxo,            only: estrutSistEqF
-!
-      implicit none
-
-!
-      logical :: simetria
-!
-!.... input phase
-!
-      call echo
-
-      etime = 0.0
-
-      read(iin,1000) title
-      if (title(1).eq.'*end') return
-
-      read(iin,'(3i10)') exec,iprtin,nsd
-      read(iin,'(4i10)') numnp, numel, nen, npint
-      read(iin,'(2i10)') estrutSistEqP%nlvect, estrutSistEqF%nlvect
-!
-      write(iecho,1000) title 
-      write(iecho,3000) exec, iprtin, nsd
-      write(iecho,4000) numnp, numel, estrutSistEqP%nlvect, estrutSistEqF%nlvect
-!
-!.... initialization phase
-!
-!
-!....    set memory pointers for static data arrays,&
-!        and call associated input routines 
-!
-      estrutSistEqP%ndof=1    
-      estrutSistEqF%ndof=nsd
-!
-!.... input coordinate data
-!
-      allocate(          x(nsd,numnp));              x=0.0
-      write(*,*) "call leituraGeracaoCoordenadas"
-      call leituraGeracaoCoordenadas(x,nsd,numnp,iin, icoords,iprtin)
-
-      allocate(mat(numel))
-      allocate(conecNodaisElem(nen,numel))
-      write(*,*) "call leituraGeracaoConectividades"
-      call leituraGeracaoConectividades(conecNodaisElem,mat,nen,iin) ! genel
-      if (iprtin.eq.0) call prntel(mat,conecNodaisElem,nen,numel,1_4)
-!
-!.... input boundary condition data and establish equation numbers
-!
-      allocate(estrutSistEqP%u (estrutSistEqP%ndof,numnp));  estrutSistEqP%u=0.0
-      allocate(estrutSistEqP%id(estrutSistEqP%ndof,numnp)); estrutSistEqP%id=0
-      write(*,*) "call leituraCodigosCondContorno(idPotencial"
-      
-      call leituraCodigosCondContorno(estrutSistEqP%id,estrutSistEqP%ndof,numnp,estrutSistEqP%neq, iin, iecho, iprtin)
-      if (estrutSistEqP%nlvect.gt.0) then
-        allocate(estrutSistEqP%f(estrutSistEqP%nlvect,estrutSistEqP%ndof,numnp))
-        estrutSistEqP%f = 0.0
-           write(*,*) ' call leituraValoresCondContorno(fPotencial,ndofP,numnp,0,nlvectP,iprtin)'
-           call leituraValoresCondContorno(estrutSistEqP%f,estrutSistEqP%ndof,numnp,1_4,estrutSistEqP%nlvect,iprtin)
-      end if
-!
-!.... input nodal force and prescribed kinematic boundary-value data
-!
-      allocate(estrutSistEqF%u(estrutSistEqF%ndof,numnp));   estrutSistEqF%u=0.0 
-      allocate(estrutSistEqF%id(estrutSistEqF%ndof,numnp)); estrutSistEqF%id=0
-      write(*,*) "call leituraCodigosCondContorno(idFluxo," 
-      call leituraCodigosCondContorno(estrutSistEqF%id, estrutSistEqF%ndof,numnp,estrutSistEqF%neq,iin, iecho, iprtin)
-
-      if (estrutSistEqF%nlvect.gt.0)  then
-        allocate(estrutSistEqF%f(estrutSistEqF%nlvect,estrutSistEqF%ndof,numnp))
-        estrutSistEqF%f = 0.0
-          write(*,*) 'call leituraValoresCondContorno(fFluxo,ndofF,numnp,0,nlvectF,iprtin)'
-          call leituraValoresCondContorno(estrutSistEqF%f,estrutSistEqF%ndof,numnp,1_4,estrutSistEqF%nlvect,iprtin)
-      end if
-!
-!.... input element data
-!
-      write (*,*) "call leituraParamNumericosPropFisica()"
-      call leituraParamNumericosPropFisica()
-!     
-
- 1000 format(20a4)
- 2000 format(4i10,i10,11i10)
- 3000 format(5x,&
-     ' e x e c u t i o n   c o n t r o l   i n f o r m a t i o n '//5x,&
-     ' execution code  . . . . . . . . . . . . . . (exec  ) = ',i10//5x,&
-     '    eq. 0, data check                                   ',   //5x,&
-     '    eq. 1, execution                                    ',  //5x,&
-     ' input data print code . . . . . . . . . . . (iprtin ) = ',i10//5x,&
-     '    eq. 0, print nodal and element input data           ',   //5x,&
-     '    eq. 1, do not print nodal and element input data    ',   //5x, &
-     ' number of space dimensions  . . . . . . . . (nsd    ) = ',i10)
- 4000 format(5x,&
-     ' number of nodal points  . . . . . . . . . . (numnp  ) = ',i10//5x,&
-     ' number of elements      . . . . . . . . . . (numel  ) = ',i10//5x,&
-     ' number of potencial load vectors   . . . . . (nlvectP) = ',i10//5x,&
-     ' number of fluxos   load vectors   . . . . . (nlvectF) = ',i10//5x)
-!
-      end subroutine preprocessamento ! (optSolver_)
-      
-!
 !**** new **********************************************************************
 !
       subroutine leituraParamNumericosPropFisica ()
@@ -327,7 +219,7 @@ end program poisson
       logical :: escreverSistP=.false., escreverSolP=.false.
       logical :: escreverSistF=.false., escreverSolF=.false.
 
-!      escreverSistP=.true.; escreverSolP=.true.
+      escreverSistP=.true.; escreverSolP=.true.
 !      escreverSistF=.true.; escreverSolF=.true.
 
 
@@ -341,14 +233,16 @@ end program poisson
         if(nsd==3)estrutSistEqP%numCoefPorLinha=27
       end if
       write(*,*) " call montarEstrutDadosSistEqAlq(optSolverP_ =", optSolverP_ 
-      call montarEstrutDadosSistEqAlq(optSolverP_, estrutSistEqP) ; 
+      !BD call montarEstrutDadosSistEqAlq(optSolverP_, estrutSistEqP) ; 
+      call montarEstrutDadosSistEqAlq(estrutSistEqP) ; 
 
       if (optSolverF_=='PardisoEsparso') then
         if(nsd==2)estrutSistEqF%numCoefPorLinha=18
         if(nsd==3)estrutSistEqF%numCoefPorLinha=81
       end if
       write(*,*) " call montarEstrutDadosSistEqAlq(optSolverF_ =", optSolverF_ 
-      call montarEstrutDadosSistEqAlq(optSolverF_, estrutSistEqF) ; 
+      !BD call montarEstrutDadosSistEqAlq(optSolverF_, estrutSistEqF) ; 
+      call montarEstrutDadosSistEqAlq(estrutSistEqF) ; 
 
 
       do r = 1, numRepeticoes
@@ -357,7 +251,8 @@ end program poisson
 !     
         call timing(t1)
         if(firstP) then 
-          call montarSistEqAlgPotencial(optSolverP_, estrutSistEqP)
+          !BD call montarSistEqAlgPotencial(optSolverP_, estrutSistEqP)
+          call montarSistEqAlgPotencial(estrutSistEqP)
       !firstP=.false.
         endif
         call timing(t2)
@@ -385,7 +280,8 @@ end program poisson
 
         call timing(t1)
     !  if(firstF) then 
-         call montarSistEqAlgFluxo (optSolverF_,estrutSistEqF,estrutSistEqP)
+         !BD call montarSistEqAlgFluxo (optSolverF_,estrutSistEqF,estrutSistEqP)
+         call montarSistEqAlgFluxo (estrutSistEqF,estrutSistEqP)
       !  firstF=.false.
  !     endif
         call timing(t2)
@@ -420,9 +316,10 @@ end program poisson
 !
       use mSolverGaussSkyline, only: solverGaussSkyline
       use mSolverPardiso,      only: solverPardisoEsparso
-      use mSolverHypre,        only: solverHYPRE, escreverResultadosHYPRE  
+      !BD use mSolverHypre,        only: solverHYPRE, escreverResultadosHYPRE  
+      use mSolverHypre,        only: escreverResultadosHYPRE  
       use mSolverHypre,        only: resolverSistemaAlgHYPRE
-      use mSolverHypre,        only: resolverSistemaAlgHYPRE01
+      !BD use mSolverHypre,        only: resolverSistemaAlgHYPRE01
       use mSolverHypre,        only: extrairValoresVetor_HYPRE 
   !    use mSolverHypre,        only: destruirSistemaAlgHYPRE, destruirU_HYPRE
       use mUtilSistemaEquacoes,only: btod
@@ -437,20 +334,23 @@ end program poisson
       integer * 4 ::  num_iterations, printSol = 2
       real*8 ::  final_res_norm, elapsedT, tol, solutionNorm
       integer*4   :: i, ierr
-      character(LEN=12) :: etapa
+      character(LEN=12) :: etapa="back"
       logical :: simetria=.true.
-      etapa='back'; 
+
       etapa='full'; 
 
+      write(*,*) "em  subroutine solver(optSolver_ , estrutSistEq_, label_)"
       write(*,*) 'solver ', optSolver_ ,', ',  label_ 
       if (optSolver_=='GaussSkyline') then
-          call solverGaussSkyline(estrutSistEq_, simetria, etapa, label_) 
+          !BD call solverGaussSkyline(estrutSistEq_, simetria, etapa, label_) 
+          call solverGaussSkyline(estrutSistEq_, etapa, label_) 
           deallocate(estrutSistEq_%alhs) ! pode ser desnecessario para problemas 
       endif
       if (optSolver_=='PardisoEsparso') then
           simetria=.true.; etapa='full'; 
           write(*,*) "simetria=.true.; etapa='full';"
-          call solverPardisoEsparso(estrutSistEq_, simetria, etapa, label_)
+          !BD call solverPardisoEsparso(estrutSistEq_, simetria, etapa, label_)
+          call solverPardisoEsparso(estrutSistEq_, etapa, label_)
           deallocate(estrutSistEq_%alhs) ! pode ser desnecessario para problemas 
       endif
 
@@ -521,6 +421,9 @@ end program poisson
       type (estruturasArmazenamentoSistemaEq) :: estrutSistEq_
       character(len=*) :: nomeArq_
       integer*4 :: nee
+
+      print*, "subroutine escreverSistema_MTX(optSolver_, estrutSistEq_, nomeArq_)"
+      print*, "optSolver_,", optSolver_
 
       nee = estrutSistEq_%ndof * nen
             
@@ -603,11 +506,9 @@ end program poisson
 !        call echo
         call readInputFileDS()
         call readSetupPhaseDS()
-        
         etime = 0.0
 
 !.... initialization phase
-!
 !
 !....    set memory pointers for static data arrays,&
 !        and call associated input routines
@@ -624,7 +525,7 @@ end program poisson
       allocate(mat(numel))
       allocate(conecNodaisElem(nen,numel))
       write(*,*) "call leituraGeracaoConectividadesDS"
-      keyword_name = "conectividades_nodais_pc"
+      keyword_name = "conectividades_nodais"
       call leituraGeracaoConectividadesDS(keyword_name, conecNodaisElem,mat,nen)
       
       if (iprtin.eq.0) call prntel(mat,conecNodaisElem,nen,numel,1_4)
@@ -634,7 +535,7 @@ end program poisson
       allocate(estrutSistEqP%u (estrutSistEqP%ndof,numnp));  estrutSistEqP%u=0.0
       allocate(estrutSistEqP%id(estrutSistEqP%ndof,numnp)); estrutSistEqP%id=0
         write(*,*) "call leituraCodigosCondContornoDS(idPotencial"
-        keyword_name = "codigos_cond_contorno_potencial_pc"
+        keyword_name = "codigos_cond_contorno_potencial"
         call leituraCodigosCondContornoDS(keyword_name, estrutSistEqP%id, estrutSistEqP%ndof, numnp, &
                                           estrutSistEqP%neq, iecho, iprtin)
                                           
@@ -643,7 +544,7 @@ end program poisson
         allocate(estrutSistEqP%f(estrutSistEqP%nlvect,estrutSistEqP%ndof,numnp))
         estrutSistEqP%f = 0.0
         write(*,*) "call leituraValoresCondContornoDS(fPotencial,ndofP,numnp,0,nlvectP,iprtin)"
-        keyword_name = "valores_cond_contorno_potencial_pc"
+        keyword_name = "valores_cond_contorno_potencial"
         call leituraValoresCondContornoDS(keyword_name, estrutSistEqP%f, estrutSistEqP%ndof, numnp, 1_4,&
                                          estrutSistEqP%nlvect, iprtin)
       end if
@@ -652,7 +553,7 @@ end program poisson
       allocate(estrutSistEqF%u (estrutSistEqF%ndof,numnp));  estrutSistEqF%u=0.0
       allocate(estrutSistEqF%id(estrutSistEqF%ndof,numnp)); estrutSistEqF%id=0
        write(*,*) "call leituraCodigosCondContornoDS(idFluxo,"
-      keyword_name = "codigos_cond_contorno_fluxo_pc"
+      keyword_name = "codigos_cond_contorno_fluxo"
        call leituraCodigosCondContornoDS(keyword_name, estrutSistEqF%id, estrutSistEqF%ndof, numnp, &
                                           estrutSistEqF%neq, iecho, iprtin)
 
@@ -660,7 +561,7 @@ end program poisson
         allocate(estrutSistEqF%f(estrutSistEqF%nlvect,estrutSistEqF%ndof,numnp))
         estrutSistEqF%f = 0.0
         write(*,*) 'call leituraValoresCondContornoDS(fFluxo,ndofF,numnp,0,nlvectF,iprtin)'
-        keyword_name = "valores_cond_contorno_fluxo_pc"
+        keyword_name = "valores_cond_contorno_fluxo"
         call leituraValoresCondContornoDS(keyword_name, estrutSistEqF%f, estrutSistEqF%ndof, numnp, 1_4, &
                                            estrutSistEqF%nlvect, iprtin)
       end if
@@ -705,46 +606,46 @@ end program poisson
         character*4  default_title_value(20)
 
         !Reads the title
-        keyword_name = "title_pc"
+        keyword_name = "title"
         default_title_value = "unknown title"
         call readStringKeywordValue(keyword_name, title, default_title_value)
-        !print*, "title_pc: ", title
+        !print*, "title: ", title
         !Reads exec
-        keyword_name = "exec_pc"
+        keyword_name = "exec"
         call readIntegerKeywordValue(keyword_name, exec, 0_4)
-        !print*, "exec_pc: ", exec
+        !print*, "exec: ", exec
         !Reads iprtin
-        keyword_name = "iprtin_pc"
+        keyword_name = "iprtin"
         call readIntegerKeywordValue(keyword_name, iprtin, 0_4)
-        !print*, "iprtin_pc: ", iprtin
+        !print*, "iprtin: ", iprtin
         !Reads nsd
-        keyword_name = "nsd_pc"
+        keyword_name = "nsd"
         call readIntegerKeywordValue(keyword_name, nsd, 0_4)
-        !print*, "nsd_pc: ", nsd
+        !print*, "nsd: ", nsd
         !Reads numnp
-        keyword_name = "numnp_pc"
+        keyword_name = "numnp"
         call readIntegerKeywordValue(keyword_name, numnp, 0_4)
-        !print*, "numnp_pc: ", numnp
+        !print*, "numnp: ", numnp
         !Reads numel
-        keyword_name = "numel_pc"
+        keyword_name = "numel"
         call readIntegerKeywordValue(keyword_name, numel, 0_4)
-        !print*, "numel_pc: ", numel
-        !Reads nen_pc
-        keyword_name = "nen_pc"
+        !print*, "numel: ", numel
+        !Reads nen
+        keyword_name = "nen"
         call readIntegerKeywordValue(keyword_name, nen, 0_4)
-        !print*, "nen_pc: ", nen
-        !Reads npint_pc
-        keyword_name = "npint_pc"
+        !print*, "nen: ", nen
+        !Reads npint
+        keyword_name = "npint"
         call readIntegerKeywordValue(keyword_name, npint, 0_4)
-        !print*, "npint_pc: ", npint
+        !print*, "npint: ", npint
         !Reads nlvectP
-        keyword_name = "nlvectP_pc"
+        keyword_name = "nlvectP"
         call readIntegerKeywordValue(keyword_name, estrutSistEqP%nlvect, 0_4)
-        !print*, "nlvectP_pc: ", nlvectP
+        !print*, "nlvectP: ", nlvectP
         !Reads nlvectF
-        keyword_name = "nlvectF_pc"
+        keyword_name = "nlvectF"
         call readIntegerKeywordValue(keyword_name, estrutSistEqF%nlvect, 0_4)
-        !print*, "nlvectF_pc: ", nlvectF
+        !print*, "nlvectF: ", nlvectF
         return
     end subroutine readSetupPhaseDS 
 !
@@ -773,7 +674,7 @@ end program poisson
         character(len=80) :: formatoLeitura
         character(len=50) keyword_name
 
-        keyword_name = "nummat_pc"
+        keyword_name = "nummat"
         keyword_line = findKeyword(keyword_name)
         nLinhaArqInput = keyword_line
         if (keyword_line.eq.-1) return
@@ -799,7 +700,7 @@ end program poisson
         !
         !      read material properties
         !
-        keyword_name = "prop_fisica_meio_pc"
+        keyword_name = "prop_fisica_meio"
         keyword_line = findKeyword(keyword_name)
         nLinhaArqInput = keyword_line
         do 400 n=1,numat
@@ -812,7 +713,7 @@ end program poisson
         !
         !     constant body forces
         !
-        keyword_name = "grav_pc"
+        keyword_name = "grav"
         keyword_line = findKeyword(keyword_name)
         nLinhaArqInput = keyword_line
         read (file_lines(nLinhaArqInput:),7000) (grav(i),i=1,3)

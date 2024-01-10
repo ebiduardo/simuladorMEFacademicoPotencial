@@ -57,7 +57,7 @@ module mInputReader
                     if (j.eq.0) write(iecho,1000) nlv
                     if (j.eq.1) write(iecho,2000)
                  else
-                    if (j.eq.0) call printf(f,ndof,numnp,nlv)
+                    if (j.eq.0) call printf(f,ndof,numnp,nlv, iecho)
                     if (j.eq.1) then
                         rotulo=" n o d a l  b o d y  f o r c e s"
                         call printd (rotulo, f,ndof,numnp,iecho)
@@ -161,7 +161,7 @@ module mInputReader
       integer*4:: i, n, keyword_line
       character(len=50) keyword_name
 
-      keyword_name = 'coordenadas_nodais_pc'
+      keyword_name = 'coordenadas_nodais'
       keyword_line = findKeyword(keyword_name)
 
       call genflDS(x,nsd,keyword_line)
@@ -740,13 +740,13 @@ module mInputReader
         character(len=50) keyword_name
        ! integer*4 :: ntype, numat
 
-        keyword_name = "ntype_pc"
+        keyword_name = "ntype"
         call readIntegerKeywordValue(keyword_name, ntype, ntype)
-        keyword_name = "numat_pc"
+        keyword_name = "numat"
         call readIntegerKeywordValue(keyword_name, numat, numat)
-        keyword_name = "nen_pc"
+        keyword_name = "nen"
         call readIntegerKeywordValue(keyword_name, nen, nen)
-        keyword_name = "nicode_pc"
+        keyword_name = "nicode"
         call readIntegerKeywordValue(keyword_name, nicode, nicode)
     end subroutine !***************************************************************************************************
 

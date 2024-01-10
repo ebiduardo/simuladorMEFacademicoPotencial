@@ -252,8 +252,8 @@ expDir="exp07"
 expDir="exp05x02"
 numThreads="1"
 comando="./rodarExperimento.sh $expDir $numThreads $opcaoA $opcaoB $opcaoC "
-echo $comando; 
+bash -cv $comando; 
 #read
 echo +++
-eval $comando
+#eval $comando
  

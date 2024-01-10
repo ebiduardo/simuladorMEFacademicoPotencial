@@ -12,6 +12,8 @@
 !> Modulo responsavel por reunir subrotinas para leitura do arquivo de entrada.
 module mInputReader
 
+
+    implicit none
     !> Armazena as linhas do arquivo de input.
     character(len=200), allocatable :: file_lines(:)
     !> Armazena o numero de linhas no arquivo.
@@ -28,13 +30,13 @@ module mInputReader
     !! @param j             j
     !! @param nlvect        nlvect
     !! @param iprtin        iprtin
-    subroutine leituraValoresCondContornoDS(keyword_name, f,ndof,numnp,j, nlvect,iprtin)
-        use mleituraEscrita, only: iecho, printf, printd
-!        use mInputReader,    only: findKeyword, genflDS
+    subroutine leituraValoresCondContornoDS(keyword_name,f,ndof,numnp,j, nlvect, iprtin, iecho)
+
+        use mleituraEscrita, only: printf, printd
 
         implicit none
 
-        integer*4 :: ndof, numnp, j, nlvect, iprtin, keyword_line
+        integer*4 :: ndof, numnp, j, nlvect, iprtin, iecho, keyword_line
         character(len=50) :: keyword_name
         real*8 f(ndof,numnp,nlvect)
 
@@ -45,21 +47,20 @@ module mInputReader
         keyword_line = findKeyword(keyword_name)
         if (keyword_line.eq.-1) return
 
-        !
-        !call clear(f,nlvect*numnp*ndof)
-        f(1:nlvect,1:numnp,1:ndof)=0.0
+        f=0.0
 
         do 100 nlv=1,nlvect
             call genflDS(f(1,1,nlv),ndof,keyword_line)
             call ztest(f(1,1,nlv),ndof*numnp,lzero)
+!
             if (iprtin.eq.0) then
                  if (lzero) then
                     if (j.eq.0) write(iecho,1000) nlv
                     if (j.eq.1) write(iecho,2000)
                  else
-                    if (j.eq.0) call printf(f,ndof,numnp,nlv, iecho)
+                    if (j.eq.0) call printf(f,ndof,numnp,nlv,iecho)
                     if (j.eq.1) then
-                        rotulo=" n o d a l  b o d y  f o r c e s"
+                        rotulo=" n o d a l  b o d y  f o r c e s "
                         call printd (rotulo, f,ndof,numnp,iecho)
                     end if
                 endif
@@ -82,6 +83,81 @@ module mInputReader
     !! @param iecho         iecho
     !! @param iprtin        iprtin
     subroutine leituraCodigosCondContornoDS(keyword_name, id, ndof, numnp, neq, iecho, iprtin)
+
+        integer*4, intent(in) :: ndof, numnp, iecho, iprtin
+        integer*4, intent(out) ::  neq
+        integer*4, intent(inout) :: id(ndof,numnp)
+        character(len=50) keyword_name
+
+        integer*4 :: keyword_line
+        integer*4 :: nn, n, i
+        logical pflag
+
+        keyword_line = findKeyword(keyword_name)
+        if (keyword_line.eq.-1) return
+        id = 0
+        call igenDS(id,ndof, keyword_line)
+        if (iprtin.eq.0) then
+            nn=0
+            do n=1,numnp
+                pflag = .false.
+                do i=1,ndof
+                    if (id(i,n).ne.0) pflag = .true.
+                end do
+                if (pflag) then
+                    nn = nn + 1
+                    if (mod(nn,50).eq.1) write(iecho,1000) (i,i=1,ndof)
+                    write(iecho,2000) n,(id(i,n),i=1,ndof)
+                endif
+            end do
+        endif
+!.... establish equation numbers
+      neq = 0
+      do  n=1,numnp
+      do  i=1,ndof
+      if (id(i,n).eq.0) then
+         neq = neq + 1
+         id(i,n) = neq
+      else
+         id(i,n) = 1 - id(i,n)
+      endif
+      end do
+      end do
+
+    return
+
+      print *, "id =", id
+      do  n=1,numnp
+      do  i=1,ndof
+      if (id(i,n).ne.0) then
+         id(i,n) = neq - id(i,n) + 1
+      endif
+      end do
+      end do
+      print *, "id =", id
+!
+    return
+!
+1000 format(' n o d a l   b o u n d a r y   c o n d i t i o n &
+     &         c o  d e s'/// &
+      5x,' node no.',3x,6(6x,'dof',i1:)//)
+ 2000 format(6x,i10,5x,6(5x,i10))
+!
+    end subroutine leituraCodigosCondContornoDS !********************************************************************
+
+
+
+
+    !> Leitura e geracao de codigos de condicoes de contorno.
+    !!
+    !! @param keyword_name  Palavra-chave que indica o tipo da condicao de contorno.
+    !! @param id            id.
+    !! @param ndof          numnp
+    !! @param numnp         numnp
+    !! @param neq           neq
+    !! @param iecho         iecho
+    !! @param iprtin        iprtin
+    subroutine leituraCodigosCondContornoDSF(keyword_name, id, ndof, numnp, neq, iecho, iprtin)
 !        use mInputReader,     only: findKeyword, igenDS
 
 
@@ -92,6 +168,8 @@ module mInputReader
 
         integer*4:: nn, n, i
         logical pflag
+
+        write(*,*) " em subroutine leituraCodigosCondContornoDSF(keyword_name,"
 
         keyword_line = findKeyword(keyword_name)
         if (keyword_line.eq.-1) return
@@ -123,15 +201,18 @@ module mInputReader
         do 400 n=1,numnp
 !
             do 300 i=1,ndof
+                 neq = neq + 1
                 if (id(i,n).eq.0) then
-                    neq = neq + 1
+                !    neq = neq + 1
                     id(i,n) = neq
                 else
-                    id(i,n) = 1 - id(i,n)
+                    !id(i,n) = 1 - id(i,n)
+                    id(i,n) = -neq !1 - id(i,n)
                 endif
 !
             300 continue
 !
+               !     write(*,2000) n,(id(i,n),i=1,ndof)
         400 continue
 !
     return
@@ -141,22 +222,19 @@ module mInputReader
       5x,' node no.',3x,6(6x,'dof',i1:)//)
  2000 format(6x,i10,5x,6(5x,i10))
 !
-    end subroutine leituraCodigosCondContornoDS !********************************************************************
-
-
+    end subroutine leituraCodigosCondContornoDSF !********************************************************************
 
     !> Leitura e geracao de coordenadas
     !!
     !! @param x          Matriz onde serao armazeadas as coordenadas.
     !! @param nsd        Corresponde ao nao de linhas da matriz x.
     !! @param numnp      Numero de xxx
-    !! @param icoords    Handle para o arquivo de coordenadas.
     !! @param iprtin     iprtin
-    subroutine leituraGeracaoCoordenadasDS(x, nsd, numnp, icoords, iprtin)
-
+    subroutine leituraGeracaoCoordenadasDS(x, nsd, numnp, iprtin, icoords)
+            
       implicit none
 
-      integer*4, intent(in)   :: nsd, numnp, icoords, iprtin
+      integer*4, intent(in)   :: nsd, numnp, iprtin, icoords
       real*8, intent(inout) ::  x(nsd,*)
       integer*4:: i, n, keyword_line
       character(len=50) keyword_name
@@ -166,26 +244,32 @@ module mInputReader
 
       call genflDS(x,nsd,keyword_line)
 
-      write(*,*) "iprtin =", iprtin
-      if (iprtin.eq.1) return
-      write(icoords,*) "# Coordenadas ", nsd
-      do n=1,numnp
-        write(icoords,2000) n,(x(i,n),i=1,nsd)
-        write(*,2000) n,(x(i,n),i=1,nsd)
-      end do
+      if (iprtin.eq.1) return 
+! 
 
-      return
-      2000 format(6x,i12,10x,3(1pe15.8,2x))
+      open(unit=icoords    , file= 'coordenadasG.dat')
+! stop "em leituraGeracaoCoordenadasDS"
+      do n=1,numnp 
+         if (mod(n,50).eq.1) write(icoords,1000) (i,i=1,nsd) 
+         write(icoords,2000) n,(x(i,n),i=1,nsd)   
+      enddo 
+! 
+      return 
+! 
+ 1000 format(///,' n o d a l   c o o r d i n a t e   d a t a '///5x, &
+     &' node no.',3(13x,' x',i1,' ',:)//) 
+ 2000 format(6x,i10,10x,3(1pe15.8,2x)) 
     end subroutine leituraGeracaoCoordenadasDS!***************************************************************************************************
 
 
     !---------------------------------------------------------------------------------
     !> Le arquivo de input e armazena seu conteudo em um array.
     !! @param file_name Nome do arquivo a ser lido.
-    subroutine readInputFileDS()
-        use mLeituraEscrita,   only: iin
+    subroutine readInputFileDS(iin)
 
         implicit none
+        
+        integer :: iin
 
         integer*4 success, lines_count
         character(len=200) file_line
@@ -199,10 +283,10 @@ module mInputReader
         main_number_of_lines = 0
         main_number_of_includes = 0
 
-        call analyzeFileInput(main_number_of_lines, main_number_of_includes)
+        call analyzeFileInput(main_number_of_lines, main_number_of_includes, iin)
 
         if (main_number_of_includes.eq.0) then
-            call createSimpleInputFile()
+            call createSimpleInputFile(iin)
             return
         end if
 
@@ -254,11 +338,11 @@ module mInputReader
 
     !> Cria a estretura de input usando um arquivo de entrada sem includes
     !! @param file_name Nome do arquivo a ser lido.
-    subroutine createSimpleInputFile()
-        use mLeituraEscrita,   only: iin
+    subroutine createSimpleInputFile(iin)
 
         implicit none
 
+        integer :: iin
         integer*4 success, lines_count
         character(len=200) file_line
 
@@ -301,7 +385,8 @@ module mInputReader
 
         current_index = include_line
 
-        open(unit=file_channel, file=include_file)
+!         open(unit=file_channel, file=include_file)       
+        open(unit=file_channel, file=include_file, status='old', err=100)             
         do
             read(file_channel, "(A)", iostat=success) file_line
             if (success.ne.0) exit
@@ -309,6 +394,9 @@ module mInputReader
             current_index = current_index + 1
         end do
         close(file_channel)
+        return
+        100 print*, "file", include_file, " - incluido no arquivo inputDS.dat - não existe"
+        
     end subroutine mergeIncludeContents !******************************************************************************
 
     !> Efetua a aloca��o da estrutura definitiva, preparando a linha dos arquivos originais para receber os includes
@@ -345,9 +433,9 @@ module mInputReader
     !> Efetua algumas an�lises no arquivo recebido.
     !! @param   number_of_lines     N�mero de linhas.
     !! @param   number_of_include   N�mero de ocorr�ncias da palavra include.
-    subroutine analyzeFileInput(number_of_lines, number_of_includes)
-        use mLeituraEscrita,   only: iin
+    subroutine analyzeFileInput(number_of_lines, number_of_includes, iin)
 
+        integer :: iin
         character(len=200) file_line
         integer*4 number_of_lines, number_of_includes
 
@@ -383,7 +471,7 @@ module mInputReader
         integer*4 number_of_lines, number_of_includes
 
         character(len=50) include_keyword, formated_keyword
-        integer*4 keyword_len, file_channel, success
+        integer*4 keyword_len, file_channel, success, lunitInicial
 
         include_keyword = "include"
         keyword_len = len(trim(include_keyword)) + 2
@@ -396,7 +484,8 @@ module mInputReader
         lunitInicial = 15
         file_channel = lunitInicial
 
-        open(unit=file_channel, file=file_name)
+!         open(unit=file_channel, file=file_name, status='old', err=100)        
+        open(unit=file_channel, file=file_name, status='old', err=100)   
         do
             read(file_channel, "(A)", iostat=success) file_line
             if (success.ne.0) exit
@@ -406,6 +495,10 @@ module mInputReader
             end if
         end do
         close(file_channel)
+        return
+        100 print*, "file", file_name, " - incluido no arquivo inputDS.dat - não existe"
+   
+      
 
     end subroutine analyzeFile !***************************************************************************************
 
@@ -449,6 +542,7 @@ module mInputReader
         character(50) keyword, formated_keyword
         character(len=120) file_line
         integer*4 i, keyword_len
+        findKeyword = 0
         do i=1, number_of_lines, 1
             file_line = file_lines(i)
             keyword_len = len(trim(keyword)) + 2
@@ -458,7 +552,6 @@ module mInputReader
                 return
             end if
         end do
-        findKeyword = 0
         return
     end function findKeyword !*****************************************************************************************
 
@@ -466,18 +559,24 @@ module mInputReader
     !! @param keyword       A palavra-chave a ser encontrada.
     !! @param target        Variavel onde o valor inteiro sera atribuido.
     !! @param default_value Valor default.
-    subroutine readIntegerKeywordValue(keyword, target, default_value)
+    subroutine readIntegerKeywordValue(keyword, target, default_value, ierr)
         implicit none
-        character(50) keyword
+        character(50) :: keyword
+        integer*4     :: target, default_value
+        integer       :: ierr
+!
         character(120) file_line
-        integer*4 target, default_value, keyword_line
+        integer*4 :: keyword_line = 0
+        character(20) :: origem  
+        target = default_value
+        origem = 'valor default, ' ;ierr=1
         keyword_line = findKeyword(keyword)
-        if (keyword_line.eq.0) then
-            target = default_value
-            return
+        if (keyword_line.ne.0) then
+            file_line = adjustL(trim(file_lines(keyword_line)))
+            read(file_line, *) target
+            origem='valor lido, ';    ierr=0
         end if
-        file_line = adjustL(trim(file_lines(keyword_line)))
-        read(file_line, *) target
+        write(*,'(a, a, a, i0)') origem, trim(keyword), '=', target 
         return
     end subroutine readIntegerKeywordValue !***************************************************************************
 
@@ -485,30 +584,130 @@ module mInputReader
     !! @param keyword       A palavra-chave a ser encontrada.
     !! @param target        Variavel onde a string sera atribuido.
     !! @param default_value Valor default.
-    subroutine readStringKeywordValue(keyword, target, default_value)
+    subroutine readStringKeywordValue(keyword, target, defaultValue, ierr)
         implicit none
         character(50) keyword
         character(120) file_line
-        character*4          :: target(20), default_value(20)
+        character(len=*) :: target, defaultValue
+        integer :: ierr
+        !
         integer*4 keyword_line
+        character(20) :: origem  
+        
+        origem = 'valor default, ' 
+!        print*, "em readStringKeywordValue, para ler: ", keyword
+        target = defaultValue
+!        print*, value
+        ierr=1
         keyword_line = findKeyword(keyword)
-        if (keyword_line.eq.0) then
-            target = default_value
-            return
+        !print*, "origem ............................= ", origem
+        !print*, " ..... keyword_line=",keyword_line
+        if (keyword_line.ne.0) then
+            file_line = adjustL(trim(file_lines(keyword_line)))
+            read(file_line, '(a)') target
+            origem='valor lido, ';    ierr=0
         end if
-        read(file_lines(keyword_line), '(20a4)') target
+        !read(file_lines(keyword_line), '(a)') value
+        write(*,'(a, a, a, a)') origem, trim(keyword), '=', target 
+       ! if(defaultValue=="YES") stop
         return
-    end subroutine readStringKeywordValue !****************************************************************************
+    end subroutine readStringKeywordValue 
+!****************************************************************************
 
+    
+    
     !> Efetua a leitura de uma palavra-chave to tipo real. Se nao encontrado, associa o valor defualt fornecido.
     !! @param keyword       A palavra-chave a ser encontrada.
     !! @param target        Variavel onde o real sera atribuido.
     !! @param default_value Valor default.
-    subroutine readRealKeywordValue(keyword, target, default_value)
+    subroutine readRealKeywordValue(keyword, target, default_value, ierr)
+      implicit none
+      character(50) keyword
+      real(8) target
+      real(8) default_value
+      integer*4 keyword_line
+      integer :: ierr
+
+      character(120) file_line
+      character(20) :: origem 
+      target = default_value
+      origem = 'valor default, ' 
+      ierr=1
+      keyword_line = findKeyword(keyword)
+      if (keyword_line.ne.0) then
+          file_line = adjustL(trim(file_lines(keyword_line)))
+          read(file_line, *) target
+          origem='valor lido, ';    ierr=0
+        end if
+      write(*,'(a, a, a, e15.7)') origem, trim(keyword), '=', target 
+!
+!      ierr=0
+!      keyword_line = findKeyword(keyword)
+!      if (keyword_line.eq.0) then
+!         target = default_value
+!         ierr=1
+!         write(*,'(a, a, a, e15.7)') 'default, ', keyword, '=', target 
+!         return
+!      end if
+!      file_line = adjustL(trim(file_lines(keyword_line)))
+!      read(file_line, *)target
+!      write(*,'(a, a, a, e15.7)') 'lido, ', keyword, '=', target 
+      !print*, keyword
+      !print*, target
+      return
+    end subroutine readRealKeywordValue
+!****************************************************************************
+    !> Efetua a leitura de valores definidos para propriedades de sa�da. Na pr�tica s�o lidas 3 vari�veis.
+    !! @param keyword       A palavra-chave a ser encontrada.
+    !! @param target        A variavel destino.
+    !! @param var_out       O valor da variavel out.
+    !! @param var_n         Valor n.
+    subroutine readOutFlagKeyword(keyword, targetb, var_out, var_n, dominio, ierr)
+        implicit none
+        
+        character(50) keyword
+        integer*4 targetb, var_n
+        character(len=*) ::  dominio
+        character(len=128) :: var_out
+        character(len=120) :: file_line
+        integer*4 keyword_line
+        integer :: ierr
+            character*1 tab
+            tab = char(11)
+!
+        keyword_line = findKeyword(keyword)
+        if (keyword_line.eq.0) then
+            ierr=1
+            return
+        end if
+        read(file_lines(keyword_line), *) targetb
+        keyword_line = keyword_line + 1
+        read(file_lines(keyword_line), "(a)") var_out
+        keyword_line = keyword_line + 1
+        read(file_lines(keyword_line), *) var_n
+        keyword_line = keyword_line + 1
+        read(file_lines(keyword_line), "(a)") dominio
+        write(*,'(a, a, a, 1x, 2(1x,i5,1x, a) )') 'valores lidos, ', trim(keyword),'=', &
+                 targetb, trim(var_out), var_n, trim(dominio)
+        
+    end subroutine readOutFlagKeyword
+
+
+    ! ALTERADO PAT
+    ! NOVO !    
+    !! Efetua a leitura de uma palavra-chave to tipo logico. 
+    !! Se nao encontrado, associa o valor defualt fornecido.
+    !! @param keyword       A palavra-chave a ser encontrada.
+    !! @param target        Variavel onde o real sera atribuido.
+    !! @param default_value Valor default.
+    subroutine readLogicalKeywordValue(keyword, target, default_value, ierr)
         implicit none
         character(50) keyword
         character(120) file_line
-        real(8) target, default_value
+        logical target, default_value
+        integer :: ierr
+
+
         integer*4 keyword_line
         keyword_line = findKeyword(keyword)
         if (keyword_line.eq.0) then
@@ -518,38 +717,69 @@ module mInputReader
         file_line = adjustL(trim(file_lines(keyword_line)))
         read(file_line, *) target
         return
-    end subroutine readRealKeywordValue !****************************************************************************
-
-    !> Efetua a leitura de valores definidos para propriedades de sa�da. Na pr�tica s�o lidas 3 vari�veis.
-    !! @param keyword       A palavra-chave a ser encontrada.
-    !! @param target        A vari�vel destino.
-    !! @param var_out       O valor da vari�vel out.
-    !! @param var_n         Valor n.
-    subroutine readOutFlagKeyword(keyword, target, var_out, var_n)
-        implicit none
-        character(50) keyword
-        integer*4 target, var_n
-        character(120) var_out
-        character(120) file_line
-        integer*4 keyword_line
-        keyword_line = findKeyword(keyword)
-        if (keyword_line.eq.0) then
-            return
-        end if
-        read(file_lines(keyword_line), *) target
-        keyword_line = keyword_line + 1
-        read(file_lines(keyword_line), "(a)") var_out
-        keyword_line = keyword_line + 1
-        read(file_lines(keyword_line), *) var_n
-    end subroutine readOutFlagKeyword
-
-
+    end subroutine readLogicalKeywordValue !****************************************************************************
+  
+    
     !> Efetua a geracao de coordeadas, de acordo com parametros.
     !!
     !! @param a      Matriz onde serao armazenados os dados.
     !! @param nra    Inteiro indicando nra
     !! @param nLinhaArqInput    Indice da linha onde as coordenadas estao posicionadas no array linhas no arquivo de entrada.
+
     subroutine genflDS(a,nra, nLinhaArqInput )
+      use mMalha, only: genfl1   
+!      use mGlobaisEscalares
+
+      implicit none
+
+      integer*4:: nra, nLinhaArqInput
+      real*8  :: a(nra,*)
+      real*8  :: temp(6,20)
+      integer*4:: n,numgp,ninc(3),inc(3)
+      integer*4:: i, j, m, mgen
+      character(80) :: novaLinha
+    
+
+      write(*,*) " em subroutine genflDS(a,nra, nLinhaArqInput )"
+      !write(*,*)"nLinhaArqInput=", nLinhaArqInput, ", file_lines =", trim(file_lines(nLinhaArqInput) )
+      100 continue
+      novaLinha=trim(file_lines(nLinhaArqInput))
+      !write(*,*) novaLinha, "..."
+      !read(novaLinha,1002) n,numgp,(temp(i,1),i=1,nra)
+      read(file_lines(nLinhaArqInput),1002) n,numgp,(temp(i,1),i=1,nra)
+      1002 format(2i10,6f10.7)
+      !write(*,*) n,numgp,(temp(i,1),i=1,nra)
+      nLinhaArqInput = nLinhaArqInput + 1
+      !write(*,*)"nLinhaArqInput=", nLinhaArqInput, ", file_lines =", trim(file_lines(nLinhaArqInput) )
+
+      if (n.eq.0) return
+     ! call move(a(1,n),temp,nra)
+      a(1:nra,n) = temp(1:nra,1)
+
+      if (numgp.ne.0) then
+      do 200 j=2,numgp
+        read(file_lines(nLinhaArqInput),1002) m,mgen,(temp(i,j),i=1,nra)
+         nLinhaArqInput = nLinhaArqInput + 1
+      !   write(*,*)"nLinhaArqInput=", nLinhaArqInput, ", file_lines =", trim(file_lines(nLinhaArqInput) )
+        if (mgen.ne.0) temp(1:nra,j)=a(1:nra,m) 
+        ! temp(1:nra,j)=a(1:nra,m) 
+      200 continue
+
+         read(file_lines(nLinhaArqInput),2000) (ninc(i),inc(i),i=1,3)
+         !read(file_lines(nLinhaArqInput),2000) (ninc(i),inc(i),i=1,3)
+         nLinhaArqInput = nLinhaArqInput + 1
+
+         call genfl1(a,nra, temp, n, numgp, ninc, inc)
+      endif
+      go to 100
+
+      1000 format(2i10,6e15.7)
+      1001 format(20x,6e15.7)
+      2000 format(16i10)
+
+    end  subroutine !**************************************************************************************************
+
+    subroutine genflDS_ptj(a,nra, nLinhaArqInput )
       use mMalha, only: genfl1   
       use mGlobaisEscalares
 
@@ -562,7 +792,7 @@ module mInputReader
       integer*4:: i, j, m, mgen
 
       100 continue
-      read(file_lines(nLinhaArqInput:),1000) n,numgp,(temp(i,1),i=1,nra)
+      read(file_lines(nLinhaArqInput),1000) n,numgp,(temp(i,1),i=1,nra)
       nLinhaArqInput = nLinhaArqInput + 1
 
       if (n.eq.0) return
@@ -571,30 +801,29 @@ module mInputReader
 
       if (numgp.ne.0) then
          do 200 j=2,numgp
-         read(file_lines(nLinhaArqInput:),1000) m,mgen,(temp(i,j),i=1,nra)
+         read(file_lines(nLinhaArqInput),1000) m,mgen,(temp(i,j),i=1,nra)
          nLinhaArqInput = nLinhaArqInput + 1
 
         if (mgen.ne.0) temp(1:nra,j)=a(1:nra,m)         !B
          200    continue
-         read(file_lines(nLinhaArqInput:),2000) (ninc(i),inc(i),i=1,3)
+         read(file_lines(nLinhaArqInput),2000) (ninc(i),inc(i),i=1,3)
          nLinhaArqInput = nLinhaArqInput + 1
 
          call genfl1(a,nra, temp, n, numgp, ninc, inc)
       endif
       go to 100
 
-      1000 format(2i10,6f10.0)
+      1000 format(2i10,6f15.0)
       2000 format(16i10)
 
     end  subroutine !**************************************************************************************************
-
 
     !> Subrotina para ler e gerar dados nodais inteiros.
     !! @param ia              Array de entrada.
     !! @param m               Numero de linhas na matriz de entrada.
     !! @param nLinhaArqInput  Indice da linha no array de linhas do arquivo de entrada.
     subroutine igenDS(ia, m, nLinhaArqInput)
-        use mGlobaisEscalares
+!        use mGlobaisEscalares
 
         integer*4:: m, ia(m,*), nLinhaArqInput
         integer*4:: ib(m)
@@ -602,7 +831,7 @@ module mInputReader
         integer*4:: i
         !
         100 continue
-        read(file_lines(nLinhaArqInput:),1000) n,ne,ng,(ib(i),i=1,m)
+        read(file_lines(nLinhaArqInput),1000) n,ne,ng,(ib(i),i=1,m)
         nLinhaArqInput = nLinhaArqInput + 1
 
         if (n.eq.0) return
@@ -622,13 +851,14 @@ module mInputReader
         !
         1000 format(16i10)
     end subroutine igenDS !********************************************************************************************
-    !> Subrotina respons�vel por ler e gerar conectividades nodais e ladais.
+
+    !> Subrotina responsavel por ler e gerar conectividades nodais e ladais.
     !> @param keyword_name  O nome da keyword associada.
     !> @param conecElem     C�digo do elemento
     !> @param mat           C�digo do material
     !> @param nen           N�mero de elementos.
-    subroutine leituraGeracaoConectividadesDs(keyword_name, conecElem, mat, nen)
-        use mLeituraEscrita , only: genel1
+    subroutine leituraGeracaoConectividadesDs(keyword_name, conecElem, mat, nen, ierr)
+        use mleituraEscrita , only: genel1
         integer*4:: n,nel(3),incel(3),inc(3)
 
         integer*4:: nen
@@ -637,14 +867,17 @@ module mInputReader
         character(len=50) keyword_name
         !
         integer*4:: m,ng,i, keyword_line
+        integer :: ierr
 
 !        write(*,'(a)') " em subroutine leituraGeracaoConectividadesDS(keyword_name, conecElem, mat, nen)"
         keyword_line = findKeyword(keyword_name)
-        if (keyword_line.eq.0) return
+        if (keyword_line.eq.0) then
+           ierr=1
+           return
+        endif
 
         100 continue
-        read(file_lines(keyword_line:),1000) n,m,(itemp(i),i=1,nen),ng
-        !write(*,1000) n,m,(itemp(i),i=1,nen),ng
+        read(file_lines(keyword_line),1000) n,m,(itemp(i),i=1,nen),ng
         keyword_line = keyword_line + 1
 
         if (n.eq.0) return
@@ -653,15 +886,17 @@ module mInputReader
         mat(n)=m
         if (ng.ne.0) then
             !Generate data
-            read(file_lines(keyword_line:),1000) (nel(i),incel(i),inc(i),i=1,3)
+            read(file_lines(keyword_line),1000) (nel(i),incel(i),inc(i),i=1,3)
             keyword_line = keyword_line + 1
-            !write(*,1000) (nel(i),incel(i),inc(i),i=1,3)
             call genel1(conecElem,mat,nen,n,nel,incel,inc)
+        else
+
         endif
         go to 100
+        
         1000 format(16i10,10x,14i10)
-    end subroutine !***************************************************************************************************
 
+    end subroutine !***************************************************************************************************
 
     !> Subrotina respons�vel por ler e gerar elementos de face.
     !> @param keyword_name     A plavra-chave associada.
@@ -670,7 +905,7 @@ module mInputReader
     !> @param nelx             N�mero de elmentos em x.
     !> @param nely             N�mero de elmentos em y.
     !> @param nelz             N�mero de elmentos em z.
-    subroutine genelFacesDS(keyword_name, conecElem, nen, nelx, nely, nelz)
+    subroutine genelFacesDS(keyword_name, conecElem, nen, nelx, nely, nelz, ierr)
         use mGlobaisEscalares
         use mMalha, only: numel
 
@@ -678,17 +913,23 @@ module mInputReader
         integer*4:: nen, nelx, nely, nelz
         integer*4:: conecElem(nen,*)
         character(len=50) keyword_name
+        integer*4:: ierr
 
         integer*4:: ng, n, m, nel, i
         integer*4:: condicao, condicao2, keyword_line
+        
+        print*, "nelx", nelx
+        print*, "nely", nely
 
         keyword_line = findKeyword(keyword_name)
-        if (keyword_line.eq.0) return
+        if (keyword_line.eq.0) then
+           ierr=1
+           return
+        endif
 
-        read(file_lines(keyword_line:),1000) n,m,(conecElem(i,1),i=1,nen),ng
+        read(file_lines(keyword_line),1000) n,m,(conecElem(i,1),i=1,nen),ng
         keyword_line = keyword_line + 1
-        !write(*,1000) n,m,(conecElem(i,1),i=1,nen),ng
-
+!
         condicao=0
         condicao2=0
 
@@ -730,7 +971,7 @@ module mInputReader
             end if
         end do
         1000 format(16i10,10x,14i10)
-    end subroutine !***************************************************************************************************
+    end subroutine
 
 
     subroutine readNodeElementsDS
@@ -738,38 +979,45 @@ module mInputReader
         use mMalha,          only: nen
         implicit none
         character(len=50) keyword_name
-       ! integer*4 :: ntype, numat
+        integer :: ierr
 
         keyword_name = "ntype"
-        call readIntegerKeywordValue(keyword_name, ntype, ntype)
+        call readIntegerKeywordValue(keyword_name, ntype, 1, ierr)
         keyword_name = "numat"
-        call readIntegerKeywordValue(keyword_name, numat, numat)
+        call readIntegerKeywordValue(keyword_name, numat, 1, ierr)
         keyword_name = "nen"
-        call readIntegerKeywordValue(keyword_name, nen, nen)
+        call readIntegerKeywordValue(keyword_name, nen, 4, ierr)
         keyword_name = "nicode"
-        call readIntegerKeywordValue(keyword_name, nicode, nicode)
+        call readIntegerKeywordValue(keyword_name, nicode, nen, ierr)
     end subroutine !***************************************************************************************************
 
-
+    
+ !***************************************************************************************************
     !> Efetua a leitura de propriedades de materiais.
     !> @param keyword_name  Keyword especifica das  propriedades de materiais.
-    subroutine readMaterialPropertiesDS(keyword_name)
+    subroutine readMaterialPropertiesDS(keyword_name, iecho, ierr)
         use mGlobaisEscalares
         use mGlobaisArranjos
-        use mleituraEscrita, only: iecho
-
+        
         implicit none
         character(len=50) keyword_name
         integer*4 n, m, i, keyword_line
+        integer :: iecho, ierr
 
         keyword_line = findKeyword(keyword_name)
-        if (keyword_line.eq.0) return
+        if (keyword_line.eq.0) then
+           ierr=1
+           return
+        endif
+
+        write(*,*) "lido, ", keyword_name
 
         do 400 n=1,numat
         if (mod(n,50).eq.1) write(iecho,4000) numat
-        read (file_lines(keyword_line:),  5000) m,(c(i,m),i=1,3)
+        read (file_lines(keyword_line),  5000) m,(c(i,m),i=1,3)
         keyword_line = keyword_line + 1
         write(iecho,6000) m,(c(i,m),i=1,3)
+        write(*,6000) m,(c(i,m),i=1,3)
         400 continue
         5000  format(i10,5x,5f10.0)
         6000  format(2x,i3,1x,5(1x,1pe11.4))
@@ -777,32 +1025,64 @@ module mInputReader
                 ' m a t e r i a l   s e t   d a t a                      ',  //5x,&
                 ' number of material sets . . . . . . . . . . (numat ) = ',i10///,2x,'set',4x,'Kx ',&
                 10x,'Ky',10x,'Kz')
+
+
     end subroutine readMaterialPropertiesDS !**************************************************************************
 
     !> Faz a leitura de constant body forces.
     !> @param keyword_name  Keyword especifica para constant body forces.
-    subroutine readConstantBodyForcesDS(keyword_name)
+    subroutine readConstantBodyForcesDS(keyword_name, iecho, ierr)
         use mGlobaisArranjos, only: grav
-        use mleituraEscrita, only: iecho
 
         implicit none
         character(len=50) keyword_name
         integer*4 i, keyword_line
+        integer :: iecho, ierr
 
         keyword_line = findKeyword(keyword_name)
-        if (keyword_line.eq.0) return
+        if (keyword_line.eq.0) then
+           ierr=1
+           return
+        endif
 
-        read  (file_lines(keyword_line:),  7000) (grav(i),i=1,3)
+        write(*,*) "lido, ", keyword_name
+        read  (file_lines(keyword_line),  7000) (grav(i),i=1,3)
         write (iecho,8000) (grav(i),i=1,3)
+        write (*,8000) (grav(i),i=1,3)
 
         7000 format(8 f10.0)
         8000 format(///,&
          ' g r a v i t y   v e c t o r   c o m p o n e n t s     ',//5x,&
-         ' exemplo 1. . . . . . . . . . . . . .  = ',      1pe15.8,//5x,&
-         ' exemplo 2 . . . . . . . . . . . . . . = ',      1pe15.8,//5x,&
-         ' exemplo 3............................ = ',      1pe15.8,//)
-    end subroutine readConstantBodyForcesDS !**************************************************************************
+         ' direcao 1. . . . . . . . . . . . . .  = ',      1pe15.8,//5x,&
+         ' direcao 2 . . . . . . . . . . . . . . = ',      1pe15.8,//5x,&
+         ' direcao 3............................ = ',      1pe15.8,//)
+    end subroutine readConstantBodyForcesDS 
+    
+    !**************************************************************************
+    subroutine leituraRegiaoDs(keyword_name, geoform, numel, ierr)
+        character(len=50) keyword_name
+        integer :: numel
+        CHARACTER*12 :: GEOFORM(numel)
+!
+        integer*4:: m,ng,i, keyword_line
+        integer :: ierr
 
+        keyword_line = findKeyword(keyword_name)
+        if (keyword_line.eq.0) then
+           ierr=1
+           write(*,'(a, a)') 'nao encontrado, ', keyword_name
+           return
+        endif
+
+        !read(file_lines(keyword_line),1000) (GEOFORM(i),i=1,numel)
+        do i=1, numel
+           read(file_lines(keyword_line),1000) GEOFORM(i)
+           write(*,'(a,a)')   "em leituraRegiaoDs, valor lido =",  GEOFORM(i)
+           keyword_line = keyword_line + 1
+        end do
+        1000 format(a12)
+    end subroutine    
+    
 
 end module mInputReader
 

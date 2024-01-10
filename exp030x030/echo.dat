@@ -44,7 +44,7 @@ Informacao do sistema de equacoes
 
       memoria necessaria para a matriz do sistema (Mbytes)  =   0.22E+00
 
-      Solver escolhido                                      = GaussSkyline        
+      Solver escolhido                                      = GaussSkyline                                                                    
 Informacao do sistema de equacoes 
 
 
@@ -58,4 +58,4 @@ Informacao do sistema de equacoes
 
       memoria necessaria para a matriz do sistema (Mbytes)  =   0.98E+00
 
-      Solver escolhido                                      = GaussSkyline        
+      Solver escolhido                                      = GaussSkyline                                                                    

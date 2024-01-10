@@ -1,9 +1,9 @@
 dirExp=${1:-"exp05x02/"}
-numThreads=${2:-"1"}
-opcaoA=${3:-"1"}
-opcaoB=${4:-"1"}
-opcaoC=${5:-"1"}
-sufixoTela=${6:-""};
+opcaoA=${2:-''}
+opcaoB=${3:-''}
+opcaoC=${4:-''}
+sufixoTela=${5:-''};
+numThreads=${6:-"1"}
 
 dirBin=/prj/prjedlg/bidu/BTsimuladorMEFacademico/bin
 dirBin=/prj/prjedlg/bidu/simuladorMEFacademicoBT-Patricia/bin

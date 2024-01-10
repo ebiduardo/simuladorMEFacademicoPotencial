@@ -15,3 +15,7 @@ git pull origin master    # atualizar o diretorio   (do disco local) de trabalho
 
 git clone https://github.com/ebiduardo/simuladorMEFacademicoPotencial.git 
 git clone https://github.com/ebiduardo/simuladorMEFacademicoPotencial.git 
+git commit -am "modulos de solvers e estrutura de dados mais novos"
+git status
+git push
+

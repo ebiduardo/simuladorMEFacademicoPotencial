@@ -1,52 +1,57 @@
-*title_pc{                                                                      
+*title{                                                                      
   experimento inicial com programa modular nodal+ladal, CC dirichlet            
 }
-*exec_pc{                                                                       
+*exec{                                                                       
        1
 }
-*iprtin_pc{                                                                     
+*iprtin{                                                                     
        1
 }
-*nsd_pc{                                                                        
+*nsd{                                                                        
        2
 }
-*numnp_pc{                                                                      
+*numnp{                                                                      
      961
 }
-*numel_pc{                                                                      
+*numel{                                                                      
      900
 }
-*nen_pc{                                                                        
+*nen{                                                                        
        4
 }
-*npint_pc{                                                                      
+*npint{                                                                      
        4
 }
-*nlvectP_pc{                                                                    
+*nlvectP{                                                                    
        1
 }
-*nlvectF_pc{                                                                    
+*nlvectF{                                                                    
        0
 }
-*coordenadas_nodais_pc{
+*coordenadas_nodais{
+         1         4       0.0       0.0
+                           5.0       0.0
+                           5.0       2.0
+                           0.0       2.0
+        30         1        30        31
+         0
+}
+
          1         4 0.000E+00 0.000E+00
                      0.100E+01 0.000E+00
                      0.100E+01 0.100E+01
                      0.000E+00 0.100E+01
-        30         1        30        31
-         0
-}
-*conectividades_nodais_pc{
+*conectividades_nodais{
          1         1         1         2        33        32         1
         30         1         1        30        30        31
          0
 }
-*codigos_cond_contorno_potencial_pc{
+*codigos_cond_contorno_potencial{
          1       931        31         1
         31       961        31         1
          0
 }
-*valores_cond_contorno_potencial_pc{
+*valores_cond_contorno_potencial{
          1         2  0.10E+01
                       0.10E+01
         30        31
@@ -55,15 +60,15 @@
         30        31
          0
 }
-*codigos_cond_contorno_fluxo_pc{
+*codigos_cond_contorno_fluxo{
          0
 }
-*nummat_pc{                                                                     
+*nummat{                                                                     
        1
 }
-*prop_fisica_meio_pc{
+*prop_fisica_meio{
          1       0.10E+01  0.10E+01  0.10E+01
 }
-*grav_pc{
+*grav{
   0.00E+00  0.00E+00  0.00E+00
 }

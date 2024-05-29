@@ -33,6 +33,7 @@ module mInputReader
     subroutine leituraValoresCondContornoDS(keyword_name,f,ndof,numnp,j, nlvect, iprtin, iecho)
 
         use mleituraEscrita, only: printf, printd
+        use mGlobaisEscalares, only : zero
 
         implicit none
 
@@ -51,7 +52,8 @@ module mInputReader
 
         do 100 nlv=1,nlvect
             call genflDS(f(1,1,nlv),ndof,keyword_line)
-            call ztest(f(1,1,nlv),ndof*numnp,lzero)
+            !call ztest(f(1,1,nlv),ndof*numnp,lzero)
+            lzero = sum(f(:,:,nlv)) == zero
 !
             if (iprtin.eq.0) then
                  if (lzero) then
@@ -241,14 +243,11 @@ module mInputReader
 
       keyword_name = 'coordenadas_nodais'
       keyword_line = findKeyword(keyword_name)
-
       call genflDS(x,nsd,keyword_line)
 
       if (iprtin.eq.1) return 
 ! 
-
-      open(unit=icoords    , file= 'coordenadasG.dat')
-! stop "em leituraGeracaoCoordenadasDS"
+      open(unit=icoords    , file= 'coordenadas.dat')
       do n=1,numnp 
          if (mod(n,50).eq.1) write(icoords,1000) (i,i=1,nsd) 
          write(icoords,2000) n,(x(i,n),i=1,nsd)   
@@ -266,21 +265,20 @@ module mInputReader
     !> Le arquivo de input e armazena seu conteudo em um array.
     !! @param file_name Nome do arquivo a ser lido.
     subroutine readInputFileDS(iin)
-
         implicit none
-        
         integer :: iin
 
-        integer*4 success, lines_count
         character(len=200) file_line
-
-        integer*4 :: main_number_of_lines, main_number_of_includes, i, include_index, inc_nlines, inc_inc, merge_lines
         character(len=200), allocatable :: main_file_lines(:)
         character(len=200), allocatable :: include_files(:)
-        character(len=200) include_file
+        character(len=200)              :: include_file
+
+        integer*4 :: success, lines_count
+        integer*4 :: main_number_of_lines, main_number_of_includes
+        integer*4 :: include_index, inc_nlines, inc_inc, merge_lines, i
         integer*4, allocatable :: include_indexes(:), include_number_of_lines(:)
 
-        main_number_of_lines = 0
+        main_number_of_lines    = 0
         main_number_of_includes = 0
 
         call analyzeFileInput(main_number_of_lines, main_number_of_includes, iin)
@@ -339,15 +337,12 @@ module mInputReader
     !> Cria a estretura de input usando um arquivo de entrada sem includes
     !! @param file_name Nome do arquivo a ser lido.
     subroutine createSimpleInputFile(iin)
-
         implicit none
-
         integer :: iin
-        integer*4 success, lines_count
-        character(len=200) file_line
 
+        integer*4          :: success, lines_count
+        character(len=200) :: file_line
         number_of_lines = 0
-
         do
             read(iin, "(A)", iostat=success) file_line
             if (success.ne.0) exit
@@ -372,17 +367,14 @@ module mInputReader
     !! @param   include_files   Array com includes.
     !! @param   include_line    A linha do include.
     subroutine mergeIncludeContents(include_file, include_line)
-
         implicit none
-
-        integer*4 include_line
-        character(len=200) include_file
+        integer*4          ::  include_line
+        character(len=200) ::  include_file
 
         character(len=200) file_line
         integer*4 file_channel, success, current_index
 
         file_channel = 1
-
         current_index = include_line
 
 !         open(unit=file_channel, file=include_file)       
@@ -395,7 +387,7 @@ module mInputReader
         end do
         close(file_channel)
         return
-        100 print*, "file", include_file, " - incluido no arquivo inputDS.dat - não existe"
+        100 print*, "falta o arquivo: ", include_file, ", mencionado em inputDS.dat"
         
     end subroutine mergeIncludeContents !******************************************************************************
 
@@ -435,20 +427,19 @@ module mInputReader
     !! @param   number_of_include   N�mero de ocorr�ncias da palavra include.
     subroutine analyzeFileInput(number_of_lines, number_of_includes, iin)
 
-        integer :: iin
-        character(len=200) file_line
         integer*4 number_of_lines, number_of_includes
+        integer :: iin
 
         character(len=50) include_keyword, formated_keyword
+        character(len=200) file_line
         integer*4 keyword_len, success
 
-        include_keyword = "include"
-        keyword_len = len(trim(include_keyword)) + 2
+        include_keyword  = "include"
+        keyword_len      = len(trim(include_keyword)) + 2
         formated_keyword = trim('*' // trim(include_keyword) // '{')
 
-        number_of_lines = 0
+        number_of_lines    = 0
         number_of_includes = 0
-
 !        lunitInicial = 15
         do
             read(iin, "(A)", iostat=success) file_line
@@ -498,8 +489,6 @@ module mInputReader
         return
         100 print*, "file", file_name, " - incluido no arquivo inputDS.dat - não existe"
    
-      
-
     end subroutine analyzeFile !***************************************************************************************
 
     !> Procura a n-esima palavra-chave include.
@@ -613,9 +602,6 @@ module mInputReader
         return
     end subroutine readStringKeywordValue 
 !****************************************************************************
-
-    
-    
     !> Efetua a leitura de uma palavra-chave to tipo real. Se nao encontrado, associa o valor defualt fornecido.
     !! @param keyword       A palavra-chave a ser encontrada.
     !! @param target        Variavel onde o real sera atribuido.
@@ -640,20 +626,6 @@ module mInputReader
           origem='valor lido, ';    ierr=0
         end if
       write(*,'(a, a, a, e15.7)') origem, trim(keyword), '=', target 
-!
-!      ierr=0
-!      keyword_line = findKeyword(keyword)
-!      if (keyword_line.eq.0) then
-!         target = default_value
-!         ierr=1
-!         write(*,'(a, a, a, e15.7)') 'default, ', keyword, '=', target 
-!         return
-!      end if
-!      file_line = adjustL(trim(file_lines(keyword_line)))
-!      read(file_line, *)target
-!      write(*,'(a, a, a, e15.7)') 'lido, ', keyword, '=', target 
-      !print*, keyword
-      !print*, target
       return
     end subroutine readRealKeywordValue
 !****************************************************************************
@@ -667,10 +639,11 @@ module mInputReader
         
         character(50) keyword
         integer*4 targetb, var_n
-        character(len=*) ::  dominio
         character(len=128) :: var_out
-        character(len=120) :: file_line
+        character(len=*) ::  dominio
+
         integer*4 keyword_line
+        character(len=120) :: file_line
         integer :: ierr
             character*1 tab
             tab = char(11)
@@ -692,7 +665,6 @@ module mInputReader
         
     end subroutine readOutFlagKeyword
 
-
     ! ALTERADO PAT
     ! NOVO !    
     !! Efetua a leitura de uma palavra-chave to tipo logico. 
@@ -701,24 +673,29 @@ module mInputReader
     !! @param target        Variavel onde o real sera atribuido.
     !! @param default_value Valor default.
     subroutine readLogicalKeywordValue(keyword, target, default_value, ierr)
-        implicit none
-        character(50) keyword
-        character(120) file_line
-        logical target, default_value
-        integer :: ierr
+       implicit none
+       character(50) keyword
+       character(120) file_line
+       logical target, default_value
+       integer :: ierr
 
+       integer*4 keyword_line
 
-        integer*4 keyword_line
-        keyword_line = findKeyword(keyword)
-        if (keyword_line.eq.0) then
-            target = default_value
-            return
-        end if
-        file_line = adjustL(trim(file_lines(keyword_line)))
-        read(file_line, *) target
-        return
+       character(20) :: origem
+
+       target = default_value
+       origem = 'valor default, '
+       ierr=1
+
+       keyword_line = findKeyword(keyword)
+       if (keyword_line.ne.0) then
+       file_line = adjustL(trim(file_lines(keyword_line)))
+       read(file_line, *) target
+       origem='valor lido, ';    ierr=0
+       end if
+       write(*,'(a, a, a, L)') origem, trim(keyword), '=', target
+       return
     end subroutine readLogicalKeywordValue !****************************************************************************
-  
     
     !> Efetua a geracao de coordeadas, de acordo com parametros.
     !!

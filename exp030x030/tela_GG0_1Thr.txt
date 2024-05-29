@@ -1,33 +1,60 @@
 +++
 +++
-Qua Mai 18 11:44:59 BRT 2016
+Thu Jan 11 16:57:49 -03 2024
 +++
 +++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
 +++
 +++ maquina: desconhecida
 +++ compilador: gfortran
 +++ solver: Gauss
-+++ executavel: /home/bidu/LNCC/simuladorMEFacademicoPotencial/bin/simulador.exe
-+++ diretorio: exp030x030/
++++ executavel: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorGG0.exe
++++ diretorio: exp030x030
 +++
 +++
 +++ digite ENTER para executar o simulador 
 +++
-(export OMP_NUM_THREADS=1; cd exp030x030/ ; time /home/bidu/LNCC/simuladorMEFacademicoPotencial/bin/simulador.exe |tee -a tela_GG0_1Thr.txt)
- optSolverP= GaussSkyline        
- optSolverF= GaussSkyline        
+(export OMP_NUM_THREADS=1; cd exp030x030 ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorGG0.exe |tee -a tela_GG0_1Thr.txt)
        call abrirArquivos  ()
   +++inputDS.dat         
   call preprocessadorDS ()
+valor lido,         title=experimento inicial com programa modular nodal+ladal, CC dirichlet              
+valor lido,         exec=1
+valor lido,         iprtin=1
+valor lido,         nsd=2
+valor lido,         numnp=961
+valor lido,         numel=900
+valor lido,         nen=4
+valor lido,         npint=4
+valor lido,         nlvectP=1
+valor lido,         nlvectF=0
+valor default,      solver_pressao=GaussSkyline                                                                    
+valor default,      solver_fluxo=GaussSkyline                                                                    
+valor default,      eliminateEq=YES 
+ Solvers disponiveis:
+                       SKYLINE
+ optSolverP= GaussSkyline                                                                    
+ optSolverF= GaussSkyline                                                                    
  call leituraGeracaoCoordenadasDS
+  em subroutine genflDS(a,nra, nLinhaArqInput )
  call leituraGeracaoConectividadesDS
+ nen =            4
+ em prntel, Conectividades nodais, nen=           4
  call leituraCodigosCondContornoDS(idPotencial
  call leituraValoresCondContornoDS(fPotencial,ndofP,numnp,0,nlvectP,iprtin)
+  em subroutine genflDS(a,nra, nLinhaArqInput )
  call leituraCodigosCondContornoDS(idFluxo,
  call leituraParamNumericosPropFisicaDS()
+    1      1.0000E+00     1.0000E+00     1.0000E+00
+ apos call leituraParamNumericosPropFisicaDS()
+ exec =           1
        call processamento  ()
-  call montarEstrutDadosSistEqAlq(optSolverP_ =GaussSkyline        
- em montarEstrutDadosSistEqAlq,   
+ em processamento, numCoefPorLinhaP =            9
+  call montarEstrutDadosSistEqAlq(optSolverP_ =GaussSkyline                                                                    
+ em montarEstrutDadosSistEqAlq, fev2019   
+  nalhs =       26997
+ em subroutine criarListaVizinhosCRS(nen,numnp,numel,conecElem,nVizinMax)
+ nVizinMax=           4 , em noh ...          33
+ umaEstSistEq_%numCoefPorLinha =            9
  criar estruturas de dados,  tempo de parede =    0.0000000000000000     
 Informacao do sistema de equacoes 
 
@@ -42,9 +69,10 @@ Informacao do sistema de equacoes
 
       memoria necessaria para a matriz do sistema (Mbytes)  =   0.22E+00
 
-      Solver escolhido                                      = GaussSkyline        
-  call montarEstrutDadosSistEqAlq(optSolverF_ =GaussSkyline        
- em montarEstrutDadosSistEqAlq,   
+      Solver escolhido                                      = GaussSkyline                                                                    
+  call montarEstrutDadosSistEqAlq(optSolverF_ =GaussSkyline                                                                    
+ em montarEstrutDadosSistEqAlq, fev2019   
+  nalhs =      121923
  criar estruturas de dados,  tempo de parede =    0.0000000000000000     
 Informacao do sistema de equacoes 
 
@@ -59,40 +87,43 @@ Informacao do sistema de equacoes
 
       memoria necessaria para a matriz do sistema (Mbytes)  =   0.98E+00
 
-      Solver escolhido                                      = GaussSkyline        
-  ..... montando sistema de equacoes da potencial
+      Solver escolhido                                      = GaussSkyline                                                                    
+ em subroutine montarSistEqAlgPotencial0
+  ..... montando sistema de equacoes de potencial
            1       26997         899
-  +++ apos call montarEstrutDadosSistEqAlq(
-  +++ apos call dirichletConditions(
-  +++ apos call calcCoefSistAlgPotencial(
+  em subroutine dirichletConditions(id,d,f,ndof,numnp,nlvect)
+  fim de dirichletConditions(id,d,f,ndof,numnp,nlvect)
+ Om subroutine calcCoefSistAlgPotencial
   calculo dos coeficientes, tempo =    0.0000000000000000     
-  +++, em subroutine escreverSistemaSkylineEmMTX(alhs,idiag,lm,id,ien,nee,nen,numel,numnp)
- solver GaussSkyline        , potencial   
+  +++, em subroutine escreverSistemaSkylineEmMTX(alhs,idiag,lm,id,...
+899 899 26997
   em solverGaussSkyline, etapa=full, simetria= T
-  valores nos extremos do vetor solucao,  potencial              1
-  0.93333333E+00  0.86666667E+00  0.80000000E+00  0.73333333E+00  0.66666667E+00  0.60000000E+00
- -0.60000000E+00 -0.66666667E+00 -0.73333333E+00 -0.80000000E+00 -0.86666667E+00 -0.93333333E+00
-Euclid norms of computed solution:   0.16723902E+02
- tempo de parede (potencial) =      0.0078, segundos
- .............. montagem matriz   =      0.0039, segundos
- .............. solver            =      0.0039, segundos
-  ..... montando sistema de equacoes da fluxo
+ em factor,   em back 
+ valores nos extremos do vetor solucao completo,  potencial  1
+  0.1000E+01  0.9333E+00  0.8667E+00  0.8000E+00  0.7333E+00  0.6667E+00  0.6000E+00
+ -0.6000E+00 -0.6667E+00 -0.7333E+00 -0.8000E+00 -0.8667E+00 -0.9333E+00 -0.1000E+01
+Euclid norms of computed solution:  0.18484829E+02
+ tempo de parede (potencial) =      0.0000, segundos
+ .............. montagem matriz   =      0.0000, segundos
+ .............. solver            =      0.0000, segundos
+  ..... montando sistema de equacoes de fluxo
            2      121923        1922
- call calcCoefSistAlgFluxo(...
-  calculo dos coeficientes, tempo =    3.9062500000000000E-003
-  +++, em subroutine escreverSistemaSkylineEmMTX(alhs,idiag,lm,id,ien,nee,nen,numel,numnp)
- solver GaussSkyline        , fluxo       
+  em calcCoefSistAlgFluxo, nen =           4
+  calculo dos coeficientes, tempo =    0.0000000000000000     
+  +++, em subroutine escreverSistemaSkylineEmMTX(alhs,idiag,lm,id,...
+1922 1922 121923
   em solverGaussSkyline, etapa=full, simetria= T
-  valores nos extremos do vetor solucao,  fluxo                  1
-  0.20000000E+01  0.26346980E-13  0.20000000E+01 -0.59952043E-14  0.20000000E+01  0.23037128E-14
-  0.20000000E+01  0.54956040E-14  0.20000000E+01  0.10547119E-14  0.20000000E+01  0.21158263E-13
-Euclid norms of computed solution:   0.62000000E+02
- tempo de parede (fluxo)     =      0.0156, segundos
- .............. montagem matriz   =      0.0078, segundos
- .............. solver            =      0.0078, segundos
- +++ inicio da simulacao: Qua Mai 18 11:45:00 BRT 2016
- +++ fim .. da simulacao: Qua Mai 18 11:45:00 BRT 2016 
+ em factor,   em back 
+ valores nos extremos do vetor solucao completo,  fluxo  1
+  0.4000E+00 -0.5658E-14  0.4000E+00 -0.1152E-14  0.4000E+00 -0.4035E-14
+  0.4000E+00  0.1070E-14  0.4000E+00  0.7071E-14  0.4000E+00 -0.5214E-14
+Euclid norms of computed solution:  0.12400000E+02
+ tempo de parede (fluxo)     =      0.0039, segundos
+ .............. montagem matriz   =      0.0000, segundos
+ .............. solver            =      0.0039, segundos
+ +++ inicio da simulacao: Thu Jan 11 16:57:50 -03 2024
+ +++ fim .. da simulacao: Thu Jan 11 16:57:50 -03 2024 
 
-real	0m0.151s
-user	0m0.036s
-sys	0m0.000s
+real	0m0.188s
+user	0m0.156s
+sys	0m0.031s

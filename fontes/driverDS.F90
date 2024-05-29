@@ -298,10 +298,10 @@ end program poisson
       character(LEN=40) ::  nomeArqSist
       integer :: passoTempo
       real*8 :: tempo
-      escreverSistF=.false.; escreverSolF=.false.
       escreverSistF=.true. ; escreverSolF=.true.
-      escreverSistP=.false.; escreverSolP=.false.
+      escreverSistF=.false.; escreverSolF=.false.
       escreverSistP=.true. ; escreverSolP=.true.
+      escreverSistP=.false.; escreverSolP=.false.
       escreverSaidaVTK=.false.
       escreverSaidaVTK=.true.
       if(estrutSistEqP%optSolver(1:12)=='HYPREEsparso'.or.estrutSistEqF%optSolver(1:12)=='HYPREEsparso') then

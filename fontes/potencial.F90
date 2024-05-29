@@ -58,6 +58,7 @@
       subroutine calcCoefSistAlgPotencial( optSolver_, estrutSistEqP_, x, conecNodaisElem, numnp, numel, nen, nsd )
 !
       use mGlobaisEscalares, only: nrowsh, npint
+      use mGlobaisEscalares, only: zero
       use mGlobaisArranjos,  only: mat, c, grav
       use mfuncoesDeForma,   only: oneshl, oneshg, shlt, shlq3d, shg3d, shgq, shlq, shlt3D
       use mMalha,            only: local
@@ -192,7 +193,8 @@
       lmLocal(:)=reshape(estrutSistEqP_%lm(:,:,nel),(/nee/))
 
       !print*,nel, ", pl =", pl
-      call ztest(pl,nee,zerodl)
+      !call ztest(pl,nee,zerodl)
+      zerodl = sum(pl) == zero
 !      write(*,*) zerodl, pl
 !
 !      zerodl=.false.

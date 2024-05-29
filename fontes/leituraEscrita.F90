@@ -418,6 +418,7 @@
 !                             = nodal body forces(j=1)
 !
       use mMalha, only : genfl
+      use mGlobaisEscalares, only: zero
       implicit none
 !
 !.... remove above card for single-precision operation
@@ -428,15 +429,11 @@
       logical lzero
       integer*4 nlv
       character(len=30) :: rotulo
-
-!
-!     call clear(f,nlvect*numnp*ndof)
       f=0.0
-      
-
       do 100 nlv=1,nlvect
       call genfl(f(1,1,nlv),ndof,iin)
-      call ztest(f(1,1,nlv),ndof*numnp,lzero)
+      !call ztest(f(1,1,nlv),ndof*numnp,lzero)
+      lzero = sum(f(:,:,nlv)) == zero
 !
       if (iprtin.eq.0) then
 !
@@ -467,6 +464,7 @@
 !
 !.... program to print prescribed force and boundary condition data
 !
+      use mGlobaisEscalares, only: zero
       implicit none
 !
 !.... remove above card for single precision operation
@@ -480,7 +478,8 @@
       nn = 0
 !
       do 100 n=1,numnp
-      call ztest(f(1,n,nlv),ndof,lzero)
+      !call ztest(f(1,n,nlv),ndof,lzero)
+      lzero = sum(f(:,n,nlv)) == zero
       if (.not.lzero) then
          nn = nn + 1
          if (mod(nn,50).eq.1) write(iecho,1000) nlv,(i,i=1,ndof)
@@ -503,6 +502,7 @@
 !
 !.... program to print kinematic data
 !
+      use mGlobaisEscalares, only: zero
       implicit none
 !
 !.... remove above card for single precision operation
@@ -517,7 +517,8 @@
       nn = 0
 !
       do 100 n=1,numnp
-      call ztest(dva(1,n),ndof,lzero)
+      !call ztest(dva(1,n),ndof,lzero)
+      lzero = sum(dva(:,n)) == zero
       if (.not.lzero) then
          nn = nn + 1
          if (mod(nn,50).eq.1) &
@@ -881,7 +882,7 @@
             
          else if (tipo_arq_saida == 0) then
          
-            !call gerarLabel(labelTempo,tempo) !BD_Jan2024 
+            call gerarLabel(labelTempo,tempo) !BD_Jan2024 
            
             if(passoTempo==0) then
                !open(unit=iparaviewPotencial ,file= './out/resultadoPotencial.vtk')
@@ -917,7 +918,7 @@
              call escreverArquivoVTU_Velocidade(estrutSistEqF%u, nsd, numnp, passoTempo)
              
          elseif (tipo_arq_saida == 0) then
-            !call gerarLabel(labelTempo,tempo) !DB_Jan2024
+            call gerarLabel(labelTempo,tempo) !DB_Jan2024
 
             if(passoTempo==1) then
                open(unit=iparaviewFluxo     ,file= './out/resultadoFluxo.vtk')
@@ -931,6 +932,25 @@
          end if
          
       end subroutine escreverArquivosSaida_Fluxo
+
+      subroutine gerarLabel(label,tempo)
+      implicit none
+      character(LEN=21), intent(out) :: label
+      real*8, intent(in) :: tempo
+
+      character(LEN=21) :: labelAux, num
+      integer :: i
+      write(num,'(f20.4)') tempo
+!     labelAux="t="//ADJUSTL(num)
+      labelAux="t="//num
+      do i = 1, 21
+         if(labelAux(i:i) .ne. ' ') then
+            label(i:i) = labelAux(i:i)
+         else
+            label(i:i) = '0'
+         end if
+      end do
+      end subroutine gerarLabel
 !
 !=================================================================================
 !

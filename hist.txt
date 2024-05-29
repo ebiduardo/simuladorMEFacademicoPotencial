@@ -1,0 +1,1000 @@
+cmake .  -Wno-dev
+cd ..
+cmake .  -Wno-dev
+make
+make clean
+make 
+vi Makefile
+make gnu
+make gcc
+grep -i target Makefile
+make x86_64-pc-linux-gnu
+ls
+more Makefile.am 
+more Makefile.in
+ls -ltr
+cmake .
+add_bin_test
+find .. -name "add_bin_test*"
+find ../.. -name "add_bin_test*"
+find ../../.. -name "add_bin_test*"
+find ../../.. -name "add_bin_*"
+find ../../.. -name "add_*"
+ls
+cd ..
+ls
+make
+make install
+make INSTALL
+sudo make install
+ls
+cd examples/
+ls
+ls C
+ls /opt/netcdf/4.9.2/include/
+ls /opt/netcdf/4.9.2/lib/
+cd ..
+vi compilar.sh 
+. compilar.sh 
+vi compilar.sh 
+. compilar.sh 
+ls /opt/netcdf/4.9.2/lib/
+grep nc_close simple_xy_wr.c 
+grep nc_ simple_xy_wr.c 
+grep nc_ simple_xy_wr.c |sort
+. compilar.sh 2>&1 | sort
+{. compilar.sh} 2>&1 | sort
+(. compilar.sh) 2>&1 | sort
+(. compilar.sh)  |& sort
+(. compilar.sh)  
+(. compilar.sh)  |& awk -F"to" {print $2}"
+(. compilar.sh)  |& awk -F"to" '{print $2}'
+(. compilar.sh)  |& awk -F"to" '{print $2}' |unid
+(. compilar.sh)  |& awk -F"to" '{print $2}' |uniq
+(. compilar.sh)  |& awk -F"to" '{print $2}' |sort | uniq
+grep nc_ simple_xy_wr.c |sort
+(. compilar.sh)  |& awk -F"to" '{print $2}' |uniq
+(. compilar.sh)  
+gcc -o xy -I/opt/netcdf/4.9.2/include/ -L/opt/netcdf/4.9.2/lib/ -lnetcdf-c simple_xy_wr.c
+gcc -o xy -I/opt/netcdf/4.9.2/include/ -L/opt/netcdf/4.9.2/lib/ -lnetcdf simple_xy_wr.c
+gcc -o xy -I/opt/netcdf/4.9.2/include/ -L/opt/netcdf/4.9.2/li -lnetcdf simple_xy_wr.c
+gcc -o xy -I/opt/netcdf/4.9.2/include/ -L/opt/netcdf/4.9.2 -lnetcdf simple_xy_wr.c
+ls /opt/netcdf/4.9.2/lib/
+gcc -o xy -I/opt/netcdf/4.9.2/include/ -L/opt/netcdf/4.9.2/lib/ -lnetcdf simple_xy_wr.c
+ar -tvf  /opt/netcdf/4.9.2/lib/libnetcdf.a 
+cd netcdf-c-4.9.2/examples/C
+ake
+make
+ls
+make clean
+make
+make simple_xy_wr
+ls -ltr
+more simple_xy_wr.c
+make simple_xy_wr
+make clean
+make simple_xy_wr
+./simple_xy_wr
+ls -ltr
+mv simple_xy_wr.c ../..
+ls
+make clean
+make simple_xy_wr simple_xy_rd sfc_pres_temp_wr sfc_pres_temp_rd pres_temp_4D_wr pres_temp_4D_rd format sfc_pres_temp_more simple
+make simple_xy_wr
+make clean
+make simple_xy_wr
+ls -ltr
+more../../simple_xy_wr.c .
+more../../simple_xy_wr.c 
+more ../../simple_xy_wr.c  
+mv ../../simple_xy_wr.c .
+make simple_xy_wr simple_xy_rd sfc_pres_temp_wr sfc_pres_temp_rd pres_temp_4D_wr pres_temp_4D_rd format sfc_pres_temp_more simple
+ls -ltr
+./simple
+ls -ltr
+more short.nc 
+ls *.nc
+./simple_xy_wr
+more simple_xy.nc 
+cat -a simple_xy.nc 
+./simple_xy_rd
+ls -ltr
+vi simple_xy_wr.c
+sfc_pres_temp_wr~
+sfc_pres_temp_wr
+./sfc_pres_temp_wr
+more sfc_pres_temp.nc 
+ls -ltr
+./sfc_pres_temp_rd
+ls *sh
+./run_examples4.sh 
+./run_examples.sh 
+ls
+ls -ltr 
+ls -ltr *.c
+ls -ltr *.c |wc
+ls -ltr *.o |wc
+ls -ltr * |wc
+ls -ltr *[^.]* |wc
+ls -ltr *[^\.]* |wc
+ls -ltr *[^\.]* 
+ls -ltr .*[^\.]* 
+ls
+more .deps/format.Po 
+ls -ltr .*[^\.]* 
+more .deps/filter_example.Po 
+du simple
+ldd simple
+dd simple
+ldd sfc_pres_temp
+ldd sfc_pres_temp_wr
+make clean
+ls *.c
+make
+make ALL
+ls
+./cmake .
+.cmake .
+cmake .
+vi CMakeLists.txt 
+cmake .
+ls
+rm CMakeCache.txt 
+cmake .
+more /mnt/c/Users/bidu/OneDrive/aLncc/monan/prototipos/netcdf/netcdf-c-4.9.2/examples/C/CMakeFiles/CMakeOutput.log
+cmake .
+cd..
+rm CMakeCache.txt 
+cd ..
+ls
+rm CMakeCache.txt 
+cmake .
+cmake --version
+vi CMakeLists.txt 
+vi C/CMakeLists.txt 
+rm -rf C/CMakeFiles/
+cmake .
+vi C/CMakeLists.txt 
+cmake .
+vi C/CMakeLists.txt 
+cd ..
+cat > simple_xy_wr.c 
+. compilar.sh 
+ls /opt/netcdf/4.9.2/lib/
+cd ..
+cd netcdf/netcdf-c-4.9.2/examples/C
+make
+make clean
+make simple_xy_wr
+cd ..
+gcc -DHAVE_CONFIG_H -I. -I../..  -I../../include -I../../include -I../../oc2 -I../../libnczarr   -fno-strict-aliasing -MT simple_xy_wr.o -MD -MP -MF $depbase.Tpo -c -o simple_xy_wr.o simple_xy_wr.c
+gcc -DHAVE_CONFIG_H -I.   -fno-strict-aliasing -MT simple_xy_wr.o -MD -MP -MF $depbase.Tpo -c -o simple_xy_wr.o simple_xy_wr.c
+cd ..
+gcc -DHAVE_CONFIG_H -I.   -fno-strict-aliasing -MT simple_xy_wr.o -MD -MP -MF $depbase.Tpo -c -o simple_xy_wr.o simple_xy_wr.c
+ls
+gcc -DHAVE_CONFIG_H -I.   -fno-strict-aliasing -c -o simple_xy_wr.o simple_xy_wr.c
+/bin/bash ../../libtool  --tag=CC   --mode=link gcc  -fno-strict-aliasing  -lstdc++  -o simple_xy_wr simple_xy_wr.o ../../liblib/libnetcdf.la -lm -lz -ldl -lsz -lcurl
+find . libtool
+find . -name libtool
+/bin/bash ./netcdf-c-4.9.2libtool  --tag=CC   --mode=link gcc  -fno-strict-aliasing  -lstdc++  -o simple_xy_wr simple_xy_wr.o ../../liblib/libnetcdf.la -lm -lz -ldl -lsz -lcurl
+/bin/bash ./netcdf-c-4.9.2/libtool  --tag=CC   --mode=link gcc  -fno-strict-aliasing  -lstdc++  -o simple_xy_wr simple_xy_wr.o ../../liblib/libnetcdf.la -lm -lz -ldl -lsz -lcurl
+find . -name liblib
+ls netcdf-c-4.9.2/liblib/
+/bin/bash ./netcdf-c-4.9.2/libtool  --tag=CC   --mode=link gcc  -fno-strict-aliasing  -lstdc++  -o simple_xy_wr simple_xy_wr.o ./netcdf-c-4.9.2/liblib/libnetcdf.la -lm -lz -ldl -lsz -lcurl
+ls -ltr
+/simple_xy_wr
+ls
+ls -ltr
+./simple_xy_wr
+ls -ltr
+more simple_xy.nc 
+od simple_xy.nc 
+od -c simple_xy.nc 
+ls
+more CDL00 
+od -cd simple_xy.nc 
+od -d simple_xy.nc 
+od -dl simple_xy.nc 
+od -c simple_xy.nc 
+more CDL00 
+od -c simple_xy.nc |grep data
+od -c simple_xy.nc |grep -a data
+od -c simple_xy.nc |grep -a d a t a
+od -c simple_xy.nc |grep -a "d a t a"
+od -c simple_xy.nc |grep -a "d  a  t  a"
+od -c simple_xy.nc |grep -a "d   a   t   a"
+od -c simple_xy.nc |grep -a "d   "
+od -c simple_xy.nc |grep -a "d  "
+od -c simple_xy.nc |grep -a "d"
+od -c simple_xy.nc |grep -a "a"
+od -c simple_xy.nc |grep -o "a"
+ncdump  simple_xy.nc 
+ncgen
+ncgen CDL00 
+ls -ltr
+ncgen CDL00 -o CDL
+ls -ltr
+diff CDL simple_xy.nc 
+cp CDL00 CDL01
+vi CDL01 
+ncgen CDL00 -o CDL01gen.nc
+ncgen CDL01 -o CDL01gen.nc
+diff CDL01 simple_xy.nc 
+ncgen CDL01 -c CDL01gen.C
+ncgen CDL01 -lc CDL01gen.C
+ncgen CDL01 -lc CDL01gen.c
+ncgen CDL01 -c CDL01gen.c
+ncgen CDL01gen.nc -lc CDL01gen.c
+ncgen CDL01gen.nc -lc 
+ncgen CDL01 -lc 
+history |grep CDL01gen
+ls -ltr
+history 
+cat >> compilarRodar.sh 
+/bin/bash ./netcdf-c-4.9.2/libtool  --tag=CC   --mode=link gcc  -fno-strict-aliasing  -lstdc++  -o simple_xy_wr simple_xy_wr.o ./netcdf-c-4.9.2/liblib/libnetcdf.la -lm -lz -ldl -lsz -lcurl
+gcc  -fno-strict-aliasing  -lstdc++  -o simple_xy_wr simple_xy_wr.o ./netcdf-c-4.9.2/liblib/libnetcdf.la -lm -lz -ldl -lsz -lcurl
+gcc  -fno-strict-aliasing  -lstdc++  -o simple_xy_wr simple_xy_wr.o -L./netcdf-c-4.9.2/liblib/ -lnetcdf -lm -lz -ldl -lsz -lcurl
+gcc  -fno-strict-aliasing  -o simple_xy_wr simple_xy_wr.o -L./netcdf-c-4.9.2/liblib/ -lnetcdf -lm -lz -ldl -lsz -lcurl
+gcc  -fno-strict-aliasing  -o simple_xy_wr simple_xy_wr.c -L./netcdf-c-4.9.2/liblib/ -lnetcdf -lm -lz -ldl -lsz -lcurl
+gcc  -fno-strict-aliasing  -o simple_xy_wr simple_xy_wr.c -L./netcdf-c-4.9.2/liblib/ -lnetcdf -lm -lz -ldl -lsz 
+gcc  -fno-strict-aliasing  -o simple_xy_wr simple_xy_wr.c -L./netcdf-c-4.9.2/liblib/ -lnetcdf -lm -lz -ldl
+gcc  -fno-strict-aliasing  -o simple_xy_wr simple_xy_wr.c -L./netcdf-c-4.9.2/liblib/ -lnetcdf -lm -lz 
+gcc  -fno-strict-aliasing  -o simple_xy_wr simple_xy_wr.c -L./netcdf-c-4.9.2/liblib/ -lnetcdf -lm 
+gcc  -fno-strict-aliasing  -o simple_xy_wr simple_xy_wr.c -L./netcdf-c-4.9.2/liblib/ -lnetcdf 
+gcc  -fno-strict-aliasing  -o simple_xy_wr simple_xy_wr.c -L./netcdf-c-4.9.2/liblib/ -lnetcd
+gcc  -fno-strict-aliasing  -o simple_xy_wr simple_xy_wr.c -L./netcdf-c-4.9.2/liblib/ -lnetcdf
+./simple_xy_wr
+cat >> compilarRodar.sh 
+ls /opt/netcdf/4.9.2/lib/
+gcc  -fno-strict-aliasing  -o simple_xy_wr simple_xy_wr.c -L /opt//netcdf-c-4.9.2/lib -lnetcdf
+cat >> compilarRodar.sh 
+locale netcdf.h
+find . -name /opt/  netcdf.h
+find /opt/ -name   netcdf.h
+cat >> compilarRodar.sh 
+vi compilarRodar.sh 
+gcc  -fno-strict-aliasing  -lstdc++  -o simple_xy_wr simple_xy_wr.o ./netcdf-c-4.9.2/liblib/libnetcdf.la -lm -lz -ldl -lsz -lcurl
+history |grep \-c
+history |grep "\-c"
+history |grep " \-c"
+gcc -DHAVE_CONFIG_H -I.   -fno-strict-aliasing -c -o simple_xy_wr.o simple_xy_wr.c
+gcc -DHAVE_CONFIG_H    -fno-strict-aliasing -c -o simple_xy_wr.o simple_xy_wr.c
+gcc     -fno-strict-aliasing -c -o simple_xy_wr.o simple_xy_wr.c
+gcc  -c -o simple_xy_wr.o simple_xy_wr.c
+env |grep netcdf
+ls /usr/include/
+ls /usr/include/netcdf.h 
+ls -l /usr/include/netcdf.h 
+ls -l /usr/include/netcdf.h v
+vi compilarRodar.sh 
+history |grep dump"
+history |grep dump
+vi compilarRodar.sh 
+ncdump  simple_xy.nc
+history |grep ncgen
+ncgen simple_xy.nc
+ncgen simple_xy.nc -lc
+ncgen CDL01 -lc
+ls -ltr
+./simple_xy_wr
+./compilarRodar.sh 
+ncgen simple_xy.nc -lc
+rm simple_xy.nc
+./compilarRodar.sh 
+vi compilarRodar.sh 
+./compilarRodar.sh 
+vi compilarRodar.sh 
+./compilarRodar.sh 
+ncgen simple_xy.nc -lc
+ncgen simple_xy.nc 
+ncgen CDL01 -lc
+ncgen CDL00 -lc
+ls -ltr
+vi simple_xy_wr.c
+diff simple_xy_wr.c netcdf-c-4.9.2/examples/C
+diff simple_xy_wr.c netcdf-c-4.9.2/examples/C/simple_xy_wr.c
+xdiff simple_xy_wr.c netcdf-c-4.9.2/examples/C/simple_xy_wr.c
+diff -v simple_xy_wr.c netcdf-c-4.9.2/examples/C/simple_xy_wr.c
+diff -l simple_xy_wr.c netcdf-c-4.9.2/examples/C/simple_xy_wr.c
+paste simple_xy_wr.c netcdf-c-4.9.2/examples/C/simple_xy_wr.c
+diff -l simple_xy_wr.c netcdf-c-4.9.2/examples/C/simple_xy_wr.c
+paste simple_xy_wr.c netcdf-c-4.9.2/examples/C/simple_xy_wr.c
+ls /opt/netcdf/4.9.2/share/man/man
+vi simple_xy_wr.c
+vi compilarRodar.sh 
+pwd
+vi compilarRodar.sh 
+./compilarRodar.sh 
+ncgen simple_xy.nc 
+ncgen simple_xy.nc -lc
+more CDL01
+vi compilarRodar.sh 
+./compilarRodar.sh 
+vi compilarRodar.sh 
+./compilarRodar.sh 
+ls -ltr
+vi compilarRodar.sh 
+ls -ltr
+./compilarRodar.sh 
+vi compilarRodar.sh 
+./compilarRodar.sh 
+vi compilarRodar.sh 
+./compilarRodar.sh 
+vi compilarRodar.sh 
+vi simple_xy_wr.c
+./compilarRodar.sh 
+ls -ltr
+sed 's/= 6/= 4/' simple_xy_TXT.nc
+vi simple_xy_Explicito.c 
+sed 's/= 3/= 2/' simple_xy_TXT.nc
+sed 's/= 3/= 2/' simple_xy_TXT.nc -i
+ncgen simple_xy_TXT.nc -lc
+vi simple_xy_TXT.nc 
+ncgen simple_xy_TXT.nc -lc
+sed 's/= 3/= 2/' simple_xy_TXT.nc -ivi simple_xy_Explicito.c 
+vi simple_xy_TXT.nc 
+vi compilarRodar.sh 
+./compilarRodar.sh 
+vi compilarRodar.sh 
+./compilarRodar.sh 
+more simple_xy_Explicito.c
+./compilarRodar.sh 
+!
+em simple_xy_wrExp
+rm simple_xy_wrExp
+./compilarRodar.sh 
+vi compilarRodar.sh 
+./compilarRodar.sh 
+vi compilarRodar.sh 
+./compilarRodar.sh 
+vi compilarRodar.sh 
+./compilarRodar.sh 
+vi compilarRodar.sh 
+./compilarRodar.sh 
+vi compilarRodar.sh 
+./compilarRodar.sh 
+./simple_xy_wr_Explicito
+vi compilarRodar.sh 
+. compilarRodar.sh 
+./simple_xy_wr_Explicito
+vi compilarRodar.sh 
+./simple_xy_wr_Explicito
+. compilarRodar.sh 
+rm *Exp*
+. compilarRodar.sh 
+rm simple_xy_wr_Explicito.o
+. compilarRodar.sh 
+more simple_xy_wr_Explicito.c
+ls -ltr
+rm simple_xy_wr
+rm simple_xy_wr.o
+rm simple_xy_wr_Exp*
+ls -ltr
+. compilarRodar.sh 
+gcc -I/opt/netcdf/4.9.2/include/ -DHAVE_CONFIG_H -fno-strict-aliasing -c -o ./simple_xy_wr_Explicito.o ./simple_xy_wr_Explicito.c
+gcc -fno-strict-aliasing -lstdc++ -o ./simple_xy_wr_Explicito ./simple_xy_wr_Explicito.o -L/opt/netcdf/4.9.2/lib -lnetcdf -lm -lz -ldl -lsz -lcurl
+./simple_xy_wr_Explicito
+vi compilarRodar.sh 
+./simple_xy_wr_Explicito
+. compilarRodar.sh 
+ls -ltr
+./simple_xy_wr_Explicito
+ls -ltr
+rm simple_xy_TXT.nc
+./simple_xy_wr_Explicito
+ls -ltr
+./simple_xy_wr_Explicito
+ls -ltr
+ncdump simple_xy_TXT.nc
+vi compilarRodar.sh ; ./compilarRodar.sh 
+vi simple_xy_wr_Explicito.c
+vi compilarRodar.sh ; ./compilarRodar.sh 
+ls -ltr
+vi compilarRodar.sh ; ./compilarRodar.sh 
+vi simple_xy_wr_Explicito.c
+vi simple_xyB.TXT 
+ncgen -lc simple_xyB.TXT 
+vi simple_xyB.TXT 
+ncgen -lc simple_xyB.TXT 
+ls -ltr
+ncgen -lc simple_xyB.TXT > simple_xy_wr_Explicito.c
+gcc -fno-strict-aliasing -lstdc++ -o ./simple_xy_wr_Explicito ./simple_xy_wr_Explicito.o -L/opt/netcdf/4.9.2/lib -lnetcdf -lm -lz -ldl -lsz -lcurl
+gcc -fno-strict-aliasing -lstdc++ -o ./simple_xy_wr_Explicito ./simple_xy_wr_Explicito.c -L/opt/netcdf/4.9.2/lib -lnetcdf -lm -lz -ldl -lsz -lcurl
+simple_xy_wr_Explicito.c
+./simple_xy_wr_Explicito
+l s-ltr
+ls -ltr
+cp simple_xyB.TXT simple_xyB_3d.TXT
+ncgen -lc simple_xyB_3d.TXT > simple_xy_wr_Explicito.c
+ncgen -lc simple_xyB_3d.TXT > simple_xy_wr_Explicito3d.c
+gcc -fno-strict-aliasing -lstdc++ -o ./simple_xy_wr_Explicito3d ./simple_xy_wr_Explicito3d.c -L/opt/netcdf/4.9.2/lib -lnetcdf -lm -lz -ldl -lsz -lcurl
+./simple_xy_wr_Explicito3d
+ls -tr
+ls -trl
+ncdump simple_xyB_3d.nc
+vi simple_xy_wr_Explicito3d
+vi simple_xy_wr_Explicito3d.c 
+gcc -fno-strict-aliasing -lstdc++ -o ./simple_xy_wr_Explicito3d ./simple_xy_wr_Explicito3d.c -L/opt/netcdf/4.9.2/lib -lnetcdf -lm -lz -ldl -lsz -lcurl
+ncdump simple_xyB_3d.nc
+vi simple_xy_wr_Explicito3d.c 
+vi simple_xyB_3d.TXT
+ncgen -lc simple_xyB_3d.TXT > simple_xy_wr_Explicito3d.c
+gcc -fno-strict-aliasing -lstdc++ -o ./simple_xy_wr_Explicito3d ./simple_xy_wr_Explicito3d.c -L/opt/netcdf/4.9.2/lib -lnetcdf -lm -lz -ldl -lsz -lcurl
+./simple_xy_wr_Explicito3d
+ncdump simple_xyB_3d.nc
+vi simple_xyB_3d.TXT
+ncgen -lc simple_xyB_3d.TXT > simple_xy_wr_Explicito3d.c
+gcc -fno-strict-aliasing -lstdc++ -o ./simple_xy_wr_Explicito3d ./simple_xy_wr_Explicito3d.c -L/opt/netcdf/4.9.2/lib -lnetcdf -lm -lz -ldl -lsz -lcurl
+./simple_xy_wr_Explicito3d
+ncgen -lc simple_xyB_3d.TXT > simple_xy_wr_Explicito3d.c
+ncdump simple_xyB_3d.nc
+ls -ltr
+rm simple_xy_TXT.ncvi
+rm CDL01gen.nc CDL01 CDL
+ls -ltr
+rm simple_xy_nc.nc simple_xy_nc.TXT
+ls -ltr
+vi  simple_xy_wr_Explicito3d.c 
+gcc -fno-strict-aliasing -lstdc++ -o ./simple_xy_wr_Explicito3d ./simple_xy_wr_Explicito3d.c -L/opt/netcdf/4.9.2/lib -lnetcdf -lm -lz -ldl -lsz -lcurl
+vi  simple_xy_wr_Explicito3d.c 
+gcc -fno-strict-aliasing -lstdc++ -o ./simple_xy_wr_Explicito3d ./simple_xy_wr_Explicito3d.c -L/opt/netcdf/4.9.2/lib -lnetcdf -lm -lz -ldl -lsz -lcurl
+vi  simple_xy_wr_Explicito3d.c 
+gcc -fno-strict-aliasing -lstdc++ -o ./simple_xy_wr_Explicito3d ./simple_xy_wr_Explicito3d.c -L/opt/netcdf/4.9.2/lib -lnetcdf -lm -lz -ldl -lsz -lcurl
+vi  simple_xy_wr_Explicito3d.c 
+gcc -fno-strict-aliasing -lstdc++ -o ./simple_xy_wr_Explicito3d ./simple_xy_wr_Explicito3d.c -L/opt/netcdf/4.9.2/lib -lnetcdf -lm -lz -ldl -lsz -lcurl
+vi  simple_xy_wr_Explicito3d.c 
+gcc -fno-strict-aliasing -lstdc++ -o ./simple_xy_wr_Explicito3d ./simple_xy_wr_Explicito3d.c -L/opt/netcdf/4.9.2/lib -lnetcdf -lm -lz -ldl -lsz -lcurl
+vi  simple_xy_wr_Explicito3d.c 
+gcc -fno-strict-aliasing -lstdc++ -o ./simple_xy_wr_Explicito3d ./simple_xy_wr_Explicito3d.c -L/opt/netcdf/4.9.2/lib -lnetcdf -lm -lz -ldl -lsz -lcurl
+./simple_xy_wr_Explicito3d; 
+ncdump simple_xyB_3d.nc
+vi  simple_xy_wr_Explicito3d.c 
+gcc -fno-strict-aliasing -lstdc++ -o ./simple_xy_wr_Explicito3d ./simple_xy_wr_Explicito3d.c -L/opt/netcdf/4.9.2/lib -lnetcdf -lm -lz -ldl -lsz -lcurl
+./simple_xy_wr_Explicito3d; 
+ncdump simple_xyB_3d.nc
+vi  simple_xy_wr_Explicito3d.c 
+cat >> sites.txt
+ls -ltr
+more sites.txt 
+ncgen --version
+ncgen -version
+ncgen -v
+ncgen 
+ncgen -1
+ncgen -h
+man ncgen
+ls -ltr
+more CDL00 
+mv CDL00 first.CDL
+ncgen first.CDL 
+ls -ltr
+ncgen first.CDL -lc
+ncgen first.CDL -lf
+ncgen first.CDL -f
+ncgen first.CDL 
+ls -ltr
+ncgen -k4 first.CDL -f
+ncgen3
+ncgen3 -k4 first.CDL -f
+ncgen3 -k4 first.CDL -f > first
+ls -ltr
+ncgen3 -k4 first.CDL -f > first_xy_wr.f90
+. compilarRodar.sh 
+cd monan/prototipos/netcdf
+cd netcdf-c-4.9.2/lib
+cd netcdf-c-4.9.2/liblibDATEN/
+ls
+ls -ltr 
+pwd
+cd .libs/
+ls
+ls -ltr
+rm libnetcdf.so.19 -> libnetcdf.so.19.2.2
+rm libnetcdf.so.19 -> libnetcdf.so.19.2.2 -r
+rm libnetcdf.so.19  libnetcdf.so.19.2.2 -r
+ls -ltr
+cd ..
+ls
+make
+make clean
+make
+find .. -name hdf5.h
+find /usr/ -name hdf5.h
+env |grep inc
+export INCLUDE=/usr/include/hdf5/serial
+make
+export INC=/usr/include/hdf5/serial
+make
+vi Makefile
+make
+find /usr/ -name hdf5.h
+make
+find . -name "*o"
+ls
+ls -ltr
+gcc -DHAVE_CONFIG_H -I. -I.. -I/usr/include/hdf5/serial  -I../include -I../oc2 -I../libnczarr -I../libdap2 -I../oc -I../libsrc4 -I../libnczarr -I../libncpoco -fno-strict-aliasing -MT libnetcdf_la-nc_initialize.lo -MD -MP -MF .deps/libnetcdf_la-nc_initialize.Tpo -c nc_initialize.c  -fPIC -DPIC -o .libs/libnetcdf_la-nc_initialize.o
+find . -name "*o"
+ls
+ls -a
+cd .libs/
+ls -ltr
+cd ..
+make
+make clean
+make
+ls -ltr
+rm nc_initialize.c 
+make
+cp ../liblibDesktop/nc_initialize.c .
+more nc_initialize.c 
+make
+make all
+make aa
+vi Makefile
+ls
+automake
+configure
+cmake .
+more ../liblibDesktop/
+ls ..
+ls ../comps.txt 
+more ../comps.txt 
+cd ..
+cmake .
+cmake . 
+c
+cc
+cc -version
+cc --version
+gcc --version
+more README.md 
+ls
+mv CMakeCache.txt 00CMakeCache.txt 
+cmake .
+make 
+sudo apt install hdf5
+sudo apt install *hdf5
+sudo apt install *hdf5*
+sudo apt uninstall *hdf5*
+sudo apt uninstall hdf5
+sudo apt uninstall "*hdf5*"
+sudo apt install "*hdf5*"
+make 
+sudo apt-get install libhdf5-serial-dev
+sudo apt-get install libhdf5-dev
+make
+sudo apt-get install libhdf5-dev
+make
+ls
+rm CMakeCache.txt 
+cmake .
+hdf5
+cmake .
+more CMakeFiles/CMakeError.log
+grep error CMakeFiles/CMakeError.log
+clang
+sudo apt-get install clang
+clang
+clang -v
+export CC=/usr/bin/clang
+export CXX=/usr/bin/clang++
+export CC=/usr/bin/clang
+export CXX=/usr/bin/clang++
+rm CMakeCache.txt 
+cmake .
+grep error CMakeFiles/CMakeError.log
+vi CMakeLists.txt 
+make
+make clean
+make
+gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I../include -I../oc2 -I../libnczarr -fno-strict-aliasing -MT libdispatch_la-dvarinq.lo -MD -MP -MF .deps/libdispatch_la-dvarinq.Tpo -c dvarinq.c  -fPIC -DPIC -o .libs/libdispatch_la-dvarinq.o
+find dvarinq.c
+find . -name dvarinq.c
+(cd libdispatch/; gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I../include -I../oc2 -I../libnczarr -fno-strict-aliasing -MT libdispatch_la-dvarinq.lo -MD -MP -MF .deps/libdispatch_la-dvarinq.Tpo -c dvarinq.c  -fPIC -DPIC -o .libs/libdispatch_la-dvarinq.o)
+history |grep hdf5
+find /usr/ -name hdf5.h
+(cd libdispatch/; gcc -I /usr/include/hdf5/mpich/ -DHAVE_CONFIG_H -I. -I.. -I../include -I../include -I../oc2 -I../libnczarr -fno-strict-aliasing -MT libdispatch_la-dvarinq.lo -MD -MP -MF .deps/libdispatch_la-dvarinq.Tpo -c dvarinq.c  -fPIC -DPIC -o .libs/libdispatch_la-dvarinq.o)
+(cd libdispatch/; mpicc -I /usr/include/hdf5/mpich/ -DHAVE_CONFIG_H -I. -I.. -I../include -I../include -I../oc2 -I../libnczarr -fno-strict-aliasing -MT libdispatch_la-dvarinq.lo -MD -MP -MF .deps/libdispatch_la-dvarinq.Tpo -c dvarinq.c  -fPIC -DPIC -o .libs/libdispatch_la-dvarinq.o)
+(cd libdispatch/; gcc -I /usr/include/hdf5/openmpi/ -DHAVE_CONFIG_H -I. -I.. -I../include -I../include -I../oc2 -I../libnczarr -fno-strict-aliasing -MT libdispatch_la-dvarinq.lo -MD -MP -MF .deps/libdispatch_la-dvarinq.Tpo -c dvarinq.c  -fPIC -DPIC -o .libs/libdispatch_la-dvarinq.o)
+(cd libdispatch/; mpicc -I /usr/include/hdf5/openmpi/ -DHAVE_CONFIG_H -I. -I.. -I../include -I../include -I../oc2 -I../libnczarr -fno-strict-aliasing -MT libdispatch_la-dvarinq.lo -MD -MP -MF .deps/libdispatch_la-dvarinq.Tpo -c dvarinq.c  -fPIC -DPIC -o .libs/libdispatch_la-dvarinq.o)
+(cd libdispatch/; mpicc.openmpi -I /usr/include/hdf5/openmpi/ -DHAVE_CONFIG_H -I. -I.. -I../include -I../include -I../oc2 -I../libnczarr -fno-strict-aliasing -MT libdispatch_la-dvarinq.lo -MD -MP -MF .deps/libdispatch_la-dvarinq.Tpo -c dvarinq.c  -fPIC -DPIC -o .libs/libdispatch_la-dvarinq.o)
+(cd libdispatch/; mpicc.mpich -I /usr/include/hdf5/openmpi/ -DHAVE_CONFIG_H -I. -I.. -I../include -I../include -I../oc2 -I../libnczarr -fno-strict-aliasing -MT libdispatch_la-dvarinq.lo -MD -MP -MF .deps/libdispatch_la-dvarinq.Tpo -c dvarinq.c  -fPIC -DPIC -o .libs/libdispatch_la-dvarinq.o)
+ls libdispatch/
+ls libdispatch/ -ltr
+(cd libdispatch/; mpicc.mpich -I /usr/include/hdf5/openmpi/ -DHAVE_CONFIG_H -I. -I.. -I../include -I../include -I../oc2 -I../libnczarr -fno-strict-aliasing -MT libdispatch_la-dvarinq.lo -MD -MP -MF .deps/libdispatch_la-dvarinq.Tpo -c dvarinq.c  -fPIC -DPIC -o .libs/libdispatch_la-dvarinq.o)
+mpicc -version
+mpicc -V
+mpicc --V
+mpicc --version
+mpicc.openmpi --version
+diff mpicc.openmpi mpicc.mpich
+locate mpicc
+which mpicc
+diff /usr/bin/mpicc.openmpi /usr/bin/mpicc.mpich
+diff /usr/bin/mpicc.openmpi /usr/bin/mpicc.mpich -a
+less /usr/bin/mpicc.openmpi /usr/bin/mpicc.mpich -a
+head /usr/bin/mpicc.openmpi /usr/bin/mpicc.mpich -a
+head /usr/bin/mpicc.openmpi /usr/bin/mpicc.mpich 
+(cd libdispatch/; gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I../include -I../oc2 -I../libnczarr -fno-strict-aliasing -MT libdispatch_la-dvarinq.lo -MD -MP -MF .deps/libdispatch_la-dvarinq.Tpo -c dvarinq.c  -fPIC -DPIC -o .libs/libdispatch_la-dvarinq.o)
+history |grep more
+more /mnt/c/Users/bidu/OneDrive/aLncc/monan/prototipos/netcdf/netcdf-c-4.9.2/examples/C/CMakeFiles/CMak
+cmake .
+more /mnt/c/Users/bidu/OneDrive/aLncc/monan/prototipos/netcdf/netcdf-c-4.9.2/CMakeFiles/CMakeError.log
+history |tail
+more /mnt/c/Users/bidu/OneDrive/aLncc/monan/prototipos/netcdf/netcdf-c-4.9.2/CMakeFiles/CMakeError.log
+find /usr/ -name libhdf5.so
+cd alunos/
+cd lennin/
+ls -ltr
+cd AlgecanExps/
+ls
+./algencan 
+ldd /lib/x86_64-linux-gnu/libc.a
+make
+cd ..
+ls
+cd algencan-3.1.1/
+make
+ls lib
+cd ..
+more comandos.txt 
+ls
+cd algencan-3.1.1/
+more README 
+cd ../AlgecanExps/
+ls
+cat > compilar.sh
+pwd
+ls ..
+export ALGENCAN=/mnt/c/Users/bidu/OneDrive/aLncc/alunos/lennin/algencan-3.1.1/lib/
+cat > compilar.sh
+./compilar.sh 
+vi compilar.sh 
+./compilar.sh 
+./algencan
+cd ../algencan-3.1.1/
+make clean
+make
+./compilar.sh 
+cd ../AlgecanExps/
+./compilar.sh 
+./algencan
+ls
+./algencanToy 
+rm algencan
+./algencanToy 
+ls ..
+ls .. -ltr
+cd fi
+cd ../firstProgram/
+ls -ltr
+cd 4202/
+cat > g0OutputFormat.f90
+gfortran g0OutputFormat.f90
+gfortran g0OutputFormat.f90 -fdec
+./a.out 
+ls -ltr
+./a.out ; more test.asa 
+vi  g0OutputFormat.f90
+cat > g0OutputFormatB.f90
+gfortran g0OutputFormatB.f90 -fdec
+gfortran g0OutputFormatB.f90 
+./a.out 
+cd alunos/
+ls
+mor els
+more lsProfiling.txt 
+ls
+gcc lista.c 
+gcc lista.c -c
+vi lista.c
+gcc lista.c -c
+vi lista.c
+gcc lista.c -c
+more lista.h
+vi lista.c
+more lista.h
+vi lista.h
+gcc lista.c -c
+grep busca lista*
+gcc lista.c -c
+vi lista.c
+grep busca lista*
+grep buscaSequencialExc lista*
+vi lista.c
+grep buscaSequencialExc lista* -n
+grep buscaSequencialExc lista* -n -a
+grep buscaSequencialExc lista.c -n -a
+grep buscaSequencialExc lista.[ch] -n -a
+ls
+cd sabrina/
+ls
+tail comandos.txt 
+rm a-DESKTOP-PRUDTOO.out 
+./a.out 
+rm a.out 
+ls -ltr
+./vetorAlocDin.exe 
+./matriz.exe
+ls -ltr
+cd..
+cd ..
+ls
+rm Nova\ pasta/
+rm Nova\ pasta/ -r
+ls -ltr
+cd ..
+ls
+cd tuane/
+ls
+ls -ltr
+cd ..
+ls
+cd monan/
+ls
+./sshSD.sh 
+pwd
+cd ..
+cd simuladorMEFacademicoPotencial
+ls -ltr
+pwd
+cd ..
+ls simuladorMEFacademicoPotencial -d
+ls simuladorMEFacademicoPotencial* -d
+ls -ltr simuladorMEFacademicoPotencial/fontes/ 
+mv  simuladorMEFacademicoPotencial simuladorMEFacademicoPotencial23Jun
+git clone https://github.com/ebiduardo/simuladorMEFacademicoPotencial.git
+cd simuladorMEFacademicoPotencial
+ls -ltr
+. compilar.sh 
+. rodarExperimento.sh 1 1 1
+. rodarExperimento.sh 1 1 1 exp05x02 
+. rodarExperimento.sh exp05x02  1 1 1 11
+ls bin
+. compilar.sh 
+. rodarExperimento.sh exp05x02
+vi compilar.sh 
+ln -s bin/simulador.exe bin/simuladorGG0.exe 
+vi compilar.sh 
+ln -s bin/simulador.exe bin/simuladorGG0.exe 
+vi compilar.sh 
+. compilar.sh 
+ls -ltr bin
+ln -s ../bin/simulador.exe bin/simuladorGG0.exe 
+ln -sn ../bin/simulador.exe bin/simuladorGG0.exe 
+ln -r ../bin/simulador.exe bin/simuladorGG0.exe 
+rm  ../bin/simulador.exe bin/simuladorGG0.exe
+rm  bin/simuladorGG0.exe 
+ln -s ../bin/simulador.exe bin/simuladorGG0.exe 
+. rodarExperimento.sh exp05x02 1 1 1 
+. rodarExperimento.sh exp05x02
+vi compilar.sh 
+. compilar.sh 
+vi compilar.sh 
+. compilar.sh 
+cat comandosGit.txt 
+echo "git clone https://github.com/ebiduardo/simuladorMEFacademicoPotencial.git " >> comandosGit.txt
+cat comandosGit.txt 
+diff fontes/funcoesDeForma.F90 ../simuladorMEFacademicoPotencial23Jun/fontes/
+tail fontes/funcoesDeForma.F90 ../simuladorMEFacademicoPotencial23Jun/fontes/funcoesDeForma.F90 
+diff fontes/funcoesDeForma.F90 ../simuladorMEFacademicoPotencial23Jun/fontes/ |more
+ls
+cp fontes/ fontesMassi -r
+cp ../simuladorMEFacademicoPotencial23Jun/fontes/funcoesDeForma.F90  fontes
+. compilar.sh 
+ls include/
+rm bin/simulador*
+vi compilar.sh 
+. compilar.sh 
+rm bin/si*
+ls -ltr
+ls -ltr bin
+. compilar.sh 
+ls -ltr bin
+rm bin/*.o
+. compilar.sh 
+cp ../simuladorMEFacademicoPotencial23Jun/fontes/variaveisGlobais.F90  fontes
+. compilar.sh 
+grep optSolver fontes/variaveisGlobais.F90 
+grep optSolver fontes/estruturasDadosSistEq.F90 
+cp ../simuladorMEFacademicoPotencial23Jun/fontes/estruturasDadosSistEq.F90 .
+. compilar.sh 
+vi fontes/estruturasDadosSistEq.F90 
+history 
+cp ../simuladorMEFacademicoPotencial23Jun/fontes/estruturasDadosSistEq.F90 fontes
+. compilar.sh 
+cp ../simuladorMEFacademicoPotencial23Jun/fontes/utilSistemaEquacoes.F90 fontes
+. compilar.sh 
+cp ../simuladorMEFacademicoPotencial23Jun/fontes/solv* fontes
+. compilar.sh
+cp ../simuladorMEFacademicoPotencial23Jun/fontes/malha.F90 fontes
+. compilar.sh
+cp ../simuladorMEFacademicoPotencial23Jun/fontes/potencial.F90 fontes
+. compilar.sh
+cp ../simuladorMEFacademicoPotencial23Jun/fontes/fluxo.F90 fontes
+. compilar.sh
+cp ../simuladorMEFacademicoPotencial23Jun/fontes/driverDS.F90 fontes
+. compilar.sh
+cp ../simuladorMEFacademicoPotencial23Jun/fontes/mInputReader.F90 fontes
+. compilar.sh
+grep printf fontes
+grep printf fontes/*90
+cp ../simuladorMEFacademicoPotencial23Jun/fontes/leituraEscrita.F90 fontes
+. compilar.sh
+rm include/* bin/*
+. compilar.sh
+grep  -i gerarlabel
+grep  -i gerarlabel fontes/*90
+grep  -i gerarlabel ../simuladorMEFacademicoPotencial/fontes/*90
+grep  -i gerarlabel ../simuladorMEFacademicoPotencial/fontes/*90 -n
+grep  -i gerarlabel fontes/*90 -n
+vi  fontes/leituraEscrita.F90 
+. compilar.sh
+ls -ltr bin/
+rm include/* bin/*
+. compilar.sh
+rm bin/* include/*;. compilar.sh
+mv compilar.sh compilar00.sh 
+cp ../simuladorMEFacademicoPotencial/compilar00.sh .
+cp ../simuladorMEFacademicoPotencial/compilar.sh .
+cp ../simuladorMEFacademicoPotencial2023Fev/compilar.sh .
+. compilar.sh
+rm bin/* include/*;. compilar.sh
+ls -ltr bin/
+bash -c "ls -ltr bin/"
+bash -cv "ls -ltr bin/"
+bash -cv "ls -ltr bin/|tail -3"
+bash -c "ls -ltr bin/|tail -3"
+bash -cv "ls -ltr bin/|tail -3"
+tail compilar00.sh 
+tail compilar00.sh -20
+tail compilar00.sh -n20
+tail compilar00.sh -n22
+vi compilar.sh
+. compilar.sh
+vi compilar.sh
+. compilar.sh
+vi compilar.sh
+rm bin/* . compilar.sh
+rm bin/*; . compilar.sh
+rm bin/*;. compilar.sh
+rm bin/*;. ./compilar.sh
+rm bin/* ;. ./compilar.sh
+rm bin/* ; . ./compilar.sh
+. compilar.sh
+cp ../simuladorMEFacademicoPotencial2023Fev/compilar.sh .
+tail compilar00.sh -n22
+vi compilar.sh
+. compilar.sh
+vi compilar.sh
+. compilar.sh
+ls -ltr bin/*exe |cut -d' ' -f 3-
+ls -ltr bin/*exe |cut -d' ' -f 3
+ls -ltr bin/*exe |cut -d' ' -f 4
+ls -ltr bin/*exe |cut -d' ' -f 5
+ls -ltr bin/*exe |cut -d' ' -f 6
+ls -ltr bin/*exe |cut -d' ' -f 2
+ls -ltr bin/*exe |cut -d' ' -k 2
+ls -ltr bin/*exe |cut -d' ' -k2
+ls -ltr bin/*exe |cut -d' ' -f2
+ls -ltr bin/*exe |cut -d' ' -f4
+ls -ltr bin/*exe |cut -d' ' -f5
+ls -ltr bin/*exe |cut -d' ' -f6
+ls -ltr bin/*exe |cut -d' ' -f7
+ls -ltr bin/*exe |cut -d' ' -f12
+ls -ltr bin/*exe |cut -d' ' -f13
+ls -ltr bin/*exe |cut -d' ' -f14
+ls -ltr bin/*exe 
+ls -ltr bin/*exe |cut -d' ' -f4 
+ls -ltr bin/*exe |cut -d' ' -f4-
+ls -ltr bin/*exe |cut -d' ' -f5-
+vi compilar.sh
+. compilar.sh
+vi compilar.sh
+. compilar.sh
+vi compilar.sh
+. compilar.sh
+. compilar.sh 1 1 1 
+vi compilar.sh
+. compilar.sh 1 1 1 
+vi compilar.sh
+. compilar.sh 1 1 1 
+vi compilar.sh
+. compilar.sh 1 1 1 
+vi compilar.sh
+. compilar.sh 1 1 1 
+vi compilar.sh
+. compilar.sh 1 1 1 
+. compilar.sh 
+vi compilar.sh
+. compilar.sh 
+vi compilar.sh
+. compilar.sh 
+vi compilar.sh
+. compilar.sh 
+vi compilar.sh
+. compilar.sh 
+vi compilar.sh
+. compilar.sh 
+. rodarExperimento.sh exp05x02
+. rodarExperimento.sh exp05x02  1 1 1
+q
+vi fontes/mInputReader.F90 
+. rodarExperimento.sh exp05x02  1 1 1
+. compilar.sh 
+. rodarExperimento.sh exp05x02  1 1 1
+vi fontes/mInputReader.F90 
+. compilar.sh 
+. rodarExperimento.sh exp05x02  1 1 1
+vi fontes/mInputReader.F90 
+. rodarExperimento.sh exp05x02  1 1 1
+. compilar.sh 
+. rodarExperimento.sh exp05x02  1 1 1|less
+vi fontes/mInputReader.F90 
+. compilar.sh 
+vi fontes/driverDS.F90 
+. compilar.sh 
+vi fontes/driverDS.F90 
+. compilar.sh 
+vi exp05x02/inputDS.dat 
+vi fontes/driverDS.F90 
+. compilar.sh
+vi fontes/driverDS.F90 
+. compilar.sh 
+vi fontes/driverDS.F90 
+vi fontes/mInputReader.F90 
+. compilar.sh 
+vi fontes/mInputReader.F90 
+vi fontes/driverDS.F90 
+. compilar.sh 
+vi fontes/mInputReader.F90 
+vi fontes/driverDS.F90 
+. compilar.sh 
+vi fontes/mInputReader.F90 
+. compilar.sh 
+vi fontes/mInputReader.F90 
+. compilar.sh 
+vi fontes/mInputReader.F90 
+. compilar.sh 
+vi fontes/driverDS.F90 
+. compilar.sh 
+vi fontes/mInputReader.F90 
+. compilar.sh 
+vi fontes/mInputReader.F90 
+. compilar.sh 
+vi fontes/driverDS.F90 
+. compilar.sh 
+vi fontes/driverDS.F90 
+. compilar.sh 
+. rodarExperimento.sh exp05x02  1 1 1
+vi  exp05x02/inputDS.dat 
+grep "unknown title" fontes/*
+vi fontes/mInputReader.F90 
+. compilar.sh 
+vi fontes/mInputReader.F90 
+. compilar.sh 
+vi fontes/mInputReader.F90 
+. compilar.sh 
+vi fontes/mInputReader.F90 
+. compilar.sh 
+vi fontes/mInputReader.F90 
+. compilar.sh 
+rm *.o; . compilar.sh 
+rm bin/*.o; . compilar.sh 
+vi fontes/mInputReader.F90 
+. compilar.sh 
+rm bin/*.o; . compilar.sh 
+vi fontes/mInputReader.F90 
+. compilar.sh 
+vi fontes/mInputReader.F90 
+. compilar.sh 
+vi fontes/mInputReader.F90 
+. compilar.sh 
+cd simuladorMEFacademicoPotencial
+. compilar.sh 
+ls -ltr fontes
+cp -r fontes fontesMassiBD05
+more fontes/variaveisGlobais.F90 
+history
+history -w hist.txt; sort hist.txt
+history -w hist.txt; sort hist.txt |uniq

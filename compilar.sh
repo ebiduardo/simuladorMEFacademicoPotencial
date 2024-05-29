@@ -1,7 +1,8 @@
-opcaoA=${1:-"1"}
+opcaoA=${1:-"3"}
 opcaoB=${2:-"1"}
 opcaoC=${3:-"1"}
 dirFontesD=fontes
+    #dirFontes=${4:-"fontes"}
 dirFontes=${4:-${dirFontesD}}
 exeSufixExtra=${5:-""}
 
@@ -193,15 +194,16 @@ esac
 #echo +++  maquina FC solver ppSolver ARGINC COMP LOMP LIBS
 comando="($FC --version)"; echo $comando; eval $comando
 
-if [ $# == 1 ]; then
+if [ $# == 0 ]; then
 nomeExecutavel=simulador${exeSufixExtra}.exe
 else 
 nomeExecutavel=simulador${sufixoExec}${exeSufixExtra}.exe
 fi
-bash -vc "unlink ${dirBin}/simulador.exe"
-bash -vc "rm     ${dirBin}/${nomeExecutavel}"
 #echo "+++ digite Enter para gerar o executavel: $nomeExecutavel "
 #read
+comando="rm -rf $dirBin/$nomeExecutavel"
+echo $comando
+eval $comando
 
 
 
@@ -226,24 +228,16 @@ fi
    echo $comando;  eval $comando
 done
 
-
-#read
-
 LFLAGS="${LOMP} ${OPTIMIZ}"
 comando="${FC} ${LFLAGS} -o ${dirBin}/${nomeExecutavel} ${listaObjetos[*]} ${LIBS} ";
 echo $comando; eval $comando
 #mpif90 -fopenmp -g -O0 -o bin/prototipoHYPRE.exe bin/*.o -L"/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2B/src/lib/" -lHYPRE 
 
-if [ $? == 0 ]
-then
-  echo +++ executavel criado: ${dirBin}/${nomeExecutavel}
-  bash -vc "ln -s ../${dirBin}/${nomeExecutavel} bin/simulador.exe"
-else
-  echo +++ executavel NAO foi criado
-  bash -vc "exit"
-fi
-  bash -vc "ls -ltr ${dirBin}/*exe |cut -d' ' -f5-"
-  #bash -vc "exit"
+
+echo +++
+echo +++ executavel criado
+ls -ltr ${dirBin}/${nomeExecutavel}
+echo +++
 
 #rm $dirBin/*.o include/*
 #echo +++ aguardando um sinal
@@ -252,7 +246,7 @@ expDir="exp07"
 expDir="exp05x02"
 numThreads="1"
 comando="./rodarExperimento.sh $expDir $numThreads $opcaoA $opcaoB $opcaoC "
-bash -cv $comando; 
+#echo $comando; 
 #read
 echo +++
 #eval $comando

@@ -1,6 +1,6 @@
 +++
 +++
-Wed Jan 10 16:29:43 -03 2024
+Fri Jan 12 08:47:27 -03 2024
 +++
 +++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
 +++
@@ -32,7 +32,6 @@ valor default,      solver_fluxo=GaussSkyline
 valor default,      eliminateEq=YES 
  Solvers disponiveis:
                        SKYLINE
-                       HYPRE
  optSolverP= GaussSkyline                                                                    
  optSolverF= GaussSkyline                                                                    
  call leituraGeracaoCoordenadasDS
@@ -95,24 +94,20 @@ Informacao do sistema de equacoes
   em subroutine dirichletConditions(id,d,f,ndof,numnp,nlvect)
   fim de dirichletConditions(id,d,f,ndof,numnp,nlvect)
  Om subroutine calcCoefSistAlgPotencial
-  calculo dos coeficientes, tempo =    0.0000000000000000     
-  +++, em subroutine escreverSistemaSkylineEmMTX(alhs,idiag,lm,id,...
-12 12 53
+  calculo dos coeficientes, tempo =    1.9531250000000000E-003
   em solverGaussSkyline, etapa=full, simetria= T
  em factor,   em back 
  valores nos extremos do vetor solucao completo,  potencial  1
   0.1000E+01  0.6000E+00  0.2000E+00 -0.2000E+00 -0.6000E+00 -0.1000E+01  0.1000E+01
  -0.1000E+01  0.1000E+01  0.6000E+00  0.2000E+00 -0.2000E+00 -0.6000E+00 -0.1000E+01
 Euclid norms of computed solution:  0.28982753E+01
- tempo de parede (potencial) =      0.0000, segundos
- .............. montagem matriz   =      0.0000, segundos
+ tempo de parede (potencial) =      0.0020, segundos
+ .............. montagem matriz   =      0.0020, segundos
  .............. solver            =      0.0000, segundos
   ..... montando sistema de equacoes de fluxo
            2         402          36
   em calcCoefSistAlgFluxo, nen =           4
   calculo dos coeficientes, tempo =    0.0000000000000000     
-  +++, em subroutine escreverSistemaSkylineEmMTX(alhs,idiag,lm,id,...
-36 36 402
   em solverGaussSkyline, etapa=full, simetria= T
  em factor,   em back 
  valores nos extremos do vetor solucao completo,  fluxo  1
@@ -122,9 +117,9 @@ Euclid norms of computed solution:  0.16970563E+01
  tempo de parede (fluxo)     =      0.0000, segundos
  .............. montagem matriz   =      0.0000, segundos
  .............. solver            =      0.0000, segundos
- +++ inicio da simulacao: Wed Jan 10 16:29:43 -03 2024
- +++ fim .. da simulacao: Wed Jan 10 16:29:43 -03 2024 
+ +++ inicio da simulacao: Fri Jan 12 08:47:27 -03 2024
+ +++ fim .. da simulacao: Fri Jan 12 08:47:27 -03 2024 
 
-real	0m0.163s
-user	0m0.006s
-sys	0m0.024s
+real	0m0.103s
+user	0m0.011s
+sys	0m0.000s

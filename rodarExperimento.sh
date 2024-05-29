@@ -1,8 +1,9 @@
 dirExp=${1:-"exp05x02/"}
-opcaoA=${2:-''}
-opcaoB=${3:-''}
-opcaoC=${4:-''}
-sufixoTela=${5:-''};
+dirExp=${1:-"exp07/"}
+    opcaoA=${2:-"1"}
+    opcaoB=${3:-"1"}
+    opcaoC=${4:-"1"}
+sufixoTela=${4:-""};
 numThreads=${6:-"1"}
 
 dirBin=/prj/prjedlg/bidu/BTsimuladorMEFacademico/bin
@@ -20,8 +21,8 @@ listaCompiladores=(zero gfortran ifort) # pgf90)
  solver=${listaSolvers[opcaoA]}
      FC=${listaCompiladores[opcaoB]}
 OPTIMIZ=${listaOPTIMIZ[opcaoC]}
-maquina=$(hostname)
 maquina=desconhecida
+maquina=$(hostname)
 #maquina="altix-xe.hpc.lncc.br"
 
      lS=(z G P H PH P-mkl)
@@ -29,6 +30,7 @@ maquina=desconhecida
      lO=(z 0 4 f)
 
 sufixoExec="${lS[opcaoA]}${lC[opcaoB]}${lO[opcaoC]}"
+
 
 LIBPARDISO=""
 #LIBPARDISO=MKL; sufixoExec="${sufixoExec}${LIBPARDISO}"
@@ -77,30 +79,23 @@ case $maquina in
     fi
    fi
 ;;
- "no41.hpc.lncc.br"|no42.hpc.lncc.br|no43.hpc.lncc.br|no44.hpc.lncc.br)
-  PARDISO_DIR="/hpc/pardiso5.0"
-  if [ "$FC" = "gfortran" ]; then
-     comando="source /hpc/modulos/bash/gcc-4.7.sh";          echo $comando; eval $comando
-     comando="source /hpc/modulos/bash/hypre-2.9.0b-k20.sh"; echo $comando; eval $comando
-     comando="source /hpc/modulos/bash/libblas-k20.sh";      echo $comando; eval $comando
-  fi
-  if [ "$FC" = "ifort" ]; then
-     comando="source /hpc/modulos/bash/intel-cluster_studio_xe_2013.sh"; echo $comando; eval $comando
-     comando="source /hpc/modulos/bash/hypre-2.9.0b-intel-k20.sh";       echo $comando; eval $comando
-      fi
-;;
  *)
  echo "..... maquina desconhecida" 
- #exit;;
 esac
 
-comando="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${PARDISO_DIR}:${HYPRE_DIR}";echo $comando; eval $comando
+#comando="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${PARDISO_DIR}:${HYPRE_DIR}";echo $comando; eval $comando
 
 if [ $# == 1 ]; then
- nomeExecutavel=simulador${simulador}.exe
+ nomeExecutavel=simulador.exe
 else
- nomeExecutavel=simulador${simulador}${sufixoExec}.exe
+ nomeExecutavel=simulador${sufixoExec}.exe
 fi
+
+ nomeExecutavel=simuladorTransiente${sufixoExec}.exe
+ nomeExecutavel=simulador${sufixoExec}.exe
+
+ echo $nomeExecutavel
+ 
 
 arqTela="tela_${sufixoExec}_${numThreads}Thr${sufixoTela}";
 echo +++ |tee $dirExp/${arqTela}.txt
@@ -120,22 +115,22 @@ echo +++ |tee -a $dirExp/${arqTela}.txt
 echo +++ |tee -a $dirExp/${arqTela}.txt
 echo "+++ digite ENTER para executar o simulador "  |tee -a $dirExp/${arqTela}.txt
 echo +++ |tee -a $dirExp/${arqTela}.txt
-comando="(export OMP_NUM_THREADS=1;time mpirun -np 2 ${dirBin}/${nomeExecutavel}  |tee -a ${arqTela}.txt)";
-comando="(export OMP_NUM_THREADS=1;time ${dirBin}/${nomeExecutavel} <resp |tee -a ${arqTela}.txt)";
-comando="(export OMP_NUM_THREADS=1;time mpirun -np 1 ${dirBin}/${nomeExecutavel} <resp  |tee -a ${arqTela}.txt)";
-comando="(cd $dirExp; export OMP_NUM_THREADS=1; time mpiexec -np 1 ${dirBin}/${nomeExecutavel} <resp|tee -a ${arqTela}.txt)";
-comandoT="( time sleep 1  |tee -a ${arqTela}.txt)";
-comando="(export OMP_NUM_THREADS=$numThreads; cd $dirExp ; time ${dirBin}/${nomeExecutavel}   |tee -a ${arqTela}.txt)";
+comandoRUN="(export OMP_NUM_THREADS=1;time mpirun -np 2 ${dirBin}/${nomeExecutavel}  |tee -a ${arqTela}.txt)";
+comandoRUN="(export OMP_NUM_THREADS=$numThreads; cd $dirExp ; time ${dirBin}/${nomeExecutavel}   |tee -a ${arqTela}.txt)";
 echo $comando |tee -a $dirExp/${arqTela}.txt
-#read
 formato="\"\t%E real,\t%U user,\t%S sys\" "
 #echo $formato
 #time -f $formato eval $comando 2> tempoMedido.txt
 dataInicio=$(date)
-eval $comando 2> tempoMedido.txt
+  start_time="$(date -u +%s)"
+eval $comandoRUN 2> tempoMedido.txt
+  end_time="$(date -u +%s)"
+  elapsed=$((end_time-start_time))
 dataFinal=$(date)
 echo " +++ inicio da simulacao: $dataInicio" |tee -a $dirExp/${arqTela}.txt
 echo " +++ fim .. da simulacao: $dataFinal " |tee -a $dirExp/${arqTela}.txt
+echo "Total of $elapsed seconds elapsed"
+
 cat tempoMedido.txt                          |tee -a $dirExp/${arqTela}.txt; 
 rm tempoMedido.txt
 

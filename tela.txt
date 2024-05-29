@@ -1,0 +1,25 @@
+..... maquina desconhecida
+LD_LIBRARY_PATH=::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2B/src/::::/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2/src/lib/appWindows::/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2/src::/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2/src::/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2/src::/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2/src::::/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2/src/lib/appWindows::::/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2/src/lib/appWindows::::/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2/src/lib/appWindows::::/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2/src/lib/appWindows::::/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2/src/lib/appWindows::::/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2/src/lib/appWindows::::/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2/src/lib/appWindows::::/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2/src/lib/appWindows::::/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2/src/lib/appWindows::/mnt/c/Users/bidu/OneDrive/aLncc/lib/hypre-2.11.2/src
++++
++++
+Wed Jan 10 16:20:16 -03 2024
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina: desconhecida
++++ compilador: zero
++++ solver: zero
++++ executavel: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorzzz.exe
++++ diretorio: exp05x02NM/
++++
++++
++++ digite ENTER para executar o simulador 
++++
+(export OMP_NUM_THREADS=1; cd exp05x02NM/ ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorzzz.exe |tee -a tela_zzz_1Thr.txt)
+ +++ inicio da simulacao: Wed Jan 10 16:20:16 -03 2024
+ +++ fim .. da simulacao: Wed Jan 10 16:20:16 -03 2024 
+-bash: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorzzz.exe: No such file or directory
+
+real	0m0.008s
+user	0m0.003s
+sys	0m0.000s

@@ -1,0 +1,23 @@
++++
++++
+Wed Nov  1 16:26:50 -03 2023
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina: pc013047
++++ compilador: zero
++++ solver: zero
++++ executavel: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial2023Fev/bin/simuladorzzz.exe
++++ diretorio: exp06x02F_Fonte
++++
++++
++++ digite ENTER para executar o simulador 
++++
+gfortran -fopenmp -g -O0 -o bin/simuladorTransienteGG.exe bin/driverDS.o bin/potencial.o -L./bin -lT
+ +++ inicio da simulacao: Wed Nov  1 16:26:50 -03 2023
+ +++ fim .. da simulacao: Wed Nov  1 16:26:50 -03 2023 
+-bash: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial2023Fev/bin/simuladorzzz.exe: No such file or directory
+
+real	0m0.013s
+user	0m0.005s
+sys	0m0.000s

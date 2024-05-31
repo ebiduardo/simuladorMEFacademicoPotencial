@@ -1,0 +1,23 @@
++++
++++
+Wed Nov  8 17:05:37 -03 2023
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina: pc013047
++++ compilador: gfortran
++++ solver: Gauss
++++ executavel: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial2023Fev/bin/simuladorTransienteGG.exe
++++ diretorio: exp06x02F_Fonte_Gauss
++++
++++
++++ digite ENTER para executar o simulador 
++++
+. rodarExperimento.sh exp06x02F_Fonte_Gauss | grep "lador\|pleto,\|em sol\|Euc" -a -A 1|grep -v "alloc\|fact\|passo\|seg\|--" |tail -20
+ +++ inicio da simulacao: Wed Nov  8 17:05:47 -03 2023
+ +++ fim .. da simulacao: Wed Nov  8 17:05:49 -03 2023 
+rodarExperimento.sh: line 122: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial2023Fev/bin/simuladorTransienteGG.exe: No such file or directory
+
+real	0m0.693s
+user	0m0.002s
+sys	0m0.055s

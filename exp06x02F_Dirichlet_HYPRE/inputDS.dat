@@ -1,0 +1,102 @@
+*title_pc{
+ experimento SEM fonte           e dirichlet simetrica, SEM elim Eq
+}   
+GaussSkyline
+PardisoEsparso
+HYPREEsparso
+*solver_pressao{
+HYPREEsparso
+}
+*solver_fluxo{
+HYPREEsparso
+}
+
+*eliminateEq{
+NO
+}
+
+*codigos_cond_contorno_potencial_pc{
+         1        15         7         1
+         7        21         7         1
+         4        18         7         0
+         0
+}
+*valores_cond_contorno_potencial_pc{
+         1         2    2.2d-0
+                        2.2d-0
+         2         7
+         7         2   -0.2d-0
+                       -0.2d-0
+         2         7
+         0
+}
+
+codigos_cond_contorno_potencial_pc{
+         1        15         7         1
+         7        21         7         1
+         0 
+}
+valores_cond_contorno_potencial_pc{
+         1         2    1.2d-0
+                        1.2d-0
+         2         7 
+         7         2   -1.2d-0
+                       -1.2d-0
+         2         7 
+         0 
+}
+*codigos_cond_contorno_fluxo_pc{
+         0 
+}
+*coordenadas_nodais_pc{
+         1         4       0.0       0.0     0.0
+                           6.0       0.0     0.0
+                           6.0       2.0     0.0
+                           0.0       2.0     0.0
+         6         1         2         7
+         0 
+}
+*exec_pc{
+	1
+}
+
+*iprtin_pc{
+0
+}
+*nsd_pc{
+	2
+}
+*numnp_pc{
+	21
+}
+*numel_pc{
+	12
+}
+
+*nen_pc{
+	4
+}
+*npint_pc{
+	4
+}
+*nlvectP_pc{
+1
+}
+*nlvectF_pc{
+0
+}
+*conectividades_nodais_pc{
+         1         1         1         2         9         8         1
+         6         1         1         2         6         7
+         0 
+}
+*nummat_pc{
+         1 
+}
+*prop_fisica_meio_pc{
+         1       1.00e+00  1.00e+00  1.00e+00
+}
+*grav_pc{
+       0.0       0.0       0.0
+}
+*end 

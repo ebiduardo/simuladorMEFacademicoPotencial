@@ -1,0 +1,23 @@
++++
++++
+Tue Nov  7 06:13:19 -03 2023
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina: pc013047
++++ compilador: gfortran
++++ solver: Gauss
++++ executavel: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial2023Fev/bin/simuladorTransienteGG.exe
++++ diretorio: exp06x02F_Fonte
++++
++++
++++ digite ENTER para executar o simulador 
++++
+gfortran -fopenmp -g -O0 -o bin/simuladorTransienteGG.exe bin/driverDS.o bin/potencial.o -L./bin -lT
+ +++ inicio da simulacao: Tue Nov  7 06:13:19 -03 2023
+ +++ fim .. da simulacao: Tue Nov  7 06:13:19 -03 2023 
+/mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial2023Fev/bin/simuladorTransienteGG.exe: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial2023Fev/bin/simuladorTransienteGG.exe)
+
+real	0m0.013s
+user	0m0.004s
+sys	0m0.000s

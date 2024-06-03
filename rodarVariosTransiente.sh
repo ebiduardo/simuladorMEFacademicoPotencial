@@ -28,6 +28,7 @@ newList=${listaDir[@]}
 #. compilar.sh 3 1 2 srcTransiente/
 EXEC=simuladorTransienteHG4.exe
 mv bin/simuladorHG4.exe bin/$EXEC
+EXEC=simuladorTransiente.exe
 
 rm tela.txt
 echo --- ${newList[@]}
@@ -35,8 +36,8 @@ for d in  ${newList[@]}
   do
   echo ----------------------------- $d
   comando=". rodarExperimento.sh $d "
-  comando="(cd $d; pwd; ../bin/${EXEC}; pwd )|grep \"lador\\|pleto,\\|em sol\\|Euc\" -a -A 1|grep -v \"alloc\\|fact\\|passo\\|seg\\|--\" |tail -20"
   comando=". rodarExperimento.sh $d 3 1 2 | grep \"lador\\|pleto,\\|em sol\\|Euc\" -a -A 1|grep -v \"alloc\\|fact\\|passo\\|seg\\|--\" |tail -20"
+  comando="(cd $d; pwd; ../bin/${EXEC}; pwd )|grep \"lador\\|pleto,\\|em sol\\|Euc\" -a -A 1|grep -v \"alloc\\|fact\\|passo\\|seg\\|--\" |tail -20"
   echo $comando
   eval $comando |tee -a tela.txt
   echo $?

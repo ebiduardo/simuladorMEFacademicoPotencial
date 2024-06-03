@@ -39,14 +39,14 @@
                                                  estrutSistEqP_%ndof,numnp,estrutSistEqP_%nlvect)
       estrutSistEqP_%uTempoAnt=estrutSistEqP_%u
       call timing(t1)
-      call calcCoefSistAlgPotencial (optsolver_, estrutSistEqP_, x, conecNodaisElem, numnp, numel, nen, nsd )
+      call calcCoefSistAlgPotencialT (optsolver_, estrutSistEqP_, x, conecNodaisElem, numnp, numel, nen, nsd )
       call timing(t2) 
       write(*,*) " calculo dos coeficientes, tempo = ", t2 - t1
       end subroutine montarSistEqAlgPotencial0
 !
 !**** new **********************************************************************
 !
-      subroutine calcCoefSistAlgPotencial( optSolver_, estrutSistEqP_, x, conecNodaisElem, numnp, numel, nen, nsd )
+      subroutine calcCoefSistAlgPotencialT( optSolver_, estrutSistEqP_, x, conecNodaisElem, numnp, numel, nen, nsd )
 !
       use mGlobaisEscalares, only: nrowsh, npint, pTempo
       use mGlobaisArranjos,  only: mat, c, grav
@@ -87,7 +87,7 @@
       integer*4, allocatable:: lmLocal(:)
       character(len=200) ::  matrixFile ="matrixHypre.dat"
 !
-      write(*,*) "Om subroutine calcCoefSistAlgPotencial"
+      write(*,*) "Om subroutine calcCoefSistAlgPotencialT"
       nee = nen*estrutSistEqP_%ndof
        allocate (lmLocal(nee))
       diag = .false.
@@ -104,7 +104,6 @@
       if(nen==8) call shlq3d(shl,w,npint,nen)
 
       estrutSistEqP_%brhs= pTempo*estrutSistEqP_%brhs
-      !print* , "materiais:...", c(:,1);stop
 
       do 500 nel=1,numel
 !
@@ -203,24 +202,17 @@
       !write(*,*) " lmLocal =", lmLocal(:)
       if (optSolver_=='GaussSkyline')   then
          call addlhsN   (estrutSistEqP_%alhs, eleffm, estrutSistEqP_%idiag, estrutSistEqP_%lm,  nee, nel, diag, lsym) 
-         !call addlhsN   (estrutSistEqP_%alhs, eleffm, estrutSistEqP_%idiag, estrutSistEqP_%lm(:,:,nel),  nee, nel, diag, lsym) 
-         !       subroutine addlhsN(alhs,eleffm, idiag, lmT, nee, nel, ldiag,lsym)
-         !call addlhs   (estrutSistEqP_%alhs, eleffm, estrutSistEqP_%idiag, lmLocal,  nee, diag, lsym) 
       endif
       if (optSolver_=='PardisoEsparso') then
-        ! call addlhsCSR01  (estrutSistEqP_, eleffm, lm, nee)
-      !   write(*,*) "call addlhsCSR, nee= ", nee 
          call addlhsCSR  (estrutSistEqP_%alhs, eleffm, estrutSistEqP_%Ap, estrutSistEqP_%Ai, lmLocal,  nee)
       endif
       if (optSolver_=='HYPREEsparso')   then
-       !write(*,*) nel, "  (optSolver_==HYPREEsparso) then"
-!      call addnslHYPRE(estrutSistEqP_, eleffm, nel)
        call addnslHYPRE(estrutSistEqP_%A_HYPRE, eleffm, estrutSistEqP_%idiag, lmLocal, nee, diag, lsym)
       endif
       call addrhs     (estrutSistEqP_%brhs, elresf, lmLocal, nee)
   500 continue
 
-    print*, estrutSistEqP_%id;! stop
+    !print*, estrutSistEqP_%id;! stop
 
       if (optSolver_=='HYPREEsparso')   then
        do i = 1, estrutSistEqP_%neq
@@ -235,7 +227,7 @@
 
       endif
       return
-      end subroutine calcCoefSistAlgPotencial
+      end subroutine calcCoefSistAlgPotencialT
 
       end module
 !

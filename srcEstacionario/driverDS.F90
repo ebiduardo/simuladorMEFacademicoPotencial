@@ -562,7 +562,7 @@ end program poisson
       allocate(mat(numel))
       allocate(conecNodaisElem(nen,numel))
       write(*,*) "call leituraGeracaoConectividadesDS, A"
-      keyword_name = "conectividades_nodais_pc"
+      keyword_name = "conectividades_nodais"
       call leituraGeracaoConectividadesDS(keyword_name, conecNodaisElem,mat,nen, ierr)
       
       if (iprtin.eq.0)  then; call prntel(mat,conecNodaisElem,nen,numel,1_4); endif
@@ -571,7 +571,7 @@ end program poisson
       allocate(estrutSistEqP%id        (estrutSistEqP%ndof,numnp)); estrutSistEqP%id       =0
 
         write(*,*) "call leituraCodigosCondContornoDS(idPotencial"
-        keyword_name = "codigos_cond_contorno_potencial_pc"
+        keyword_name = "codigos_cond_contorno_potencial"
         if(estrutSistEqP%eliminate(1:3)=='YES') then
            call leituraCodigosCondContornoDS(keyword_name, estrutSistEqP%id, estrutSistEqP%ndof, numnp, &
                                           estrutSistEqP%neq, iecho, iprtin)
@@ -585,7 +585,7 @@ end program poisson
         allocate(estrutSistEqP%f(estrutSistEqP%nlvect,estrutSistEqP%ndof,numnp))
         estrutSistEqP%f = 0.0
         write(*,*) "call leituraValoresCondContornoDS(fPotencial,ndofP,numnp,0,nlvectP,iprtin)"
-        keyword_name = "valores_cond_contorno_potencial_pc"
+        keyword_name = "valores_cond_contorno_potencial"
         call leituraValoresCondContornoDS(keyword_name, estrutSistEqP%f, estrutSistEqP%ndof, numnp, &
                  1_4, estrutSistEqP%nlvect, iprtin,  iecho )
       end if
@@ -594,7 +594,7 @@ end program poisson
       allocate(estrutSistEqF%u (estrutSistEqF%ndof,numnp));  estrutSistEqF%u=0.0
       allocate(estrutSistEqF%id(estrutSistEqF%ndof,numnp)); estrutSistEqF%id=0
        write(*,*) "call leituraCodigosCondContornoDS(idFluxo,"
-      keyword_name = "codigos_cond_contorno_fluxo_pc"
+      keyword_name = "codigos_cond_contorno_fluxo"
        call leituraCodigosCondContornoDS(keyword_name, estrutSistEqF%id, estrutSistEqF%ndof, numnp, &
                                           estrutSistEqF%neq, iecho, iprtin)
 
@@ -602,7 +602,7 @@ end program poisson
         allocate(estrutSistEqF%f(estrutSistEqF%nlvect,estrutSistEqF%ndof,numnp))
         estrutSistEqF%f = 0.0
         write(*,*) 'call leituraValoresCondContornoDS(fFluxo,ndofF,numnp,0,nlvectF,iprtin)'
-        keyword_name = "valores_cond_contorno_fluxo_pc"
+        keyword_name = "valores_cond_contorno_fluxo"
         call leituraValoresCondContornoDS(keyword_name, estrutSistEqF%f, estrutSistEqF%ndof, numnp, &
                 1_4, estrutSistEqF%nlvect, iprtin,iecho)
       end if
@@ -644,26 +644,26 @@ end program poisson
         character(len=80):: default_title_value
         integer :: ierr
 
-        keyword_name        = "title_pc"
+        keyword_name        = "title"
         default_title_value = "unknown title"
         call readStringKeywordValue(keyword_name,  title, default_title_value, ierr)
-        keyword_name = "exec_pc"
+        keyword_name = "exec"
         call readIntegerKeywordValue(keyword_name, exec, 0_4, ierr)
-        keyword_name = "iprtin_pc"
+        keyword_name = "iprtin"
         call readIntegerKeywordValue(keyword_name, iprtin, 0_4, ierr)
-        keyword_name = "nsd_pc"
+        keyword_name = "nsd"
         call readIntegerKeywordValue(keyword_name, nsd, 0_4, ierr)
-        keyword_name = "numnp_pc"
+        keyword_name = "numnp"
         call readIntegerKeywordValue(keyword_name, numnp, 0_4, ierr)
-        keyword_name = "numel_pc"
+        keyword_name = "numel"
         call readIntegerKeywordValue(keyword_name, numel, 0_4, ierr)
-        keyword_name = "nen_pc"
+        keyword_name = "nen"
         call readIntegerKeywordValue(keyword_name, nen, 0_4, ierr)
-        keyword_name = "npint_pc"
+        keyword_name = "npint"
         call readIntegerKeywordValue(keyword_name, npint, 0_4, ierr)
-        keyword_name = "nlvectP_pc"
+        keyword_name = "nlvectP"
         call readIntegerKeywordValue(keyword_name, estrutSistEqP%nlvect, 0_4, ierr)
-        keyword_name = "nlvectF_pc"
+        keyword_name = "nlvectF"
         call readIntegerKeywordValue(keyword_name, estrutSistEqF%nlvect, 0_4, ierr)
         
         stringDefault='GaussSkyline'
@@ -711,7 +711,7 @@ end program poisson
         character(len=80) :: formatoLeitura
         character(len=50) keyword_name
 
-        keyword_name = "nummat_pc"
+        keyword_name = "nummat"
         keyword_line = findKeyword(keyword_name)
         nLinhaArqInput = keyword_line
         if (keyword_line.eq.-1) return
@@ -737,7 +737,7 @@ end program poisson
         !
         !      read material properties
         !
-        keyword_name = "prop_fisica_meio_pc"
+        keyword_name = "prop_fisica_meio"
         keyword_line = findKeyword(keyword_name)
         nLinhaArqInput = keyword_line
         do 400 n=1,numat
@@ -751,7 +751,7 @@ end program poisson
         !
         !     constant body forces
         !
-        keyword_name = "grav_pc"
+        keyword_name = "grav"
         keyword_line = findKeyword(keyword_name)
         nLinhaArqInput = keyword_line
         read (file_lines(nLinhaArqInput:),7000) (grav(i),i=1,3)

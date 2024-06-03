@@ -6,6 +6,7 @@ dirExp=${1:-"exp07/"}
 sufixoTela=${4:-""};
 numThreads=${6:-"1"}
 
+
 dirBin=/prj/prjedlg/bidu/BTsimuladorMEFacademico/bin
 dirBin=/prj/prjedlg/bidu/simuladorMEFacademicoBT-Patricia/bin
 dirBin="$(pwd)/bin"
@@ -30,6 +31,15 @@ maquina=$(hostname)
      lO=(z 0 4 f)
 
 sufixoExec="${lS[opcaoA]}${lC[opcaoB]}${lO[opcaoC]}"
+
+if [ $# == 1 ]; then
+ nomeExecutavel=simulador.exe
+else
+ nomeExecutavel=simulador${sufixoExec}.exe
+fi
+ nomeExecutavel=simulador${sufixoExec}.exe
+ nomeExecutavel=${5:-"simuladorTransiente.exe"}
+ echo nomeExecutavel :  $nomeExecutavel ; read
 
 
 LIBPARDISO=""
@@ -85,16 +95,6 @@ esac
 
 #comando="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${PARDISO_DIR}:${HYPRE_DIR}";echo $comando; eval $comando
 
-if [ $# == 1 ]; then
- nomeExecutavel=simulador.exe
-else
- nomeExecutavel=simulador${sufixoExec}.exe
-fi
-
- nomeExecutavel=simuladorTransiente${sufixoExec}.exe
- nomeExecutavel=simulador${sufixoExec}.exe
-
- echo $nomeExecutavel
  
 
 arqTela="tela_${sufixoExec}_${numThreads}Thr${sufixoTela}";

@@ -218,26 +218,18 @@
       !write(*,*) " lmLocal =", lmLocal(:)
       if (optSolver_=='GaussSkyline')   then
          call addlhsN   (estrutSistEqP_%alhs, eleffm, estrutSistEqP_%idiag, estrutSistEqP_%lm,  nee, nel, diag, lsym) 
-         !call addlhsN   (estrutSistEqP_%alhs, eleffm, estrutSistEqP_%idiag, estrutSistEqP_%lm(:,:,nel),  nee, nel, diag, lsym) 
-         !       subroutine addlhsN(alhs,eleffm, idiag, lmT, nee, nel, ldiag,lsym)
-         !call addlhs   (estrutSistEqP_%alhs, eleffm, estrutSistEqP_%idiag, lmLocal,  nee, diag, lsym) 
       endif
       if (optSolver_=='PardisoEsparso') then
-        ! call addlhsCSR01  (estrutSistEqP_, eleffm, lm, nee)
-      !   write(*,*) "call addlhsCSR, nee= ", nee 
          call addlhsCSR  (estrutSistEqP_%alhs, eleffm, estrutSistEqP_%Ap, estrutSistEqP_%Ai, lmLocal,  nee)
       endif
       if (optSolver_=='HYPREEsparso')   then
-       !write(*,*) nel, "  (optSolver_==HYPREEsparso) then"
-!      call addnslHYPRE(estrutSistEqP_, eleffm, nel)
        call addnslHYPRE(estrutSistEqP_%A_HYPRE, eleffm, estrutSistEqP_%idiag, lmLocal, nee, diag, lsym)
       endif
       call addrhs     (estrutSistEqP_%brhs, elresf, lmLocal, nee)
-      !if(nel > 2) stop
   500 continue
 
-    print'(a,1000e10.2)', "A alhs =", estrutSistEqP_%alhs
-    print'(a,1000e10.2)', "A brhs =", estrutSistEqP_%brhs
+  !  print'(a,1000e10.2)', "A alhs =", estrutSistEqP_%alhs
+  !  print'(a,1000e10.2)', "A brhs =", estrutSistEqP_%brhs
 
       if (optSolver_=='HYPREEsparso')   then
        do i = 1, estrutSistEqP_%neq

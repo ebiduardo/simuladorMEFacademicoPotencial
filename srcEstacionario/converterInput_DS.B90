@@ -153,67 +153,67 @@
       read(iin,'(5i10)') numnp, numel, nen, npint
       read(iin,'(3i10)') nlvectP, nlvectF
    
-      flag="*title_pc{" 
+      flag="*title{" 
       call imprimirInfChar(flag, title, iout)
       
-      flag="*exec_pc{"
+      flag="*exec{"
       call imprimirInfInt(flag, exec, iout)
       
-      flag="*iprtin_pc{"
+      flag="*iprtin{"
       call imprimirInfInt(flag, iprtin, iout)
       
-      flag="*nsd_pc{"
+      flag="*nsd{"
       call imprimirInfInt(flag, nsd, iout)
    
-      flag="*numnp_pc{"
+      flag="*numnp{"
       call imprimirInfInt(flag, numnp, iout)
 
-      flag="*numel_pc{"
+      flag="*numel{"
       call imprimirInfInt(flag, numel, iout)
 
-      flag="*nen_pc{"
+      flag="*nen{"
       call imprimirInfInt(flag, nen, iout)
       
-      flag="*npint_pc{"
+      flag="*npint{"
       call imprimirInfInt(flag, npint, iout)
       
-      flag="*nlvectP_pc{"
+      flag="*nlvectP{"
       call imprimirInfInt(flag, nlvectP, iout) 
 
-      flag="*nlvectF_pc{"
+      flag="*nlvectF{"
       call imprimirInfInt(flag, nlvectF, iout) 
           
       call lerImprimirCoordenadas(nsd, iin, iout)
       
       call lerEscreverConectsNodais(nen,nsd,iin,iout)
       
-      write(iout,'(a)') "*codigos_cond_contorno_potencial_pc{"
+      write(iout,'(a)') "*codigos_cond_contorno_potencial{"
       ndofP=1
       call lerImprimirCodigosCondContorno(ndofP,iin,iout)
 
       if(nlvectP.gt.0) then
-         write(iout,'(a)') "*valores_cond_contorno_potencial_pc{"
+         write(iout,'(a)') "*valores_cond_contorno_potencial{"
          call lerImprimirValoresCondContorno(ndofP, iin, iout)
       endif
 
-      write(iout,'(a)') "*codigos_cond_contorno_fluxo_pc{"
+      write(iout,'(a)') "*codigos_cond_contorno_fluxo{"
       ndofF=nsd
       call lerImprimirCodigosCondContorno(ndofF,iin,iout)
       if(nlvectF.gt.0) then
-         write(iout,'(a)') "*valores_cond_contorno_fluxo_pc{"
+         write(iout,'(a)') "*valores_cond_contorno_fluxo{"
          call lerImprimirValoresCondContorno(ndofF, iin, iout)
       endif
       
       read(iin,'(i10)') nummat
-      flag="*nummat_pc{"
+      flag="*nummat{"
       call imprimirInfInt(flag, nummat, iout)   
       
-      write(iout,'(a)') "*prop_fisica_meio_pc{"
+      write(iout,'(a)') "*prop_fisica_meio{"
       read (iin,  5000) m,(c(i),i=1,3)
       write(iout,5000) m,(c(i),i=1,3)
       write(iout,'(a)') "}"
       
-      write(iout,'(a)') "*grav_pc{"
+      write(iout,'(a)') "*grav{"
       read  (iin,  '(3e10.2)') (grav(i),i=1,3)
       write (iout,'(3e10.2)') (grav(i),i=1,3)
       write(iout,'(a)') "}"
@@ -242,7 +242,7 @@
 !
       integer :: n,m,ng,i,nel(3),incel(3),inc(3)
 !
-      write(inout,'(a)') "*conectividades_ladais_pc{"
+      write(inout,'(a)') "*conectividades_ladais{"
   100 continue                                                          
       read(iin,1000) n,m,(itemp(i),i=1,nen),ng     
       if(n==0) then
@@ -291,7 +291,7 @@
       integer :: n,m,ng,i,nel(3),incel(3),inc(3)
 !
       
-      write(inout,'(a)') "*conectividades_ladais_pc{"
+      write(inout,'(a)') "*conectividades_ladais{"
   100 continue                                                          
       read(iin,1000) n,m,(itemp(i),i=1,nen),ng     
       if(n==0) then
@@ -341,7 +341,7 @@
       integer :: n,m,ng,i,nel(3),incel(3),inc(3)
 !
       
-      write(inout,'(a)') "*conectividades_nodais_pc{"
+      write(inout,'(a)') "*conectividades_nodais{"
   100 continue                                                          
       read(iin,1000) n,m,(itemp(i),i=1,nen),ng     
       if(n==0) then
@@ -477,7 +477,7 @@
       integer :: n,numgp,ninc(3),inc(3)   
       integer :: i, j, m, mgen    
 !                                                                       
-      write(inout,'(a)') "*coordenadas_nodais_pc{"
+      write(inout,'(a)') "*coordenadas_nodais{"
       
   100 continue                                                          
       read(iin,1000) n,numgp,(temp(i,1),i=1,nra) 

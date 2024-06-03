@@ -1,13 +1,25 @@
 simDir=/mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial2023Fev
+simDir=/mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial
 simuladorN=$simDir/bin/simuladorI.exe
+simuladorN=$simDir/bin/simuladorTransiente.exe
 
 expDir=../prototipos/matrizesPotencial2D/exp01000x01000/
 
 listaExpDir=(exp06x02F_Fonte exp06x02F_Dirichlet exp06x02E_Fonte exp06x02E_Dirichlet) 
+listaExpDir=(
+exp06x02E_Dirichlet_Gauss
+exp06x02E_Dirichlet_HYPRE
+exp06x02E_Fonte_Gauss
+exp06x02E_Fonte_HYPRE
+exp06x02F_Dirichlet_Gauss
+exp06x02F_Dirichlet_HYPRE
+exp06x02F_Fonte_Gauss
+exp06x02F_Fonte_HYPRE
+) 
 
-listaS=(                            GaussSkyline)
 listaS=(               HYPREEsparso GaussSkyline)
 listaS=(PardisoEsparso HYPREEsparso GaussSkyline)
+listaS=(                            GaussSkyline)
 
 
 echo --- ${listaS[@]}

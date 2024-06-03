@@ -1,0 +1,5 @@
+bin/*.o
+bin/*.exe
+bin/simuladorGG0.exe
+deposito/*
+include/*.mod

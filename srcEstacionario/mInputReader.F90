@@ -239,7 +239,7 @@ module mInputReader
       integer*4:: i, n, keyword_line
       character(len=50) keyword_name
 
-      keyword_name = 'coordenadas_nodais_pc'
+      keyword_name = 'coordenadas_nodais'
       keyword_line = findKeyword(keyword_name)
 
       call genflDS(x,nsd,keyword_line)
@@ -980,13 +980,13 @@ module mInputReader
         character(len=50) keyword_name
         integer :: ierr
 
-        keyword_name = "ntype_pc"
+        keyword_name = "ntype"
         call readIntegerKeywordValue(keyword_name, ntype, 1, ierr)
-        keyword_name = "numat_pc"
+        keyword_name = "numat"
         call readIntegerKeywordValue(keyword_name, numat, 1, ierr)
-        keyword_name = "nen_pc"
+        keyword_name = "nen"
         call readIntegerKeywordValue(keyword_name, nen, 4, ierr)
-        keyword_name = "nicode_pc"
+        keyword_name = "nicode"
         call readIntegerKeywordValue(keyword_name, nicode, nen, ierr)
     end subroutine !***************************************************************************************************
 

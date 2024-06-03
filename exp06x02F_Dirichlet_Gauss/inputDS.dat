@@ -1,4 +1,4 @@
-*title_pc{
+*title{
  experimento SEM fonte           e dirichlet simetrica, SEM elim Eq
 }   
 GaussSkyline
@@ -15,13 +15,13 @@ GaussSkyline
 NO
 }
 
-*codigos_cond_contorno_potencial_pc{
+*codigos_cond_contorno_potencial{
          1        15         7         1
          7        21         7         1
          4        18         7         0
          0 
 }
-*valores_cond_contorno_potencial_pc{
+*valores_cond_contorno_potencial{
          1         2    2.2d-0
                         2.2d-0
          2         7 
@@ -30,10 +30,10 @@ NO
          2         7 
          0 
 }
-*codigos_cond_contorno_fluxo_pc{
+*codigos_cond_contorno_fluxo{
          0 
 }
-*coordenadas_nodais_pc{
+*coordenadas_nodais{
          1         4       0.0       0.0     0.0
                            6.0       0.0     0.0
                            6.0       2.0     0.0
@@ -41,47 +41,47 @@ NO
          6         1         2         7
          0 
 }
-*exec_pc{
+*exec{
 	1
 }
 
-*iprtin_pc{
+*iprtin{
 0
 }
-*nsd_pc{
+*nsd{
 	2
 }
-*numnp_pc{
+*numnp{
 	21
 }
-*numel_pc{
+*numel{
 	12
 }
 
-*nen_pc{
+*nen{
 	4
 }
-*npint_pc{
+*npint{
 	4
 }
-*nlvectP_pc{
+*nlvectP{
 1
 }
-*nlvectF_pc{
+*nlvectF{
 0
 }
-*conectividades_nodais_pc{
+*conectividades_nodais{
          1         1         1         2         9         8         1
          6         1         1         2         6         7
          0 
 }
-*nummat_pc{
+*nummat{
          1 
 }
-*prop_fisica_meio_pc{
+*prop_fisica_meio{
          1       1.00e+00  1.00e+00  1.00e+00
 }
-*grav_pc{
+*grav{
        0.0       0.0       0.0
 }
 

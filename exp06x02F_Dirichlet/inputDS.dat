@@ -84,4 +84,14 @@ NO
 *grav{
        0.0       0.0       0.0
 }
+
+*numPassos{
+20
+}
+*tempoInicial{
+0.0d0
+}
+*tempoFinal{
+1.0d2
+}
 *end 

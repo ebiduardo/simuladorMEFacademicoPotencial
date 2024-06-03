@@ -214,10 +214,12 @@ end program poisson
       write(*,*) " call montarEstrutDadosSistEqAlq(optSolverF_ =", estrutSistEqF%optSolver 
       call montarEstrutDadosSistEqAlq(estrutSistEqF) ; 
   
-      tempo = tempoInicial; pTempo=(tempoFinal-tempoInicial)/(numPassos+1)
+      tempo=tempoInicial
+      pTempo=(tempoFinal-tempoInicial)/(numPassos)
 
-      do passo = 0, numPassos+1-1
+      do passo = 1, numPassos
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CALCULO DA PRESSAO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        tempo=tempo + pTempo; print*, "passo=", passo, ",  tempo=", tempo
 !     
         call timing(t1)
         if(firstP) then 
@@ -271,7 +273,6 @@ end program poisson
         call timing(t4) ; 
         if(escreverSolF) call escreverSolSistema_MTX(estrutSistEqF, nomeArqSist); 
 
-        tempo=tempo + pTempo; print*, "passo=", passo, ",  tempo=", tempo
 
         estrutSistEqP%brhs = 0.0 ;! 
 	estrutSistEqF%brhs = 0.0 ;! 
@@ -681,7 +682,8 @@ end program poisson
         keyword_name = "nlvectF"
         call readIntegerKeywordValue(keyword_name, estrutSistEqF%nlvect, 0_4, ierr)
         keyword_name = "numPassos"
-        call readIntegerKeywordValue(keyword_name, numPassos, 0_4, ierr)
+        call readIntegerKeywordValue(keyword_name, numPassos, 1_4, ierr)
+        if (numPassos < 1_4) then; numPassos=1_4; print*, "numPassos modificado= 1"; end if
         keyword_name = "tempoInicial"
         call readRealKeywordValue(keyword_name,    tempoInicial, 0.0d0, ierr)
         keyword_name = "tempoFinal"

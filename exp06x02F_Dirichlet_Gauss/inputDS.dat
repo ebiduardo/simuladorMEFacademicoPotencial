@@ -89,10 +89,10 @@ NO
 20
 }
 *tempoInicial{
-0.0d0
+0.0e0
 }
 *tempoFinal{
-1.0d2
+1.0e2
 }
 
 *end 

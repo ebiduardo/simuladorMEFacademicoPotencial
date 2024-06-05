@@ -1,4 +1,0 @@
-      estrutSistEqP_%uTempoAnt=estrutSistEqP_%u
-      real*8 :: xl(nsd,nen), pl(1,nen), plTempoAnt(1,nen), pTA_int
-      call local(conecNodaisElem(1,nel),estrutSistEqP_%uTempoAnt,pltempoAnt,nen,estrutSistEqP_%ndof,estrutSistEqP_%ndof)
-             pTA_int  = pTA_int + SHG(nrowsh,J,L)*plTempoAnt(1,J)

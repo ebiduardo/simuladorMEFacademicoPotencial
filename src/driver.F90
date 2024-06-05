@@ -409,7 +409,7 @@ end program poisson
       if(estrutSistEq_%optSolver(1:12)=='HYPREEsparso') then
             estrutSistEq_%initialGuess=>null()
             if(.not.associated(estrutSistEq_%initialGuess)) then
-               write(*,'(a)') ', allocate(initialGuess_(neqP)); initialGuessP=0.0 '
+               !write(*,'(a)') ', allocate(initialGuess_(neqP)); initialGuessP=0.0 '
                allocate(estrutSistEq_%initialGuess(estrutSistEq_%neq));  estrutSistEq_%initialGuess=0.0
             endif
 

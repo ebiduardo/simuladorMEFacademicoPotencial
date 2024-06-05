@@ -5,9 +5,11 @@ GaussSkyline
 PardisoEsparso
 HYPREEsparso
 *solver_pressao{
+HYPREEsparso
 GaussSkyline
 }
 *solver_fluxo{
+HYPREEsparso
 GaussSkyline
 }
 
@@ -100,7 +102,7 @@ valores_cond_contorno_potencial{
        0.0       0.0       0.0
 }
 *estacionario{
-.false.
+.TRUE.
 .true.
 }
 *numPassos{

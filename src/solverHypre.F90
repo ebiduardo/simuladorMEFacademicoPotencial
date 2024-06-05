@@ -2,13 +2,15 @@
  
       use mEstruturasDadosSistEq
       implicit none
+#ifdef withHYPRE
+!      use  mpi
+include 'mpif.h'
+#endif
+
          
       integer*4 :: myid, num_procs
       integer*4 :: mpi_comm
 
-#ifdef withHYPRE
-      include 'mpif.h'
-#endif
       integer*4 :: posPonteiro, contPonteiro, posColunas, posCoef
       integer*4 :: nonzeros, nonzerosEst
       logical   :: primeiravezVel, primeiravezGeo
@@ -74,7 +76,7 @@ END INTERFACE addnslHYPRE
       subroutine resolverSistemaAlgHYPRE_C  (estrutSistEq_) 
       implicit none
       type (estruturasArmazenamentoSistemaEq) :: estrutSistEq_
-      write(*,*)" em  resolverSistemaAlgHYPRE_C  (estrutSistEq_),", estrutSistEq_%A_HYPRE, estrutSistEq_%b_HYPRE, estrutSistEq_%u_HYPRE , estrutSistEq_%solver
+      !write(*,*)" em  resolverSistemaAlgHYPRE_C  (estrutSistEq_),", estrutSistEq_%A_HYPRE, estrutSistEq_%b_HYPRE, estrutSistEq_%u_HYPRE , estrutSistEq_%solver
       call resolverSistemaAlgHYPRE_A( estrutSistEq_%A_HYPRE, estrutSistEq_%parcsr_A, &
                        estrutSistEq_%b_HYPRE, estrutSistEq_%par_b, &
                        estrutSistEq_%u_HYPRE, estrutSistEq_%par_u, &
@@ -102,7 +104,7 @@ END INTERFACE addnslHYPRE
 
       !integer*8         :: parcsr_A, par_b, par_u
 
-      write(*,*)" em  resolverSistemaAlgHYPRE_B  (estrutSistEq_),", A_, b_, u_, solver_ 
+      !write(*,*)" em  resolverSistemaAlgHYPRE_B  (estrutSistEq_),", A_, b_, u_, solver_ 
       !call resolverSistemaAlg_HYPRE (A_, parcsr_A, b_, par_b, u_, par_u, solver_, solver_id_, precond_id_, &
       !           tol_, num_iterations_, final_res_norm_, initialGuess_, brhs_, rows_, neq_, myid_, mpi_comm_)  
       !call resolverSistemaAlgHYPRE_A (A_, parcsr_A, b_, par_b, u_, par_u, solver_, solver_id_, precond_id_, &
@@ -138,8 +140,8 @@ END INTERFACE addnslHYPRE
       character(len=12) :: nomeB= "brhs00.out."
       character(len=15) :: nomeU= "solucao00.out."
       !end block
-      write(*,*)" em  resolverSistemaAlgHYPRE_A  (estrutSistEq_),", A_, b_, u_ , solver_
-      write(*,'(a,i3,a,i3,a,e15.4)') "solver_id_ = ", solver_id_, ", precond_id_ = ", precond_id_, ", tol_ = ", tol_
+      !write(*,*)" em  resolverSistemaAlgHYPRE_A  (estrutSistEq_),", A_, b_, u_ , solver_
+      !write(*,'(a,i3,a,i3,a,e15.4)') "solver_id_ = ", solver_id_, ", precond_id_ = ", precond_id_, ", tol_ = ", tol_
       final_res_norm_=0.0; num_iterations_=0
 #ifdef withHYPRE
 !       call HYPRE_IJMatrixPrint( A_, nomeA, ierr)
@@ -326,7 +328,7 @@ END INTERFACE addnslHYPRE
     !  call HYPRE_IJVectorPrint( b_, nomeB, ierr)
     !  call HYPRE_IJMatrixPrint( A_, nomeA, ierr)
       !end block
-      write(*,*) "em subroutine resolverSistemaAlg_HYPRE  (A_, parcsr_A_, b_, par_b_, "
+!     write(*,*) "em subroutine resolverSistemaAlg_HYPRE  (A_, parcsr_A_, b_, par_b_, "
 !      write(*,'(3(a,i0))') "s+++, em resolverSistemaAlgHYPRE, myid= ", myid,", &
 !                    numprocs= ", num_procs,", mpi_comm= ", mpi_comm
       local_size = neq_

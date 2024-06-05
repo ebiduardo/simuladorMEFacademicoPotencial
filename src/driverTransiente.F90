@@ -65,7 +65,7 @@
       write(*,*) "exec =", exec
       if(exec==1)  then
           print*, "      call processamento  ()"
-          call processamento  ()
+          call processamentoT  ()
       end if
 !
       call fecharArquivos ()
@@ -150,7 +150,7 @@ end program poisson
       end subroutine leituraParamNumericosPropFisica
  
 !**** new  **********************************************************************
-      subroutine processamento()
+      subroutine processamentoT()
      
       use mMalha,            only: nen, nsd, numnp, numConexoesPorElem
       use mMalha,            only: x, conecNodaisElem, numel
@@ -214,6 +214,7 @@ end program poisson
       do passo = 1, numPassos
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CALCULO DA PRESSAO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         tempo=tempo + pTempo; print*, "passo=", passo, ",  tempo=", tempo
+        estrutSistEqP%uTempoAnt=estrutSistEqP%u
 !     
         call timing(t1)
         if(firstP) then 
@@ -484,6 +485,7 @@ end program poisson
         call escreverBRHS (estrutSistEq_%brhs, estrutSistEq_%neq, nomeArqCompleto)
 
       end subroutine escreverSolSistema_MTX
+  end subroutine processamentoT
 !**** new **********************************************************************
       subroutine escreverBRHS (brhs_, neq_, nomeArq_)
       real*8, pointer :: brhs_(:)
@@ -499,9 +501,6 @@ end program poisson
       end do
       close(1111)
       end subroutine escreverBRHS
-
-
-  end subroutine processamento
 !**** new **********************************************************************
 !
    subroutine preprocessamentoDS ()

@@ -8,8 +8,8 @@ exeSufixExtra=${5:-""}
 
      listaSolvers=(zero Gauss Pardiso HYPRE PH)
 listaCompiladores=(zero gfortran ifort) # pgf90)
-     listaOPTIMIZ=(zero "-g -O0" "-g -O0" "-fast")
-     listaOPTIMIZ=(zero "-g -O0" "-O4" "-fast")
+     listaOPTIMIZ=(zero "-g -O0" "-g -O0" "-Ofast")
+     listaOPTIMIZ=(zero "-g -O0" "-O4" "-Ofast")
 
  solver=${listaSolvers[opcaoA]}
      FC=${listaCompiladores[opcaoB]}
@@ -63,7 +63,7 @@ unset listaObjetos
         ${dirFontes}/solverPardisoCSR.F90 \
  	${dirFontes}/utilSistemaEquacoes.F90 \
 	${dirFontes}/potencial.F90 ${dirFontes}/fluxo.F90 \
-        ${dirFontes}/driverDS.F90 )
+        ${dirFontes}/driver.F90 )
 
      echo ${listaFontes[*]} 
      i=0
@@ -91,8 +91,8 @@ fi
 if [ "$FC" = "gfortran" ]; then
    ARGINC="-I include";
    ARGINC="-M include";
-   ARGINC="-fpic -ffree-line-length-none -J include"; # GNU Fortran (Debian 4.7.2-5) 4.7.2
-   OUTROSF="-DmostrarTempos  -fbounds-check   "
+   ARGINC="-J include"; # GNU Fortran (Debian 4.7.2-5) 4.7.2
+   OUTROSF="-DmostrarTempos -fbounds-check -fpic -ffree-line-length-none"; # GNU Fortran (Debian 4.7.2-5) 4.7.2
    COMP="-fopenmp  -DwithOMP"
    LOMP="-fopenmp"
    INCS="$INCS $ARGINC"
@@ -212,18 +212,18 @@ for i in $(seq 1 ${#listaFontes[*]})
    FFLAGS="${OPTIMIZ}  ${OUTROSF}"
    FFLAGS="${OPTIMIZ}  ${OUTROSF} ${COMP}"
    comando="${FC} -c ${ARGINC} ${FFLAGS} ${listaFontes[i-1]} -o ${listaObjetos[i-1]}  " ; 
-   comando="${FC} -c ${ARGINC} ${ppSolver} ${listaFontes[i-1]} -o ${listaObjetos[i-1]}" ; 
+   comando="${FC} -c $FFLAGS ${ARGINC} ${ppSolver} ${listaFontes[i-1]} -o ${listaObjetos[i-1]}" ; 
 
 if [ "${listaFontes[i-1]}" = "${dirFontes}/solverHypre.F90" ]; then
-   comando="${FC} -c ${ARGINC} ${ppSolver} ${listaFontes[i-1]} -o ${listaObjetos[i-1]}" ; 
+   comando="${FC} -c $FFLAGS ${ARGINC} ${ppSolver} ${listaFontes[i-1]} -o ${listaObjetos[i-1]}" ; 
 fi
 
 if [ ".${listaFontes[i-1]}." = ".${dirFontes}/solverPardisoCSR.F90." ]; then
-   comando="${FC} -c ${ARGINC} ${ppSolver} ${listaFontes[i-1]} -o ${listaObjetos[i-1]}" ; 
+   comando="${FC} -c $FFLAGS ${ARGINC} ${ppSolver} ${listaFontes[i-1]} -o ${listaObjetos[i-1]}" ; 
 fi
 
-if [ "${listaFontes[i-1]}" = "${dirFontes}/driverDS.F90" ]; then
-   comando="${FC} -c ${ARGINC} ${ppSolver}  ${FFLAGS} ${listaFontes[i-1]} -o ${listaObjetos[i-1]}" ; 
+if [ "${listaFontes[i-1]}" = "${dirFontes}/driver.F90" ]; then
+   comando="${FC} -c $FFLAGS ${ARGINC} ${ppSolver}  ${FFLAGS} ${listaFontes[i-1]} -o ${listaObjetos[i-1]}" ; 
 fi
    echo $comando;  eval $comando
 done

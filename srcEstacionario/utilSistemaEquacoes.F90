@@ -15,6 +15,7 @@
 
        use mEstruturasDadosSistEq !, only : colht
        use mSolverHYPRE, only : criarMatrizHYPRE, criarVetorHYPRE
+       use mSolverHYPRE, only : destruirMatrizHYPRE, destruirVetorHYPRE
 
 
 !funcoes e subrotinas
@@ -48,12 +49,8 @@
     
       call timing(t1)
       allocate(umaEstSistEq_%lm(umaEstSistEq_%ndof,nen,numel))
-      print*, 'A:', umaEstSistEq_%ndof,nen,numel
       call formlm(umaEstSistEq_%id,conecNodaisElem,umaEstSistEq_%lm,umaEstSistEq_%ndof,umaEstSistEq_%ndof,nen,numel)
-      print*, 'B:'
       allocate(umaEstSistEq_%idiag(umaEstSistEq_%neq+1)); umaEstSistEq_%idiag = 0  ! posicoes dos elementos da diagonal principal no vetor alhs    
-      
-      print*, 'C:'
       
   if(umaEstSistEq_%optSolver=="GaussSkyline") then
       call colht(umaEstSistEq_%idiag,umaEstSistEq_%lm,umaEstSistEq_%ndof,nen,numel,umaEstSistEq_%neq);
@@ -76,21 +73,18 @@
       call criarListaVizinhosCRS(nen,numnp,numel,conecNodaisElem,umaEstSistEq_%nVizinMax)
       !simetria=.true.
 		 print*, "umaEstSistEq_%numCoefPorLinha = ", umaEstSistEq_%numCoefPorLinha
-!      call criarGrafoEquacoesPorNo(umaEstSistEq_,  nsd, conecNodaisElem, listaDosElemsPorNoCSR, &
-!                                      numnp, nen, numConexoesPorElem)
+!     call criarGrafoEquacoesPorNo(umaEstSistEq_,  nsd, conecNodaisElem, listaDosElemsPorNoCSR, &
+!                                     numnp, nen, numConexoesPorElem)
       end if
 	  
    end if 
-      print*, 'D:'
   
   if(umaEstSistEq_%optSolver=="PardisoEsparso") then
 
       if(.not.associated (listaDosElemsPorNoCSR) ) then
         allocate(listaDosElemsPorNoCSR(nen,numnp)); listaDosElemsPorNoCSR=0
       end if
-        print*, 'E:'
       call criarListaVizinhosCRS(nen,numnp,numel,conecNodaisElem,umaEstSistEq_%nVizinMax)
-        print*, 'F:'
       !simetria=.true.
       umaEstSistEq_%Ap=> umaEstSistEq_%idiag; !posicoes dos elementos da diagonal principal no vetor alhs
       call criarPonteirosMatEsparsa_CSR(umaEstSistEq_, nsd, conecNodaisElem, listaDosElemsPorNoCSR, & 
@@ -102,10 +96,13 @@
          allocate(umaEstSistEq_%alhs(umaEstSistEq_%nalhs));
          umaEstSistEq_%alhs=0.0
       end if
-        print*, 'G:'
   endif 
 
   if(umaEstSistEq_%optSolver=="HYPREEsparso") then
+     ! call destruirMatrizHYPRE       (umaEstSistEq_%A_HYPRE)
+     ! call destruirVetorHYPRE        (umaEstSistEq_%b_HYPRE)
+     ! call destruirVetorHYPRE        (umaEstSistEq_%u_HYPRE)
+    ! este procedimento necessita de conhecer  Flower, Fupper
       umaEstSistEq_%Flower = 1 !- 1
       umaEstSistEq_%Fupper = umaEstSistEq_%neq!-1
       localSize=umaEstSistEq_%FUpper-umaEstSistEq_%Flower+1
@@ -120,7 +117,6 @@
        write(*,'(a,a,", ", i0,", ",i0)') "optSolver_  =", umaEstSistEq_%optSolver, umaEstSistEq_%Flower,umaEstSistEq_%Fupper
   endif 
 
-        print*, 'H:'
       if(.not.associated(umaEstSistEq_%brhs))then
        allocate(umaEstSistEq_%brhs(umaEstSistEq_%neq));
        umaEstSistEq_%brhs=0.0
@@ -416,93 +412,51 @@
       end subroutine matadd00
 
 !**** new **********************************************************************
-      subroutine kdbc(eleffm,elresf,dl,nee)
-!
-!.... program to adjust load vector for prescribed displacement
-!     boundary condition
-!
+      subroutine kdbc(eleffm,elresf,dl,lm,nee)
       implicit none
-!
-!.... remove above card for single-precision operation
-!
-      integer*4:: nee
-      real*8  :: eleffm(nee,*),elresf(*),dl(*)
-!
-      integer*4:: i,j
-      real*8  :: val
-
-!     write(*,*) "em subroutine kdbc(eleffm,elresf,dl,nee)"
-!
-      do 200 j=1,nee
-!
-      val=dl(j)
-      if(val.eq.0.0d0) go to 200
-!
-      do 100 i=1,nee
-      elresf(i)=elresf(i)-eleffm(i,j)*val
-100   continue
-!
-200   continue
-!
-      return
-      end subroutine kdbc
-
-!**** new **********************************************************************
-      subroutine kdbcF(eleffm,elresf,dl,lm,nee)
-!
-!.... program to adjust load vector for prescribed displacement
-!     boundary condition
-!
-      implicit none
-!
-!.... remove above card for single-precision operation
-!
       integer*4:: nee, lm(*)
       real*8  :: eleffm(nee,*),elresf(*),dl(*)
-!
       integer*4:: i,j
       real*8  :: val
-!
-!     write(*,'(a,4f10.5)') 'em kdbcF'
-!     write(*,'(a,4f10.5)') 'em kdbc, elresf =', elresf(1:4)
-!     write(*,'(a,16f10.5)') 'em kdbc, eleffm =', eleffm(1:4,1:4)
-!     write(*,*) "em subroutine kdbcF(eleffm,elresf,dl,lm,nee)"
-
-      !write(*,*) "lm =", lm(1:nee) 
-      do 200 j=1,nee
-!
-      val=dl(j)
-   !   if(val.eq.0.0d0) cycle 
-      if(lm(j).gt.0) cycle 
-!
-     do 100 i=1,j-1
-     elresf(i)=elresf(i)-eleffm(i,j)*val
-100 continue
-     do i=j+1,nee
-     elresf(i)=elresf(i)-eleffm(i,j)*val
-     end do
-
-      elresf(j)=elresf(j)+val
-
-!
-200   continue
-
-     do j=1,nee
-      val=dl(j)
-      if(lm(j).gt.0) cycle 
-      !??elresf(j)=elresf(j)+val
-      elresf(j)=val
-      eleffm(j,      j)=1.0
-      eleffm(1:j-1,  j)=0.0
-      eleffm(j+1:nee,j)=0.0
-      eleffm(j,  1:j-1)=0.0
-      eleffm(j,j+1:nee)=0.0
-     end do
-
-!     write(*,'(a,4f10.5)') 'em kdbcF, elresf =', elresf(1:4)
-!     write(*,'(a,16f10.5)') 'em kdbcF, eleffm =', eleffm(1:4,1:4)
-!
+      !write(*,*) " em kdbc .............. "
+      do j=1,nee
+        val=dl(j)
+        if(lm(j).gt.0) cycle !if(val.eq.0.0d0)  cycle
+        do i=1,nee
+          elresf(i)=elresf(i)-eleffm(i,j)*val
+        end do
+      end do
+      return
+      end subroutine kdbc
+!**** new **********************************************************************
+      subroutine kdbcF(eleffm,elresf,dl,lm,nee)
+      implicit none
+      integer*4:: nee, lm(*)
+      real*8  :: eleffm(nee,*),elresf(*),dl(*)
+      integer*4:: i,j
+      real*8  :: val
+      do j=1,nee
+        val=dl(j)
+        if(lm(j).gt.0) cycle !    if(val.eq.0.0d0) cycle 
+        do i=1,j-1
+          elresf(i)=elresf(i)-eleffm(i,j)*val
+        end do
+        do i=j+1,nee
+          elresf(i)=elresf(i)-eleffm(i,j)*val
+        end do
+      end do
+      do j=1,nee
+        val=dl(j)
+        if(lm(j).gt.0) cycle 
+        elresf(j)=val
+        eleffm(1:nee,  j)=0.0
+        eleffm(j,  1:nee)=0.0
+        eleffm(j,  j)=1.0
+        !eleffm(1:j-1,  j)=0.0
+        !eleffm(j+1:nee,j)=0.0
+        !eleffm(j,  1:j-1)=0.0
+        !eleffm(j,j+1:nee)=0.0
+      end do
       return
       end subroutine kdbcF
-!
  end module

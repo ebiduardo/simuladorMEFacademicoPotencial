@@ -32,7 +32,7 @@
 !               funcoesDeForma.F90 estruturasDadosSistEq.F90
 !               potencial.F90 fluxo.F90
 !               solverGaussSkyline.F90 solverHypre.F90 solverPardisoCSR.F90
-!               utilSistemaEquacoes.F90 driverDS.F90
+!               utilSistemaEquacoes.F90 driver.F90
 !           e varios diretorios
 !               fontes, include, bin 
 !         9. extensao "F90" dos arquivos com maiuscula sendo importante para uso de opcao de preprocessamento
@@ -46,26 +46,27 @@
 !
   program poisson
 !
-      use mGlobaisEscalares, only: exec
+      use mGlobaisEscalares, only: exec, estacionario
       use mLeituraEscrita,   only: abrirArquivos, fecharArquivos
 
       implicit none
 
-      logical  :: comDS = .true.
       print*, "      call abrirArquivos  ()"
 !
-     comDS = .false.
-     comDS = .true.
+      call abrirArquivos  ()
 
-      call abrirArquivos  (comDS)
-
-      print*, " call preprocessadorDS ()"; call preprocessamentoDS()  
+      print*, " call preprocessador ()"; call preprocessamento()  
 !
    
       write(*,*) "exec =", exec
       if(exec==1)  then
-          print*, "      call processamento  ()"
-          call processamento  ()
+          if(estacionario) then
+          print*, "      Estacionario ()"
+          call processamentoE  ()
+          else
+          print*, "      Transiente   ()"
+          call processamentoT  ()
+          endif
       end if
 !
       call fecharArquivos ()
@@ -73,84 +74,8 @@
 !
 end program poisson
 
-!**** new **********************************************************************
-!
-      subroutine leituraParamNumericosPropFisica ()
-!
-      use mGlobaisEscalares, only: iprtin
-      use mGlobaisEscalares, only: numParElem, nrowsh, numat, npint, nicode
-      use mGlobaisArranjos,  only: npar,c, mat, grav
-      use mMalha,            only: numel,nsd,numnp,nen,conecNodaisElem
-      use mLeituraEscrita,   only: iin, iecho
-
-!
-!.... program to read, generate and write element data
-!
-      implicit none
-!
-!.... remove above card for single precision operation
-!
-!
-      integer*4 :: m, n, i
-      character(len=80) :: formatoLeitura
-
-      nrowsh = 3
-      if (nsd==3) nrowsh=nrowsh+1
-
-      allocate(npar(numParElem))
-      allocate(grav(3))
-!
-      formatoLeitura='(16I10)'
-      read(iin, formatoLeitura) (npar(i),i=1,numParElem)
-
-      nicode = npint
-      if (nicode.eq.0) nicode=nen
-!
-      numat  = npar( 1)
-      allocate(c(6,numat))
-!
-      write(iecho,1000) numel,numat,nen,npint
-!
-!      read material properties
-!
-      do 400 n=1,numat
-      if (mod(n,50).eq.1) write(iecho,4000) numat
-      read(iin,5000) m,(c(i,m),i=1,3)
-      write(iecho,6000) m,(c(i,m),i=1,3)
-  400 continue
-!
-!     constant body forces
-!
-      read (iin,7000) (grav(i),i=1,3)
-      write (iecho,8000) (grav(i),i=1,3)
-!
-      return
-!
- 1000 format(//,&
-     ' two/three-n o d e    e l e m e n t s ',//,5x,&
-     ' number of elements  . . . . . . . . . . . (numel ) = ',i8,//5x,&
-     ' number of element material sets . . . . . (numat ) = ',i5,//5x,&
-     ' number of element nodes . . . . . . . . . (nen   ) = ',i5,//5x,&
-     ' number of integration points. . . . . . . (npint  ) = ',i5)
- 2000  format(16i5)
- 4000  format(///,&
-     ' m a t e r i a l   s e t   d a t a                      ',  //5x,&
-     ' number of material sets . . . . . . . . . . (numat ) = ', i5///,&
-       2x,'set',4x,'Kx ', 10x,'Ky',10x,'Kz')
- 5000  format(i10,5x,5f10.0)
- 6000  format(2x,i3,1x,5(1x,1pe14.4))
- 7000 format(8f10.0)
- 8000 format(///,&
-     ' g r a v i t y   v e c t o r   c o m p o n e n t s     ',//5x,&
-     ' exemplo 1. . . . . . . . . . . . . .  = ',      1pe15.8,//5x,&
-     ' exemplo 2 . . . . . . . . . . . . . . = ',      1pe15.8,//5x,&
-     ' exemplo 3............................ = ',      1pe15.8,//)
- 9000  format(i5)
-!
-      end subroutine leituraParamNumericosPropFisica
- 
 !**** new  **********************************************************************
-      subroutine processamento()
+      subroutine processamentoT()
      
       use mMalha,            only: nen, nsd, numnp, numConexoesPorElem
       use mMalha,            only: x, conecNodaisElem, numel
@@ -177,11 +102,12 @@ end program poisson
 !
       real*8 :: t1, t2, t3, t4
       character(LEN=12) :: label, etapa
+      character(LEN=240) :: internalFile
 
       logical :: escreverSistP=.false., escreverSolP=.false.
       logical :: escreverSistF=.false., escreverSolF=.false.
       logical :: escreverSaidaVTK=.false., escreverSaidaVTK_F=.false.
-      character(LEN=40) ::  nomeArqSist
+      character(LEN=220) ::  nomeArqSist
 
       escreverSistF=.true. ; escreverSolF=.true.
       escreverSistP=.true. ; escreverSolP=.true.
@@ -213,7 +139,9 @@ end program poisson
 
       do passo = 1, numPassos
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CALCULO DA PRESSAO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        tempo=tempo + pTempo; print*, "passo=", passo, ",  tempo=", tempo
+        tempo=tempo + pTempo; 
+        print*, "passo=", passo, ",  tempo=", tempo
+        estrutSistEqP%uTempoAnt=estrutSistEqP%u
 !     
         call timing(t1)
         if(firstP) then 
@@ -228,6 +156,8 @@ end program poisson
 
         label='potencial'
         call solver(estrutSistEqP,label)        
+        write(internalFile,'(a20, i5, f12.3)')  trim(label), passo,   tempo
+        call escreverSolucaoP(estrutSistEqP, internalFile) 
 
         call timing(t4)
 !                                  nomeArqSist="coefSistEqAlgEsparsoP_NSYM"
@@ -259,6 +189,8 @@ end program poisson
         call timing(t3)
         label='fluxo';
         call solver(estrutSistEqF,label)        
+        write(internalFile,'(a20, i5, f12.3)')  trim(label), passo,   tempo
+        call escreverSolucaoF(estrutSistEqF, internalFile) 
         call timing(t4) ; 
         if(escreverSolF) call escreverSolSistema_MTX(estrutSistEqF, nomeArqSist); 
 
@@ -281,7 +213,155 @@ end program poisson
       end if
 
       return
-      contains
+  end subroutine processamentoT
+
+!**** new  **********************************************************************
+      subroutine processamentoE()
+     
+      use mMalha,            only: nen, nsd, numnp, numConexoesPorElem
+      use mMalha,            only: x, conecNodaisElem, numel
+      use mLeituraEscrita,   only: ignuplotPotencial, ignuplotFluxo, iparaviewPotencial, iparaviewFluxo
+      use mLeituraEscrita,   only: prtgnup, escreverArquivosSaida_Potencial
+      use mGlobaisEscalares, only: numPassos, passo, tempo
+!
+      use mPotencial,        only: estrutSistEqP
+      use mFluxo,            only: estrutSistEqF
+!      
+      use mSolverHypre,      only: inicializarMPI, finalizarMPI
+      use mSolverHypre,      only: myid, num_procs, mpi_comm
+      use mSolverGaussSkyline, only: escreverSistemaSkylineEmMTX
+!
+      use mUtilSistemaEquacoes, only: montarEstrutDadosSistEqAlq
+      use mPotencial,           only: montarSistEqAlgPotencial
+      use mFluxo,               only: montarSistEqAlgFluxo
+  
+      implicit none
+
+      logical :: firstP=.true., firstF=.true.
+!
+!.... solution driver program 
+!
+      real*8 :: t1, t2, t3, t4
+      character(LEN=12) :: label, etapa
+      character(LEN=240) :: internalFile
+
+      logical :: escreverSistP=.false., escreverSolP=.false.
+      logical :: escreverSistF=.false., escreverSolF=.false.
+      logical :: escreverSaidaVTK=.false., escreverSaidaVTK_F=.false.
+      character(LEN=40) ::  nomeArqSist
+
+      integer * 4 :: r, numRepeticoes = 1 
+
+      escreverSistF=.true. ; escreverSolF=.true.
+      escreverSistP=.true. ; escreverSolP=.true.
+      escreverSistF=.false.; escreverSolF=.false.
+      escreverSistP=.false.; escreverSolP=.false.
+      escreverSaidaVTK=.true.
+      escreverSaidaVTK=.false.
+      if(estrutSistEqP%optSolver(1:12)=='HYPREEsparso'.or.estrutSistEqF%optSolver(1:12)=='HYPREEsparso') then
+         call inicializarMPI                 (myid, num_procs, mpi_comm)
+      end if
+      numConexoesPorElem=nen !  usado para criar lista de visinhos dos nOs
+      !Jan22if (estrutSistEqP%optSolver(1:14)=='PardisoEsparso') then
+        if(nsd==2)estrutSistEqP%numCoefPorLinha=9    ! usado para criar LMStencilEq
+        if(nsd==3)estrutSistEqP%numCoefPorLinha=27
+      !Jan22end if
+
+      write(*,*) " call montarEstrutDadosSistEqAlq(optSolverP_ =", estrutSistEqP%optSolver 
+      call montarEstrutDadosSistEqAlq(estrutSistEqP) ; 
+
+   !   if (estrutSistEqF%optSolver(1:14)=='PardisoEsparso') then
+   !     if(nsd==2)estrutSistEqF%numCoefPorLinha=18
+   !     if(nsd==3)estrutSistEqF%numCoefPorLinha=81
+   !   end if
+      write(*,*) " call montarEstrutDadosSistEqAlq(optSolverF_ =", estrutSistEqF%optSolver 
+      call montarEstrutDadosSistEqAlq(estrutSistEqF) ; 
+
+      passo=0; tempo=0; numPassos=1
+
+      do r = 1, numPassos ! numRepeticoes
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CALCULO DA PRESSAO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!     
+        call timing(t1)
+        if(firstP) then 
+          call montarSistEqAlgPotencial(estrutSistEqP)
+      !firstP=.false.
+        endif
+        call timing(t2)
+                                   nomeArqSist="coefSistEqAlgEsparsoP_NSYM"
+        if(estrutSistEqP%simetria) nomeArqSist="coefSistEqAlgEsparsoP_SYM"
+        if(escreverSistP) call escreverSistema_MTX(estrutSistEqP, nomeArqSist); 
+        call timing(t3)
+
+
+!       write(*,'(a,20f10.5)') 'alhs =', estrutSistEqP%alhs
+!       write(*,'(a,20f10.5)') 'brhs =', estrutSistEqP%brhs
+        label='potencial'
+        call solver(estrutSistEqP,label)        
+        write(internalFile,'(a20, i5, f12.3)')  trim(label), r
+        call escreverSolucaoP(estrutSistEqP, internalFile) 
+
+        call timing(t4)
+!                                  nomeArqSist="coefSistEqAlgEsparsoP_NSYM"
+!       if(estrutSistEqP%simetria) nomeArqSist="coefSistEqAlgEsparsoP"
+        if(escreverSolP)call escreverSolSistema_MTX(estrutSistEqP, nomeArqSist); 
+         estrutSistEqP%brhs = 0.0 ;
+!
+!       call prtgnup(label, x,potencial,nsd,ndofP,numnp,ignuplotPotencial)
+!                             2, label, len(label)) !1=por elemento, 2=nodal
+        !if(escreverSaidaVTK) call escreverArquivosSaida(estrutSistEqP, estrutSistEqF)
+!
+
+                              ! nao lineares ou transientes
+        write(*,'(a,f12.4,a)') ' tempo de parede (potencial) =',(t4-t3)+(t2-t1), ", segundos"
+        write(*,'(a,f12.4,a)') ' .............. montagem matriz   =', t2 - t1, ", segundos"
+        write(*,'(a,f12.4,a)') ' .............. solver            =', t4 - t3, ", segundos"
+
+        if(escreverSaidaVTK) call escreverArquivosSaida_Potencial(estrutSistEqP, passo, tempo)
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CALCULO DO FLUXO  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        call timing(t1)
+    !  if(firstF) then 
+         call montarSistEqAlgFluxo (estrutSistEqF,estrutSistEqP)
+      !  firstF=.false.
+ !     endif
+        call timing(t2)
+                                   nomeArqSist="coefSistEqAlgEsparsoF_NSYM"
+        if(estrutSistEqF%simetria) nomeArqSist="coefSistEqAlgEsparsoF_SYM"
+        if(escreverSistF) call escreverSistema_MTX(estrutSistEqF, nomeArqSist); 
+        call timing(t3)
+        label='fluxo';
+        call solver(estrutSistEqF,label)        
+        write(internalFile,'(a20, i5, f12.3)')  trim(label), r
+        call escreverSolucaoF(estrutSistEqF, internalFile) 
+        call timing(t4) ; 
+        if(escreverSolF) call escreverSolSistema_MTX(estrutSistEqF, nomeArqSist); 
+
+        !if(escreverSaidaVTK) call escreverArquivosSaida(estrutSistEqP, estrutSistEqF)
+
+        estrutSistEqP%alhs = 0.0 ! 
+        estrutSistEqP%brhs = 0.0 ! 
+        estrutSistEqP%u    = 0.0 ! 
+        estrutSistEqF%alhs = 0.0 ! 
+        estrutSistEqF%brhs = 0.0 ! 
+        estrutSistEqF%u    = 0.0 ! 
+
+!     call prtgnup(label, x,fluxo,nsd,ndofF,numnp,ignuplotFluxo)
+!
+      write(*,'(a,f12.4,a)') ' tempo de parede (fluxo)     =',(t4-t3)+(t2-t1), ", segundos"
+      write(*,'(a,f12.4,a)') ' .............. montagem matriz   =', t2 - t1, ", segundos"
+      write(*,'(a,f12.4,a)') ' .............. solver            =', t4 - t3, ", segundos"
+!
+      end do  !  do r = 1, numRepeticoes 
+
+      if(estrutSistEqP%optSolver(1:12)=='HYPREEsparso'.or.estrutSistEqF%optSolver(1:12)=='HYPREEsparso') then
+        call finalizarMPI                 ()
+      end if
+
+      return
+
+  end subroutine processamentoE
 !
 !**** new **********************************************************************
 !
@@ -289,14 +369,16 @@ end program poisson
 !
       use mSolverGaussSkyline, only: solverGaussSkyline
       use mSolverPardiso,      only: solverPardisoEsparso
+      use mSolverHypre,        only: mpi_comm
       use mSolverHypre,        only: escreverResultadosHYPRE  
       use mSolverHypre,        only: resolverSistemaAlgHYPRE
       use mSolverHypre,        only: extrairValoresVetorHYPRE 
-      use mSolverHYPRE, only : criarMatrizHYPRE, criarVetorHYPRE
-      use mSolverHYPRE, only : destruirMatrizHYPRE, destruirVetorHYPRE
+      use mSolverHYPRE,        only: criarMatrizHYPRE, criarVetorHYPRE
+      use mSolverHYPRE,        only: destruirMatrizHYPRE, destruirVetorHYPRE
       use mUtilSistemaEquacoes,only: btod
 !
       use mEstruturasDadosSistEq  !, only : estruturasArmazenamentoSistemaEq
+      use mmalha  !, only : estruturasArmazenamentoSistemaEq
 
       implicit none
       type (estruturasArmazenamentoSistemaEq) :: estrutSistEq_
@@ -362,26 +444,18 @@ end program poisson
       call criarMatrizHYPRE (estrutSistEq_%A_HYPRE, estrutSistEq_%Flower, estrutSistEq_%Fupper, mpi_comm )
       call criarVetorHYPRE  (estrutSistEq_%b_HYPRE, estrutSistEq_%Flower, estrutSistEq_%Fupper, mpi_comm )
       call criarVetorHYPRE  (estrutSistEq_%u_HYPRE, estrutSistEq_%Flower, estrutSistEq_%Fupper, mpi_comm )
-
-
       endif
-
       call btod(estrutSistEq_%id,estrutSistEq_%u, estrutSistEq_%brhs,estrutSistEq_%ndof,numnp)
-      ! call escreverSolucaoB(estrutSistEq_, passo) 
-      if (label_ == "potencial") then
-          call escreverSolucaoP(estrutSistEq_) 
-      else
-          call escreverSolucaoF(estrutSistEq_) 
-      end if
       end subroutine solver
-
-  subroutine escreverSolucaoP(estrutSistEq_)
+!**** new **********************************************************************
+  subroutine escreverSolucaoP(estrutSistEq_, finalLinha_)
       use mMalha,            only: numnp
       use mEstruturasDadosSistEq  , only : estruturasArmazenamentoSistemaEq
       type (estruturasArmazenamentoSistemaEq) :: estrutSistEq_
+      character(len=40), intent(in) :: finalLinha_
       integer*4 :: i
       real*8    :: solutionNorm
-      write(*,*) " valores nos extremos do vetor solucao completo,  ", trim(label), passo, tempo
+      write(*,*) " valores nos extremos do vetor solucao completo,  ", trim(finalLinha_) ! trim(label), passo, tempo
       write(*,'(9e16.8)') estrutSistEq_%u(1, 1    :6+1)
       write(*,'(9e16.8)') estrutSistEq_%u(1, 1+7  :6+1+7)
       write(*,'(9e16.8)') estrutSistEq_%u(1, numnp-5-1: numnp)
@@ -392,15 +466,15 @@ end program poisson
       solutionNorm = sqrt(solutionNorm)
       write(*,'(a,1e15.8)') "Euclid norms of computed solution: ", solutionNorm
   end subroutine escreverSolucaoP
-
-  subroutine escreverSolucaoF(estrutSistEq_)
+  subroutine escreverSolucaoF(estrutSistEq_, finalLinha_)
       use mMalha,            only: numnp, nsd
       use mEstruturasDadosSistEq  , only : estruturasArmazenamentoSistemaEq
       type (estruturasArmazenamentoSistemaEq) :: estrutSistEq_
+      character(len=40), intent(in) :: finalLinha_
       integer*4 :: i, j, ndof
       real*8    :: solutionNorm
       ndof = estrutSistEq_%ndof
-      write(*,*) " valores nos extremos do vetor solucao completo,  ", trim(label), passo, tempo
+      write(*,*) " valores nos extremos do vetor solucao completo,  ", trim(finalLinha_) ! trim(label), passo, tempo
       write(*,'(6e12.4)') estrutSistEq_%u(1:ndof, 1    :3)
       write(*,'(6e12.4)') estrutSistEq_%u(1:ndof, numnp-2: numnp)
       solutionNorm = 0.0 
@@ -413,14 +487,15 @@ end program poisson
       write(*,'(a,1e15.8)') "Euclid norms of computed solution: ", solutionNorm
   end subroutine escreverSolucaoF
 
-  subroutine escreverSolucaoB(estrutSistEq_,p)
+  subroutine escreverSolucaoB(estrutSistEq_,label_, p_)
       use mEstruturasDadosSistEq  , only : estruturasArmazenamentoSistemaEq
       type (estruturasArmazenamentoSistemaEq) :: estrutSistEq_
-      integer::p
+      character(len=*), intent(in) :: label_
+      integer::p_
 
       integer*4 :: i
       real*8    :: solutionNorm
-      write(*,*) " valores nos extremos do vetor solucao BRHS,  ", trim(label), p
+      write(*,*) " valores nos extremos do vetor solucao BRHS,  ", trim(label_), p_
       write(*,'(6e12.4)') estrutSistEq_%brhs(1    :6)
       write(*,'(6e12.4)') estrutSistEq_%brhs(estrutSistEq_%neq-5: estrutSistEq_%neq)
       solutionNorm = 0.0 
@@ -430,10 +505,12 @@ end program poisson
        solutionNorm = sqrt(solutionNorm)
        write(*,'(a,1e15.8)') "Euclid norms of computed solution: ", solutionNorm
   end subroutine escreverSolucaoB
+     
 !**** new **********************************************************************
 !
       subroutine escreverSistema_MTX(estrutSistEq_, nomeArq_)
       use mMalha,              only: numnp, numel, nen
+      use mMalha,              only: conecNodaisElem
       use mSolverPardiso,      only: escreverSistemaAlgCSRemMTX
       use mSolverGaussSkyline, only: escreverSistemaSkylineEmMTX
       use mEstruturasDadosSistEq  !, only : estruturasArmazenamentoSistemaEq
@@ -470,9 +547,7 @@ end program poisson
               estrutSistEq_%Ap, estrutSistEq_%Ai, estrutSistEq_%nAlhs, estrutSistEq_%neq, nomeArqCompleto)
        end if
       end subroutine escreverSistema_MTX
-     
 !**** new **********************************************************************
-!
       subroutine escreverSolSistema_MTX(estrutSistEq_, nomeArq_)
       use mEstruturasDadosSistEq  
       type (estruturasArmazenamentoSistemaEq) :: estrutSistEq_
@@ -486,8 +561,8 @@ end program poisson
       end subroutine escreverSolSistema_MTX
 !**** new **********************************************************************
       subroutine escreverBRHS (brhs_, neq_, nomeArq_)
-      real*8, pointer :: brhs_(:)
       integer :: neq_
+      real*8 :: brhs_(neq_)
       character (LEN=*) :: nomeArq_
 
       integer :: i
@@ -499,12 +574,9 @@ end program poisson
       end do
       close(1111)
       end subroutine escreverBRHS
-
-
-  end subroutine processamento
 !**** new **********************************************************************
 !
-   subroutine preprocessamentoDS ()
+   subroutine preprocessamento ()
       use mInputReader,      only: readInputFileDS
       use mInputReader,      only: leituraGeracaoCoordenadasDS
       use mInputReader,      only: leituraCodigosCondContornoDS
@@ -530,7 +602,7 @@ end program poisson
 !
 !     call echo
       call readInputFileDS(iin)
-      call readSetupPhaseDS()
+      call readSetupPhase()
         
       call identificaSolversDisponiveis(listaSolverDisponivel)
       call verificarSolver(estrutSistEqP%optSolver, listaSolverDisponivel)
@@ -609,9 +681,7 @@ end program poisson
                 1_4, estrutSistEqF%nlvect, iprtin,iecho)
       end if
 !
-     write (*,*) "call leituraParamNumericosPropFisicaDS()"
-     call leituraParamNumericosPropFisicaDS()
-     write (*,*) "apos call leituraParamNumericosPropFisicaDS()"
+     call leituraParamNumericosPropFisica()
 
  1000 format(20a4)
  2000 format(4i10,i10,11i10)
@@ -629,14 +699,14 @@ end program poisson
      ' number of elements      . . . . . . . . . . (numel  ) = ',i10//5x,&
      ' number of potencial load vectors  . . . . . (nlvectP) = ',i10//5x,&
      ' number of fluxos   load vectors   . . . . . (nlvectF) = ',i10//5x)
-    end subroutine preprocessamentoDS
+    end subroutine preprocessamento
 !
 !**** new **********************************************************************
-    subroutine readSetupPhaseDS
+    subroutine readSetupPhase
         use mInputReader,      only:readStringKeywordValue, readIntegerKeywordValue
-        use mInputReader,      only:readRealKeywordValue
+        use mInputReader,      only:readRealKeywordValue, readLogicalKeywordValue
         use mGlobaisArranjos,  only: title
-        use mGlobaisEscalares, only: exec, iprtin, npint
+        use mGlobaisEscalares, only: exec, iprtin, npint, estacionario
         use mGlobaisEscalares, only: numPassos, tempoInicial, tempoFinal
         use mMalha,            only: nsd, numnp, numel, nen
         use mPotencial,        only: estrutSistEqP
@@ -669,6 +739,8 @@ end program poisson
         call readIntegerKeywordValue(keyword_name, estrutSistEqP%nlvect, 0_4, ierr)
         keyword_name = "nlvectF"
         call readIntegerKeywordValue(keyword_name, estrutSistEqF%nlvect, 0_4, ierr)
+        keyword_name = "estacionario"
+        call readLogicalKeywordValue(keyword_name, estacionario, .true., ierr)
         keyword_name = "numPassos"
         call readIntegerKeywordValue(keyword_name, numPassos, 1_4, ierr)
         if (numPassos < 1_4) then; numPassos=1_4; print*, "numPassos modificado= 1"; end if
@@ -695,13 +767,9 @@ end program poisson
         call readStringKeywordValue(keyword_name, estrutSistEqP%eliminate, stringDefault, ierr)
         
         return
-    end subroutine readSetupPhaseDS 
-!
-!**** new **********************************************************************
-!
-    !> Faz a leitura de constant body forces.
-    !> @param keyword_name  Keyword especifica para constant body forces.
-    subroutine leituraParamNumericosPropFisicaDS()
+    end subroutine readSetupPhase 
+
+    subroutine leituraParamNumericosPropFisica()
         use mGlobaisEscalares, only: iprtin
         use mGlobaisEscalares, only: numParElem, nrowsh, numat, npint, nicode
         use mGlobaisArranjos,  only: npar,c, mat, grav
@@ -792,9 +860,9 @@ end program poisson
         ' exemplo 3............................ = ',      1pe15.8,//)
         9000  format(i5)
         !
-    end subroutine leituraParamNumericosPropFisicaDS
+    end subroutine leituraParamNumericosPropFisica
 !
-!**** new *******************************************************************
+!**** new **********************************************************************
 !     
       subroutine verificarSolver(optSolver_, listaSolverDisponivel_) 
 !
@@ -845,3 +913,5 @@ end program poisson
       if(listaSolverDisponivel_(3).eqv..true.) print*, "                      HYPRE"
 
       end subroutine
+
+!

@@ -1,0 +1,113 @@
+*title{
+ experimento COM fonte simetrica e dirichlet diferente de zero, SEM elim Eq
+}   
+GaussSkyline
+PardisoEsparso
+HYPREEsparso
+*solver_pressao{
+GaussSkyline
+}
+*solver_fluxo{
+GaussSkyline
+}
+
+*eliminateEq{
+NO
+}
+
+*codigos_cond_contorno_potencial{
+         1        15         7         0
+         7        21         7         0
+         4        18         7         1
+         0 
+}
+os valores abaixo produzem o gradiente de pressão
+  iguais ao do modelo com cond cont dirichlet
+  valores nos extremos do vetor solucao completo,  fluxo                  1
+  0.4000E+00 -0.1804E-15  0.4000E+00  0.1388E-15  0.4000E+00 -0.1249E-15
+  0.4000E+00  0.2637E-15  0.4000E+00  0.6939E-16  0.4000E+00 -0.2509E-15
+*valores_cond_contorno_potencial{
+         1         2    0.2d-0
+                        0.2d-0
+         2         7 
+         8              0.4d-0
+         7         2   -0.2d-0
+                       -0.2d-0
+         2         7
+        14             -0.4d-0
+         4              1.0d-0
+        11              1.0d-0
+        18              1.0d-0
+         0 
+}
+*codigos_cond_contorno_fluxo{
+         0 
+}
+*coordenadas_nodais{
+         1         4       0.0       0.0     0.0
+                           6.0       0.0     0.0
+                           6.0       2.0     0.0
+                           0.0       2.0     0.0
+         6         1         2         7
+         0 
+}
+*exec{
+	1
+}
+
+*iprtin{
+0
+}
+*nsd{
+	2
+}
+*numnp{
+	21
+}
+*numel{
+	12
+}
+
+*nen{
+	4
+}
+*npint{
+	4
+}
+*nlvectP{
+1
+}
+*nlvectF{
+0
+}
+*conectividades_nodais{
+         1         1         1         2         9         8         1
+         6         1         1         2         6         7
+         0 
+}
+*nummat{
+         1 
+}
+*prop_fisica_meio{
+         1       1.00e+00  1.00e+00  1.00e+00
+}
+*grav{
+       0.0       0.0       0.0
+}
+
+*estacionario{
+.TRUE.
+.true.
+}
+
+*numPassos{
+20
+}
+*tempoInicial{
+0.0d0
+}
+*tempoFinal{
+1.0d2
+}
+
+*end 

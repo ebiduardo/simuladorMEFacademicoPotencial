@@ -52,6 +52,7 @@
       use mGlobaisArranjos,  only: mat, c, grav
       use mfuncoesDeForma,   only: oneshl, oneshg, shlt, shlq3d, shg3d, shgq, shlq, shlt3D
       use mMalha,            only: local
+
       use mUtilSistemaEquacoes,  only: kdbc, kdbcF
       use mSolverGaussSkyline,   only: addrhs, addlhs, addlhsN
       use mSolverPardiso,        only: addlhsCSR!, addlhsCSR01
@@ -95,7 +96,6 @@
 !
       w=0.0
       shl=0.0
-
 
       if(nen==2) call oneshl(shl,w,npint,nen) 
       if(nen==3) call   shlt(shl,w,npint,nen)
@@ -159,7 +159,7 @@
                  djx=shg(1,j,l)*temp1
                  djy=shg(2,j,l)*temp1
       if(nsd==3) djz=shg(3,j,l)*temp1
-                 djn=shg(nrowsh,j,l)*temp1
+      djn=shg(nrowsh,j,l)*temp1
 !.... source terms      
 !
       elresf(nj)=elresf(nj)+pTA_int*djn
@@ -190,7 +190,7 @@
 
       if(.not.zerodl) then
         if(estrutSistEqP_%eliminate(1:3)=='YES') then
-          call kdbc(eleffm,elresf,pl,lmLocal, nee)
+          call kdbc (eleffm,elresf,pl,lmLocal, nee)
         else
           call kdbcF(eleffm,elresf,pl,lmLocal, nee)
         endif
@@ -212,8 +212,6 @@
       call addrhs     (estrutSistEqP_%brhs, elresf, lmLocal, nee)
   500 continue
 
-    !print*, estrutSistEqP_%id;! stop
-
       if (optSolver_=='HYPREEsparso')   then
        do i = 1, estrutSistEqP_%neq
            estrutSistEqP_%rows(i) = i
@@ -225,7 +223,13 @@
       call fecharVetorHYPRE             (estrutSistEqP_)
       call fecharVetorHYPRE             (estrutSistEqP_)!
 
+      !call HYPRE_IJMatrixWrite( "matrixHypre.dat", MPI_COMM, HYPRE_PARCSR, estrutSistEqP_%A_HYPRE );
+    !  call HYPRE_IJMatrixPrint(estrutSistEqP_%A_HYPRE, trim(matrixFile))
+    !  call escreverMatrizHYPRE(estrutSistEqP_%A_HYPRE, trim(matrixFile))
+    !  Print the matrix to file. This is mainly for debugging purposes.
+
       endif
+
       return
       end subroutine calcCoefSistAlgPotencialT
 

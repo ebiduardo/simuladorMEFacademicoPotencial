@@ -246,7 +246,7 @@ module mInputReader
 
       if (iprtin.eq.1) return 
 ! 
-      open(unit=icoords    , file= 'coordenadasG.dat')
+      !open(unit=icoords    , file= 'coordenadasG.dat')
 ! stop "em leituraGeracaoCoordenadasDS"
       do n=1,numnp 
          if (mod(n,50).eq.1) write(icoords,1000) (i,i=1,nsd) 

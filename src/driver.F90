@@ -156,7 +156,7 @@ end program poisson
 
         label='potencial'
         call solver(estrutSistEqP,label)        
-        write(internalFile,'(a20, i5, f12.3)')  trim(label), passo,   tempo
+        write(internalFile,'(a10, i5, f10.3)')  trim(label), passo,   tempo
         call escreverSolucaoP(estrutSistEqP, internalFile) 
 
         call timing(t4)
@@ -189,7 +189,7 @@ end program poisson
         call timing(t3)
         label='fluxo';
         call solver(estrutSistEqF,label)        
-        write(internalFile,'(a20, i5, f12.3)')  trim(label), passo,   tempo
+        write(internalFile,'(a10, i5, f10.3)')  trim(label), passo,   tempo
         call escreverSolucaoF(estrutSistEqF, internalFile) 
         call timing(t4) ; 
         if(escreverSolF) call escreverSolSistema_MTX(estrutSistEqF, nomeArqSist); 
@@ -298,7 +298,7 @@ end program poisson
 !       write(*,'(a,20f10.5)') 'brhs =', estrutSistEqP%brhs
         label='potencial'
         call solver(estrutSistEqP,label)        
-        write(internalFile,'(a20, i5, f12.3)')  trim(label), r
+        write(internalFile,'(a10, i5, a)')  trim(label), r, ', estacionario'
         call escreverSolucaoP(estrutSistEqP, internalFile) 
 
         call timing(t4)
@@ -333,17 +333,17 @@ end program poisson
         call timing(t3)
         label='fluxo';
         call solver(estrutSistEqF,label)        
-        write(internalFile,'(a20, i5, f12.3)')  trim(label), r
+        write(internalFile,'(a10, i5, a)')  trim(label), r, ', estacionario'
         call escreverSolucaoF(estrutSistEqF, internalFile) 
         call timing(t4) ; 
         if(escreverSolF) call escreverSolSistema_MTX(estrutSistEqF, nomeArqSist); 
 
         !if(escreverSaidaVTK) call escreverArquivosSaida(estrutSistEqP, estrutSistEqF)
 
-        estrutSistEqP%alhs = 0.0 ! 
+        !estrutSistEqP%alhs = 0.0 ! 
         estrutSistEqP%brhs = 0.0 ! 
         estrutSistEqP%u    = 0.0 ! 
-        estrutSistEqF%alhs = 0.0 ! 
+        !estrutSistEqF%alhs = 0.0 ! 
         estrutSistEqF%brhs = 0.0 ! 
         estrutSistEqF%u    = 0.0 ! 
 
@@ -455,7 +455,7 @@ end program poisson
       character(len=40), intent(in) :: finalLinha_
       integer*4 :: i
       real*8    :: solutionNorm
-      write(*,*) " valores nos extremos do vetor solucao completo,  ", trim(finalLinha_) ! trim(label), passo, tempo
+      write(*,'(a,a)') " valores nos extremos do vetor solucao completo,  ", trim(finalLinha_) ! trim(label), passo, tempo
       write(*,'(9e16.8)') estrutSistEq_%u(1, 1    :6+1)
       write(*,'(9e16.8)') estrutSistEq_%u(1, 1+7  :6+1+7)
       write(*,'(9e16.8)') estrutSistEq_%u(1, numnp-5-1: numnp)
@@ -474,7 +474,7 @@ end program poisson
       integer*4 :: i, j, ndof
       real*8    :: solutionNorm
       ndof = estrutSistEq_%ndof
-      write(*,*) " valores nos extremos do vetor solucao completo,  ", trim(finalLinha_) ! trim(label), passo, tempo
+      write(*,'(a,a)') " valores nos extremos do vetor solucao completo,  ", trim(finalLinha_) ! trim(label), passo, tempo
       write(*,'(6e12.4)') estrutSistEq_%u(1:ndof, 1    :3)
       write(*,'(6e12.4)') estrutSistEq_%u(1:ndof, numnp-2: numnp)
       solutionNorm = 0.0 

@@ -201,7 +201,7 @@
 ! 
 !       endif !if(parte=='full') then
 
-#endif
+#endif !withPardiso
       end subroutine 
 
 !

@@ -1,136 +1,73 @@
-dirExp=${1:-"exp05x02/"}
-dirExp=${1:-"exp07/"}
-    opcaoA=${2:-"1"}
-    opcaoB=${3:-"1"}
-    opcaoC=${4:-"1"}
-sufixoTela=${4:-""};
-numThreads=${6:-"1"}
+#    opcaoA=${2:-"1"}
+#    opcaoB=${3:-"1"}
+#    opcaoC=${4:-"1"}
+#sufixoTela=${4:-""};
 
-
-dirBin=/prj/prjedlg/bidu/BTsimuladorMEFacademico/bin
-dirBin=/prj/prjedlg/bidu/simuladorMEFacademicoBT-Patricia/bin
-dirBin="$(pwd)/bin"
-
-#if [ "$opcaoA" = "2" ]; then
-#   opcaoB="2"
-#fi
-
-     listaSolvers=(zero Gauss Pardiso HYPRE PH PardisoMKL)
-listaCompiladores=(zero gfortran ifort) # pgf90)
-     listaOPTIMIZ=(zero "-g -O0" "-O4" "-fast")
-
- solver=${listaSolvers[opcaoA]}
-     FC=${listaCompiladores[opcaoB]}
-OPTIMIZ=${listaOPTIMIZ[opcaoC]}
-maquina=desconhecida
-maquina=$(hostname)
-#maquina="altix-xe.hpc.lncc.br"
-
-     lS=(z G P H PH P-mkl)
-     lC=(z G I)  # P)
-     lO=(z 0 4 f)
-
-sufixoExec="${lS[opcaoA]}${lC[opcaoB]}${lO[opcaoC]}"
-
-if [ $# == 1 ]; then
- nomeExecutavel=simulador.exe
-else
- nomeExecutavel=simulador${sufixoExec}.exe
+if [ $# == 0 ]; then
+  echo "informe o expDIR obrigatoriamente  " 
+  echo "ex: $0 exp05x02 " 
+  comandoRUN="(export OMP_NUM_THREADS=1; cd exp05x02 ; time  $PWD/bin/simulador.exe ; |tee -a telaSimulador.txt)";
+  echo $comandoRUN 
+  echo "                 e se quiser inclua outros argumentos opcionais " 
+  echo "ex: $0 expDir nomeExecutavel pathExecutavel numThreads marcaNomeArqTela" 
+  comandoRUN="(export OMP_NUM_THREADS=numThreads; cd expDir ; time  /pathExecutavel/nomeExecutavel; |tee -a telaMarcaNomeArqTela.txt)";
+  echo $comandoRUN 
+  exit
 fi
- nomeExecutavel=simulador${sufixoExec}.exe
- nomeExecutavel=${5:-"simuladorTransiente.exe"}
- echo nomeExecutavel :  $nomeExecutavel ; read
 
-
-LIBPARDISO=""
-#LIBPARDISO=MKL; sufixoExec="${sufixoExec}${LIBPARDISO}"
-
-#echo "escolhas: $opcaoA	 $opcaoB	$opcaoC"
-#echo "escolhas: $solver	 $FC 		$OPTIMIZ ...  $maquina"
-#echo "sufixo  : $sufixoExec"
-
-case $maquina in
- "petropolis")
-   PARDISO_DIR="/usr/local/pardiso"
-   HYPRE_DIR="/usr/local/hypre2.9" # em petropolis
-;;
- "bidu-debian")
-   PARDISO_DIR="/usr/local/lib/pardiso5.0"
-   HYPRE_DIR="/usr/local/hypre-2.10.1/"
-   export PARDISO_LIC_PATH=$PARDISO_DIR
-   export  LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PARDISO_DIR
-;;
-# /hpc/pardiso5.0
-#Architecture X86-64, 64-bit, icc/ifort 13.01 libpardiso500-INTEL1301-X86-64.so
-#Architecture X86-64, 64-bit, gcc/gfortran 4.7.2 libpardiso500-GNU472-X86-64.so
-
-#Architecture X86-64, 64-bit, icc/ifort 13.01     Linux MPI libpardiso500-MPI-INTEL1301-X86-64.so
-#Architecture X86-64, 64-bit, mpicc/mpif77 4.7.2     Linux MPI libpardiso500-MPI-GNU472-X86-64.so
-"altix-xe.hpc.lncc.br")
-   PARDISO_DIR="/hpc/pardiso5.0"
-   if [ "$FC" = "gfortran" ]; then
-      comando="source /hpc/modulos/bash/gcc-4.7.sh";              echo +++ $comando; eval $comando
-      comando="source /hpc/modulos/bash/hypre-2.9.0b.sh";         echo +++ $comando; eval $comando
-      comando="source /hpc/modulos/bash/openmpi-gcc44-1.4.1.sh "; echo +++ $comando; eval $comando
-      comando="source /hpc/modulos/bash/libblas.sh";              echo $comando; eval $comando
-      HYPRE_DIR="/hpc/hypre-2.9.0b"         # altix-xe, gcc
-      PARDISOLNK="-L${PARDISO_DIR} -lpardiso500-MPI-GNU472-X86-64 -lblas -llapack -fopenmp -lpthread -lm" 
-      PARDISOLNK="-L${PARDISO_DIR} -lpardiso500-GNU472-X86-64     -lblas -llapack -fopenmp -lpthread -lm" 
-   fi
-   if [ "$FC" = "ifort" ]; then
-      comando="source /hpc/modulos/bash/intel-cluster_studio_xe_2013.sh"; echo $comando; eval $comando
-      comando="source /hpc/modulos/bash/hypre-2.9.0b-intel.sh";           echo $comando; eval $comando
-      HYPRE_DIR="/hpc/hypre-2.9.0b-intel"   # altix-xe, intel
-      PARDISOLNK="-L${PARDISO_DIR} -lpardiso500-MPI-INTEL1301-X86-64 -lblas -llapack -fopenmp -lpthread -lm" 
-      PARDISOLNK="-L${PARDISO_DIR} -lpardiso500-INTEL1301-X86-64     -lblas -llapack -fopenmp -lpthread -lm" 
-    if [ "$LIBPARDISO" = "MKL" ]; then
-      PARDISOLNK="-mkl"; 
-      sufixoExec="${sufixoExec}${PARDISOLNK}"
-    fi
-   fi
-;;
- *)
- echo "..... maquina desconhecida" 
-esac
-
-#comando="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${PARDISO_DIR}:${HYPRE_DIR}";echo $comando; eval $comando
-
- 
+expDir=${1}
+nomeExecutavel=${2:-"simulador.exe"}
+binDir=${3:-"$(pwd)/bin"}
+numThreads=${4:-"1"}
+EXEC=$binDir/$nomeExecutavel
+sufixoExec=${5:-"$(basename $nomeExecutavel |cut -d"." -f1)"}
 
 arqTela="tela_${sufixoExec}_${numThreads}Thr${sufixoTela}";
-echo +++ |tee $dirExp/${arqTela}.txt
 
-echo +++ |tee -a $dirExp/${arqTela}.txt 
-date     |tee -a $dirExp/${arqTela}.txt 
-echo +++ |tee -a $dirExp/${arqTela}.txt 
-echo +++  RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS: |tee -a $dirExp/${arqTela}.txt
-echo +++ |tee -a $dirExp/${arqTela}.txt 
-echo +++  maquina:    $maquina                  |tee -a $dirExp/${arqTela}.txt
-echo +++  compilador: $FC                       |tee -a $dirExp/${arqTela}.txt
-echo +++  solver:     $solver                   |tee -a $dirExp/${arqTela}.txt
-echo +++  executavel: ${dirBin}/$nomeExecutavel |tee -a $dirExp/${arqTela}.txt
-echo +++  diretorio:  ${dirExp}                 |tee -a $dirExp/${arqTela}.txt
+comandoRUN="(export OMP_NUM_THREADS=$numThreads; cd $expDir ; time ${EXEC}   |tee -a ${arqTela}.txt)";
+echo $comandoRUN 
+#read -p "+++ digite ENTER para executar o simulador "  
 
-echo +++ |tee -a $dirExp/${arqTela}.txt
-echo +++ |tee -a $dirExp/${arqTela}.txt
-echo "+++ digite ENTER para executar o simulador "  |tee -a $dirExp/${arqTela}.txt
-echo +++ |tee -a $dirExp/${arqTela}.txt
-comandoRUN="(export OMP_NUM_THREADS=1;time mpirun -np 2 ${dirBin}/${nomeExecutavel}  |tee -a ${arqTela}.txt)";
-comandoRUN="(export OMP_NUM_THREADS=$numThreads; cd $dirExp ; time ${dirBin}/${nomeExecutavel}   |tee -a ${arqTela}.txt)";
-echo $comando |tee -a $dirExp/${arqTela}.txt
+#LIBPARDISO=""
+#LIBPARDISO=MKL; sufixoExec="${sufixoExec}${LIBPARDISO}"
+#PARDISO_DIR="/usr/local/lib/pardiso5.0"
+#HYPRE_DIR="/usr/local/hypre-2.10.1/"
+#export PARDISO_LIC_PATH=$PARDISO_DIR
+#export  LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PARDISO_DIR
+#PARDISOLNK="-L${PARDISO_DIR} -lpardiso500-MPI-INTEL1301-X86-64 -lblas -llapack -fopenmp -lpthread -lm" 
+#PARDISOLNK="-mkl"; 
+#comando="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${PARDISO_DIR}:${HYPRE_DIR}";echo $comando; eval $comando
+
+echo +++ |tee $expDir/${arqTela}.txt
+
+echo +++ |tee -a $expDir/${arqTela}.txt 
+date     |tee -a $expDir/${arqTela}.txt 
+echo +++ |tee -a $expDir/${arqTela}.txt 
+echo +++  RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS: |tee -a $expDir/${arqTela}.txt
+echo +++ |tee -a $expDir/${arqTela}.txt 
+echo +++  maquina:    $maquina                  |tee -a $expDir/${arqTela}.txt
+echo +++  compilador: $FC                       |tee -a $expDir/${arqTela}.txt
+echo +++  solver:     $solver                   |tee -a $expDir/${arqTela}.txt
+echo +++  executavel: ${binDir}/$nomeExecutavel |tee -a $expDir/${arqTela}.txt
+echo +++  diretorio:  ${expDir}                 |tee -a $expDir/${arqTela}.txt
+
+echo +++ |tee -a $expDir/${arqTela}.txt
+echo +++ |tee -a $expDir/${arqTela}.txt
+echo +++ |tee -a $expDir/${arqTela}.txt
+
+echo $comandoRUN |tee -a $expDir/${arqTela}.txt
 formato="\"\t%E real,\t%U user,\t%S sys\" "
 #echo $formato
 #time -f $formato eval $comando 2> tempoMedido.txt
 dataInicio=$(date)
   start_time="$(date -u +%s)"
-eval $comandoRUN 2> tempoMedido.txt
+    eval $comandoRUN 2> tempoMedido.txt
   end_time="$(date -u +%s)"
   elapsed=$((end_time-start_time))
 dataFinal=$(date)
-echo " +++ inicio da simulacao: $dataInicio" |tee -a $dirExp/${arqTela}.txt
-echo " +++ fim .. da simulacao: $dataFinal " |tee -a $dirExp/${arqTela}.txt
+echo " +++ inicio da simulacao: $dataInicio" |tee -a $expDir/${arqTela}.txt
+echo " +++ fim .. da simulacao: $dataFinal " |tee -a $expDir/${arqTela}.txt
 echo "Total of $elapsed seconds elapsed"
-
-cat tempoMedido.txt                          |tee -a $dirExp/${arqTela}.txt; 
+cat tempoMedido.txt                          |tee -a $expDir/${arqTela}.txt; 
 rm tempoMedido.txt
 

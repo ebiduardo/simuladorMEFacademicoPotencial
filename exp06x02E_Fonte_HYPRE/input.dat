@@ -120,7 +120,6 @@ valores_cond_contorno_potencial{
 }
 *estacionario{
 .TRUE.
-.true.
 }
 *numPassos{
 20

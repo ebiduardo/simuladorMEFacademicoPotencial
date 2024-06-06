@@ -400,8 +400,8 @@ end subroutine montarLmStencilNodal_CSR     !
       do l=2, neq+1
             nonzeros=nonzeros+(Ap(l)-Ap(l-1))
       end do
-      write(*,*) "neq, nonZeros, numCoefPorLinha, nonZeros/neq"
-      write(*,*) neq, nonZeros, numCoefPorLinha, nonZeros/neq
+      !write(*,*) "neq, nonZeros, numCoefPorLinha, nonZeros/neq"
+      !write(*,*) neq, nonZeros, numCoefPorLinha, nonZeros/neq
     end subroutine montarPonteiroAp_CSR
       !
       !**** new *************************************************************

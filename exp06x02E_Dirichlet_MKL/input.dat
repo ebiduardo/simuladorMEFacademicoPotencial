@@ -5,9 +5,11 @@ GaussSkyline
 PardisoEsparso
 HYPREEsparso
 *solver_pressao{
+PardisoEsparso
 GaussSkyline
 }
 *solver_fluxo{
+PardisoEsparso
 GaussSkyline
 }
 
@@ -84,10 +86,9 @@ YES
 *grav{
        0.0       0.0       0.0
 }
-
 *estacionario{
 .TRUE.
-.TRUE.
+.false.
 }
 *numPassos{
 20

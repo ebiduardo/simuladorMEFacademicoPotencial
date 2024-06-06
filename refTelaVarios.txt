@@ -1,0 +1,864 @@
+	linux-vdso.so.1 (0x00007ffde9ceb000)
+	libmkl_intel_lp64.so.2 => /opt/intel/oneapi/mkl/2023.2.0/lib/intel64/libmkl_intel_lp64.so.2 (0x00007fc0c41a1000)
+	libmkl_intel_thread.so.2 => /opt/intel/oneapi/mkl/2023.2.0/lib/intel64/libmkl_intel_thread.so.2 (0x00007fc0c0b75000)
+	libmkl_core.so.2 => /opt/intel/oneapi/mkl/2023.2.0/lib/intel64/libmkl_core.so.2 (0x00007fc0bc7fd000)
+	libiomp5.so => /opt/intel/oneapi/compiler/2022.1.0/linux/compiler/lib/intel64_lin/libiomp5.so (0x00007fc0bc3c4000)
+	libmpifort.so.12 => /opt/intel/oneapi/mpi/2021.10.0/lib/libmpifort.so.12 (0x00007fc0bc012000)
+	libmpi.so.12 => /opt/intel/oneapi/mpi/2021.10.0/lib/release/libmpi.so.12 (0x00007fc0ba53f000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007fc0ba510000)
+	librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007fc0ba506000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007fc0ba4e3000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fc0ba394000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fc0ba1a2000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007fc0c569f000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fc0ba17b000)
+	libiomp5.so => /opt/intel/oneapi/compiler/2022.1.0/linux/compiler/lib/intel64_lin/libiomp5.so (0x00007fc0bc3c4000)
+	libmpifort.so.12 => /opt/intel/oneapi/mpi/2021.10.0/lib/libmpifort.so.12 (0x00007fc0bc012000)
+	libmpi.so.12 => /opt/intel/oneapi/mpi/2021.10.0/lib/release/libmpi.so.12 (0x00007fc0ba53f000)
+	libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007fc0ba510000)
+	librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007fc0ba506000)
+	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007fc0ba4e3000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fc0ba394000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fc0ba1a2000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007fc0c569f000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fc0ba17b000)
+-----TRANSIENTE-------------- exp06x02F_Dirichlet_Gauss
+(export OMP_NUM_THREADS=1; cd exp06x02F_Dirichlet_Gauss ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
++++
++++
+Thu Jun  6 18:39:52 -03 2024
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina:
++++ compilador:
++++ solver:
++++ executavel: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe
++++ diretorio: exp06x02F_Dirichlet_Gauss
++++
++++
++++
+(export OMP_NUM_THREADS=1; cd exp06x02F_Dirichlet_Gauss ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
+       call abrirArquivos  ()
+  +++input.dat           
+  call preprocessador ()
+ Solvers disponiveis:
+                       SKYLINE
+                       PARDISO
+                       HYPRE
+      number of equations . . . . . . . . . . . . (neq    ) =       21
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          137
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          527
+
+em solver, GaussSkyline, potencial
+ valores nos extremos do vetor solucao completo,   potencial    1     5.000
+  0.22000000E+01  0.13796266E+01  0.84469325E+00  0.48452400E+00  0.22460109E+00  0.11147368E-01 -0.20000000E+00
+  0.22000000E+01  0.13796266E+01  0.84469325E+00  0.48452400E+00  0.22460109E+00  0.11147368E-01 -0.20000000E+00
+  0.22000000E+01  0.13796266E+01  0.84469325E+00  0.48452400E+00  0.22460109E+00  0.11147368E-01 -0.20000000E+00
+Euclid norms of computed solution:  0.48318350E+01
+em solver, GaussSkyline, fluxo
+ valores nos extremos do vetor solucao completo,       fluxo    1     5.000
+  0.8067E+00 -0.1006E+00  0.6578E+00 -0.1340E+00  0.4625E+00 -0.1379E+00
+  0.2410E+00  0.3549E-01  0.2138E+00  0.8845E-02  0.2092E+00  0.7401E-03
+Euclid norms of computed solution:  0.21785446E+01
+em solver, GaussSkyline, potencial
+em solver, GaussSkyline, potencial
+ valores nos extremos do vetor solucao completo,   potencial   20   100.000
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999998E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999998E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999998E+00 -0.20000000E+00
+Euclid norms of computed solution:  0.58685602E+01
+em solver, GaussSkyline, fluxo
+ valores nos extremos do vetor solucao completo,       fluxo   20   100.000
+  0.4000E+00 -0.1555E-08  0.4000E+00 -0.2927E-08  0.4000E+00 -0.5181E-08
+  0.4000E+00  0.5181E-08  0.4000E+00  0.2927E-08  0.4000E+00  0.1555E-08
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:39:52 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:39:52 -03 2024 
+Total of 0 seconds elapsed
+
+real	0m0.183s
+      number of equations . . . . . . . . . . . . (neq    ) =       21
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          137
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          527
+
+em solver, GaussSkyline, potencial
+ valores nos extremos do vetor solucao completo,   potencial    1, estacionario
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+Euclid norms of computed solution:  0.58685603E+01
+em solver, GaussSkyline, fluxo
+ valores nos extremos do vetor solucao completo,       fluxo    1, estacionario
+  0.4000E+00  0.5412E-15  0.4000E+00  0.5412E-15  0.4000E+00  0.2637E-15
+  0.4000E+00  0.2776E-15  0.4000E+00 -0.5551E-16  0.4000E+00 -0.3154E-15
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:39:53 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:39:53 -03 2024 
+Total of 0 seconds elapsed
+
+real	0m0.182s
+-----TRANSIENTE-------------- exp06x02E_Dirichlet_Gauss
+(export OMP_NUM_THREADS=1; cd exp06x02E_Dirichlet_Gauss ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
++++
++++
+Thu Jun  6 18:39:53 -03 2024
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina:
++++ compilador:
++++ solver:
++++ executavel: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe
++++ diretorio: exp06x02E_Dirichlet_Gauss
++++
++++
++++
+(export OMP_NUM_THREADS=1; cd exp06x02E_Dirichlet_Gauss ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
+       call abrirArquivos  ()
+  +++input.dat           
+  call preprocessador ()
+ Solvers disponiveis:
+                       SKYLINE
+                       PARDISO
+                       HYPRE
+      number of equations . . . . . . . . . . . . (neq    ) =       15
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =           77
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          527
+
+em solver, GaussSkyline, potencial
+ valores nos extremos do vetor solucao completo,   potencial    1     5.000
+  0.22000000E+01  0.13796266E+01  0.84469325E+00  0.48452400E+00  0.22460109E+00  0.11147368E-01 -0.20000000E+00
+  0.22000000E+01  0.13796266E+01  0.84469325E+00  0.48452400E+00  0.22460109E+00  0.11147368E-01 -0.20000000E+00
+  0.22000000E+01  0.13796266E+01  0.84469325E+00  0.48452400E+00  0.22460109E+00  0.11147368E-01 -0.20000000E+00
+Euclid norms of computed solution:  0.48318350E+01
+em solver, GaussSkyline, fluxo
+ valores nos extremos do vetor solucao completo,       fluxo    1     5.000
+  0.8067E+00 -0.1006E+00  0.6578E+00 -0.1340E+00  0.4625E+00 -0.1379E+00
+  0.2410E+00  0.3549E-01  0.2138E+00  0.8845E-02  0.2092E+00  0.7401E-03
+Euclid norms of computed solution:  0.21785446E+01
+em solver, GaussSkyline, potencial
+em solver, GaussSkyline, potencial
+ valores nos extremos do vetor solucao completo,   potencial   20   100.000
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999998E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999998E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999998E+00 -0.20000000E+00
+Euclid norms of computed solution:  0.58685602E+01
+em solver, GaussSkyline, fluxo
+ valores nos extremos do vetor solucao completo,       fluxo   20   100.000
+  0.4000E+00 -0.1555E-08  0.4000E+00 -0.2927E-08  0.4000E+00 -0.5181E-08
+  0.4000E+00  0.5181E-08  0.4000E+00  0.2927E-08  0.4000E+00  0.1555E-08
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:39:53 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:39:53 -03 2024 
+Total of 0 seconds elapsed
+
+real	0m0.179s
+      number of equations . . . . . . . . . . . . (neq    ) =       15
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =           77
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          527
+
+em solver, GaussSkyline, potencial
+ valores nos extremos do vetor solucao completo,   potencial    1, estacionario
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+Euclid norms of computed solution:  0.58685603E+01
+em solver, GaussSkyline, fluxo
+ valores nos extremos do vetor solucao completo,       fluxo    1, estacionario
+  0.4000E+00  0.3747E-15  0.4000E+00  0.5551E-15  0.4000E+00  0.4302E-15
+  0.4000E+00  0.2220E-15  0.4000E+00  0.2776E-16  0.4000E+00 -0.2841E-15
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:39:54 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:39:54 -03 2024 
+Total of 0 seconds elapsed
+
+real	0m0.235s
+-----TRANSIENTE-------------- exp06x02F_Fonte_Gauss
+(export OMP_NUM_THREADS=1; cd exp06x02F_Fonte_Gauss ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
++++
++++
+Thu Jun  6 18:39:54 -03 2024
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina:
++++ compilador:
++++ solver:
++++ executavel: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe
++++ diretorio: exp06x02F_Fonte_Gauss
++++
++++
++++
+(export OMP_NUM_THREADS=1; cd exp06x02F_Fonte_Gauss ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
+       call abrirArquivos  ()
+  +++input.dat           
+  call preprocessador ()
+ Solvers disponiveis:
+                       SKYLINE
+                       PARDISO
+                       HYPRE
+      number of equations . . . . . . . . . . . . (neq    ) =       21
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          137
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          527
+
+em solver, GaussSkyline, potencial
+ valores nos extremos do vetor solucao completo,   potencial    1     5.000
+  0.12605094E+01  0.97711380E+00  0.89587969E+00  0.10000000E+01  0.49489431E+00  0.92180547E-01 -0.29146138E+00
+  0.12605094E+01  0.97711380E+00  0.89587969E+00  0.10000000E+01  0.49489431E+00  0.92180547E-01 -0.29146138E+00
+  0.12605094E+01  0.97711380E+00  0.89587969E+00  0.10000000E+01  0.49489431E+00  0.92180547E-01 -0.29146138E+00
+Euclid norms of computed solution:  0.37488410E+01
+em solver, GaussSkyline, fluxo
+ valores nos extremos do vetor solucao completo,       fluxo    1     5.000
+  0.2713E+00 -0.8096E-01  0.1532E+00 -0.1039E+00  0.5636E-01  0.1265E-01
+  0.3986E+00 -0.7888E-01  0.4104E+00  0.2294E-01  0.3856E+00  0.1640E-01
+Euclid norms of computed solution:  0.14004840E+01
+em solver, GaussSkyline, potencial
+em solver, GaussSkyline, potencial
+ valores nos extremos do vetor solucao completo,   potencial   20   100.000
+  0.21999999E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.19999999E+00 -0.20000001E+00
+  0.21999999E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.19999999E+00 -0.20000001E+00
+  0.21999999E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.19999999E+00 -0.20000001E+00
+Euclid norms of computed solution:  0.58685602E+01
+em solver, GaussSkyline, fluxo
+ valores nos extremos do vetor solucao completo,       fluxo   20   100.000
+  0.4000E+00 -0.4992E-08  0.4000E+00 -0.5867E-08  0.4000E+00  0.1016E-08
+  0.4000E+00 -0.5606E-08  0.4000E+00  0.5947E-09  0.4000E+00  0.9719E-09
+Euclid norms of computed solution:  0.18330302E+01
+ +++ inicio da simulacao: Thu Jun  6 18:39:54 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:39:54 -03 2024 
+Total of 0 seconds elapsed
+
+real	0m0.225s
+      number of equations . . . . . . . . . . . . (neq    ) =       21
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          137
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          527
+
+em solver, GaussSkyline, potencial
+ valores nos extremos do vetor solucao completo,   potencial    1, estacionario
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+Euclid norms of computed solution:  0.58685603E+01
+em solver, GaussSkyline, fluxo
+ valores nos extremos do vetor solucao completo,       fluxo    1, estacionario
+  0.4000E+00  0.3053E-15  0.4000E+00  0.3886E-15  0.4000E+00  0.5551E-16
+  0.4000E+00  0.4163E-15  0.4000E+00  0.0000E+00  0.4000E+00 -0.1570E-15
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:39:55 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:39:55 -03 2024 
+Total of 0 seconds elapsed
+
+real	0m0.182s
+-----TRANSIENTE-------------- exp06x02E_Fonte_Gauss
+(export OMP_NUM_THREADS=1; cd exp06x02E_Fonte_Gauss ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
++++
++++
+Thu Jun  6 18:39:55 -03 2024
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina:
++++ compilador:
++++ solver:
++++ executavel: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe
++++ diretorio: exp06x02E_Fonte_Gauss
++++
++++
++++
+(export OMP_NUM_THREADS=1; cd exp06x02E_Fonte_Gauss ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
+       call abrirArquivos  ()
+  +++input.dat           
+  call preprocessador ()
+ Solvers disponiveis:
+                       SKYLINE
+                       PARDISO
+                       HYPRE
+      number of equations . . . . . . . . . . . . (neq    ) =       18
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          102
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          527
+
+em solver, GaussSkyline, potencial
+ valores nos extremos do vetor solucao completo,   potencial    1     5.000
+  0.12605094E+01  0.97711380E+00  0.89587969E+00  0.10000000E+01  0.49489431E+00  0.92180547E-01 -0.29146138E+00
+  0.12605094E+01  0.97711380E+00  0.89587969E+00  0.10000000E+01  0.49489431E+00  0.92180547E-01 -0.29146138E+00
+  0.12605094E+01  0.97711380E+00  0.89587969E+00  0.10000000E+01  0.49489431E+00  0.92180547E-01 -0.29146138E+00
+Euclid norms of computed solution:  0.37488410E+01
+em solver, GaussSkyline, fluxo
+ valores nos extremos do vetor solucao completo,       fluxo    1     5.000
+  0.2713E+00 -0.8096E-01  0.1532E+00 -0.1039E+00  0.5636E-01  0.1265E-01
+  0.3986E+00 -0.7888E-01  0.4104E+00  0.2294E-01  0.3856E+00  0.1640E-01
+Euclid norms of computed solution:  0.14004840E+01
+em solver, GaussSkyline, potencial
+em solver, GaussSkyline, potencial
+ valores nos extremos do vetor solucao completo,   potencial   20   100.000
+  0.21999999E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.19999999E+00 -0.20000001E+00
+  0.21999999E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.19999999E+00 -0.20000001E+00
+  0.21999999E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.19999999E+00 -0.20000001E+00
+Euclid norms of computed solution:  0.58685602E+01
+em solver, GaussSkyline, fluxo
+ valores nos extremos do vetor solucao completo,       fluxo   20   100.000
+  0.4000E+00 -0.4992E-08  0.4000E+00 -0.5867E-08  0.4000E+00  0.1016E-08
+  0.4000E+00 -0.5606E-08  0.4000E+00  0.5947E-09  0.4000E+00  0.9719E-09
+Euclid norms of computed solution:  0.18330302E+01
+ +++ inicio da simulacao: Thu Jun  6 18:39:55 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:39:55 -03 2024 
+Total of 0 seconds elapsed
+
+real	0m0.222s
+      number of equations . . . . . . . . . . . . (neq    ) =       18
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          102
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          527
+
+em solver, GaussSkyline, potencial
+ valores nos extremos do vetor solucao completo,   potencial    1, estacionario
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+Euclid norms of computed solution:  0.58685603E+01
+em solver, GaussSkyline, fluxo
+ valores nos extremos do vetor solucao completo,       fluxo    1, estacionario
+  0.4000E+00  0.0000E+00  0.4000E+00  0.2220E-15  0.4000E+00  0.6939E-16
+  0.4000E+00  0.3747E-15  0.4000E+00  0.1388E-16  0.4000E+00 -0.1442E-15
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:39:56 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:39:56 -03 2024 
+Total of 0 seconds elapsed
+
+real	0m0.178s
+-----TRANSIENTE-------------- exp06x02F_Dirichlet_HYPRE
+(export OMP_NUM_THREADS=1; cd exp06x02F_Dirichlet_HYPRE ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
++++
++++
+Thu Jun  6 18:39:56 -03 2024
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina:
++++ compilador:
++++ solver:
++++ executavel: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe
++++ diretorio: exp06x02F_Dirichlet_HYPRE
++++
++++
++++
+(export OMP_NUM_THREADS=1; cd exp06x02F_Dirichlet_HYPRE ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
+       call abrirArquivos  ()
+  +++input.dat           
+  call preprocessador ()
+ Solvers disponiveis:
+                       SKYLINE
+                       PARDISO
+                       HYPRE
+      number of equations . . . . . . . . . . . . (neq    ) =       21
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+         PCG with AMG, num it =     5 , residual norm =   0.32091E-08
+ valores nos extremos do vetor solucao completo,   potencial    1     5.000
+  0.22000000E+01  0.13796266E+01  0.84469326E+00  0.48452400E+00  0.22460109E+00  0.11147370E-01 -0.20000000E+00
+  0.22000000E+01  0.13796266E+01  0.84469326E+00  0.48452400E+00  0.22460109E+00  0.11147371E-01 -0.20000000E+00
+  0.22000000E+01  0.13796266E+01  0.84469325E+00  0.48452400E+00  0.22460109E+00  0.11147370E-01 -0.20000000E+00
+Euclid norms of computed solution:  0.48318350E+01
+         PCG with AMG, num it =    13 , residual norm =   0.74003E-09
+ valores nos extremos do vetor solucao completo,       fluxo    1     5.000
+  0.8067E+00 -0.1006E+00  0.6578E+00 -0.1340E+00  0.4625E+00 -0.1379E+00
+  0.2410E+00  0.3549E-01  0.2138E+00  0.8845E-02  0.2092E+00  0.7401E-03
+Euclid norms of computed solution:  0.21785446E+01
+         PCG with AMG, num it =     5 , residual norm =   0.29232E-08
+         PCG with AMG, num it =     5 , residual norm =   0.24245E-08
+ valores nos extremos do vetor solucao completo,   potencial   20   100.000
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999999E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999999E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999999E+00 -0.20000000E+00
+Euclid norms of computed solution:  0.58685602E+01
+         PCG with AMG, num it =     3 , residual norm =   0.21479E-08
+ valores nos extremos do vetor solucao completo,       fluxo   20   100.000
+  0.4000E+00 -0.1061E-08  0.4000E+00 -0.2221E-08  0.4000E+00 -0.3402E-08
+  0.4000E+00  0.4903E-08  0.4000E+00  0.1789E-08  0.4000E+00  0.8532E-10
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:39:56 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:39:57 -03 2024 
+Total of 1 seconds elapsed
+
+real	0m0.804s
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+em solver, HYPREEsparso, potencial
+         PCG with AMG, num it =     5 , residual norm =   0.84700E-08
+ valores nos extremos do vetor solucao completo,   potencial    1, estacionario
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000001E+00  0.20000001E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000001E+00  0.20000001E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999999E+00  0.60000000E+00  0.20000001E+00 -0.20000000E+00
+Euclid norms of computed solution:  0.58685603E+01
+em solver, HYPREEsparso, fluxo
+         PCG with AMG, num it =     3 , residual norm =   0.70685E-08
+ valores nos extremos do vetor solucao completo,       fluxo    1, estacionario
+  0.4000E+00  0.2284E-08  0.4000E+00  0.3105E-08  0.4000E+00  0.8757E-08
+  0.4000E+00  0.1736E-08  0.4000E+00 -0.4619E-08  0.4000E+00 -0.5166E-08
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:39:57 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:39:58 -03 2024 
+Total of 1 seconds elapsed
+
+real	0m0.746s
+-----TRANSIENTE-------------- exp06x02E_Dirichlet_HYPRE
+(export OMP_NUM_THREADS=1; cd exp06x02E_Dirichlet_HYPRE ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
++++
++++
+Thu Jun  6 18:39:58 -03 2024
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina:
++++ compilador:
++++ solver:
++++ executavel: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe
++++ diretorio: exp06x02E_Dirichlet_HYPRE
++++
++++
++++
+(export OMP_NUM_THREADS=1; cd exp06x02E_Dirichlet_HYPRE ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
+       call abrirArquivos  ()
+  +++input.dat           
+  call preprocessador ()
+ Solvers disponiveis:
+                       SKYLINE
+                       PARDISO
+                       HYPRE
+      number of equations . . . . . . . . . . . . (neq    ) =       15
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+         PCG with AMG, num it =     5 , residual norm =   0.34478E-08
+ valores nos extremos do vetor solucao completo,   potencial    1     5.000
+  0.22000000E+01  0.13796266E+01  0.84469326E+00  0.48452400E+00  0.22460109E+00  0.11147370E-01 -0.20000000E+00
+  0.22000000E+01  0.13796266E+01  0.84469326E+00  0.48452400E+00  0.22460109E+00  0.11147371E-01 -0.20000000E+00
+  0.22000000E+01  0.13796266E+01  0.84469325E+00  0.48452400E+00  0.22460109E+00  0.11147370E-01 -0.20000000E+00
+Euclid norms of computed solution:  0.48318350E+01
+         PCG with AMG, num it =    13 , residual norm =   0.74005E-09
+ valores nos extremos do vetor solucao completo,       fluxo    1     5.000
+  0.8067E+00 -0.1006E+00  0.6578E+00 -0.1340E+00  0.4625E+00 -0.1379E+00
+  0.2410E+00  0.3549E-01  0.2138E+00  0.8845E-02  0.2092E+00  0.7401E-03
+Euclid norms of computed solution:  0.21785446E+01
+         PCG with AMG, num it =     5 , residual norm =   0.30922E-08
+         PCG with AMG, num it =     5 , residual norm =   0.25530E-08
+ valores nos extremos do vetor solucao completo,   potencial   20   100.000
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999999E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999999E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999999E+00 -0.20000000E+00
+Euclid norms of computed solution:  0.58685602E+01
+         PCG with AMG, num it =     3 , residual norm =   0.22581E-08
+ valores nos extremos do vetor solucao completo,       fluxo   20   100.000
+  0.4000E+00 -0.1671E-08  0.4000E+00 -0.2875E-08  0.4000E+00 -0.3566E-08
+  0.4000E+00  0.4866E-08  0.4000E+00  0.1757E-08  0.4000E+00  0.5529E-10
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:39:58 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:39:59 -03 2024 
+Total of 1 seconds elapsed
+
+real	0m0.775s
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+em solver, HYPREEsparso, potencial
+         PCG with AMG, num it =     6 , residual norm =   0.95026E-10
+ valores nos extremos do vetor solucao completo,   potencial    1, estacionario
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+Euclid norms of computed solution:  0.58685603E+01
+em solver, HYPREEsparso, fluxo
+         PCG with AMG, num it =     2 , residual norm =   0.15863E-09
+ valores nos extremos do vetor solucao completo,       fluxo    1, estacionario
+  0.4000E+00  0.8604E-11  0.4000E+00  0.1508E-10  0.4000E+00 -0.5980E-11
+  0.4000E+00 -0.3500E-10  0.4000E+00 -0.4839E-10  0.4000E+00 -0.2080E-10
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:40:00 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:40:00 -03 2024 
+Total of 0 seconds elapsed
+
+real	0m0.715s
+-----TRANSIENTE-------------- exp06x02F_Fonte_HYPRE
+(export OMP_NUM_THREADS=1; cd exp06x02F_Fonte_HYPRE ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
++++
++++
+Thu Jun  6 18:40:00 -03 2024
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina:
++++ compilador:
++++ solver:
++++ executavel: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe
++++ diretorio: exp06x02F_Fonte_HYPRE
++++
++++
++++
+(export OMP_NUM_THREADS=1; cd exp06x02F_Fonte_HYPRE ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
+       call abrirArquivos  ()
+  +++input.dat           
+  call preprocessador ()
+ Solvers disponiveis:
+                       SKYLINE
+                       PARDISO
+                       HYPRE
+      number of equations . . . . . . . . . . . . (neq    ) =       21
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+         PCG with AMG, num it =     5 , residual norm =   0.81776E-08
+ valores nos extremos do vetor solucao completo,   potencial    1     5.000
+  0.12605094E+01  0.97711379E+00  0.89587969E+00  0.10000000E+01  0.49489431E+00  0.92180556E-01 -0.29146137E+00
+  0.12605094E+01  0.97711379E+00  0.89587969E+00  0.10000000E+01  0.49489432E+00  0.92180555E-01 -0.29146137E+00
+  0.12605094E+01  0.97711379E+00  0.89587969E+00  0.10000000E+01  0.49489432E+00  0.92180562E-01 -0.29146137E+00
+Euclid norms of computed solution:  0.37488410E+01
+         PCG with AMG, num it =    13 , residual norm =   0.61605E-08
+ valores nos extremos do vetor solucao completo,       fluxo    1     5.000
+  0.2713E+00 -0.8096E-01  0.1532E+00 -0.1039E+00  0.5636E-01  0.1265E-01
+  0.3986E+00 -0.7888E-01  0.4104E+00  0.2294E-01  0.3856E+00  0.1640E-01
+Euclid norms of computed solution:  0.14004840E+01
+         PCG with AMG, num it =     5 , residual norm =   0.72164E-09
+         PCG with AMG, num it =     5 , residual norm =   0.66366E-08
+ valores nos extremos do vetor solucao completo,   potencial   20   100.000
+  0.21999999E+01  0.17999999E+01  0.14000000E+01  0.10000000E+01  0.59999999E+00  0.19999999E+00 -0.20000002E+00
+  0.21999999E+01  0.17999999E+01  0.14000000E+01  0.10000000E+01  0.59999999E+00  0.19999998E+00 -0.20000003E+00
+  0.21999999E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.59999999E+00  0.19999998E+00 -0.20000003E+00
+Euclid norms of computed solution:  0.58685602E+01
+         PCG with AMG, num it =     3 , residual norm =   0.55574E-08
+ valores nos extremos do vetor solucao completo,       fluxo   20   100.000
+  0.4000E+00 -0.5216E-08  0.4000E+00 -0.5014E-08  0.4000E+00  0.3238E-09
+  0.4000E+00 -0.4542E-08  0.4000E+00  0.1683E-08  0.4000E+00  0.4589E-08
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:40:01 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:40:01 -03 2024 
+Total of 0 seconds elapsed
+
+real	0m0.776s
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+em solver, HYPREEsparso, potencial
+         PCG with AMG, num it =     5 , residual norm =   0.76225E-09
+ valores nos extremos do vetor solucao completo,   potencial    1, estacionario
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+Euclid norms of computed solution:  0.58685603E+01
+em solver, HYPREEsparso, fluxo
+         PCG with AMG, num it =     2 , residual norm =   0.19204E-08
+ valores nos extremos do vetor solucao completo,       fluxo    1, estacionario
+  0.4000E+00 -0.1488E-10  0.4000E+00  0.3479E-10  0.4000E+00  0.8831E-10
+  0.4000E+00  0.1194E-08  0.4000E+00  0.2064E-08  0.4000E+00  0.2154E-08
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:40:02 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:40:03 -03 2024 
+Total of 1 seconds elapsed
+
+real	0m0.745s
+-----TRANSIENTE-------------- exp06x02E_Fonte_HYPRE
+(export OMP_NUM_THREADS=1; cd exp06x02E_Fonte_HYPRE ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
++++
++++
+Thu Jun  6 18:40:03 -03 2024
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina:
++++ compilador:
++++ solver:
++++ executavel: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe
++++ diretorio: exp06x02E_Fonte_HYPRE
++++
++++
++++
+(export OMP_NUM_THREADS=1; cd exp06x02E_Fonte_HYPRE ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
+       call abrirArquivos  ()
+  +++input.dat           
+  call preprocessador ()
+ Solvers disponiveis:
+                       SKYLINE
+                       PARDISO
+                       HYPRE
+      number of equations . . . . . . . . . . . . (neq    ) =       18
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+         PCG with AMG, num it =     5 , residual norm =   0.92015E-08
+ valores nos extremos do vetor solucao completo,   potencial    1     5.000
+  0.12605094E+01  0.97711379E+00  0.89587969E+00  0.10000000E+01  0.49489431E+00  0.92180555E-01 -0.29146137E+00
+  0.12605094E+01  0.97711379E+00  0.89587969E+00  0.10000000E+01  0.49489431E+00  0.92180553E-01 -0.29146137E+00
+  0.12605094E+01  0.97711379E+00  0.89587969E+00  0.10000000E+01  0.49489432E+00  0.92180560E-01 -0.29146137E+00
+Euclid norms of computed solution:  0.37488410E+01
+         PCG with AMG, num it =    13 , residual norm =   0.61608E-08
+ valores nos extremos do vetor solucao completo,       fluxo    1     5.000
+  0.2713E+00 -0.8096E-01  0.1532E+00 -0.1039E+00  0.5636E-01  0.1265E-01
+  0.3986E+00 -0.7888E-01  0.4104E+00  0.2294E-01  0.3856E+00  0.1640E-01
+Euclid norms of computed solution:  0.14004840E+01
+         PCG with AMG, num it =     5 , residual norm =   0.77547E-09
+         PCG with AMG, num it =     5 , residual norm =   0.71591E-08
+ valores nos extremos do vetor solucao completo,   potencial   20   100.000
+  0.21999999E+01  0.17999999E+01  0.14000000E+01  0.10000000E+01  0.59999999E+00  0.19999999E+00 -0.20000002E+00
+  0.21999999E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.59999999E+00  0.19999999E+00 -0.20000002E+00
+  0.21999999E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.59999999E+00  0.19999998E+00 -0.20000003E+00
+Euclid norms of computed solution:  0.58685602E+01
+         PCG with AMG, num it =     3 , residual norm =   0.54889E-08
+ valores nos extremos do vetor solucao completo,       fluxo   20   100.000
+  0.4000E+00 -0.7096E-08  0.4000E+00 -0.6483E-08  0.4000E+00 -0.1244E-09
+  0.4000E+00 -0.4487E-08  0.4000E+00  0.1256E-08  0.4000E+00  0.3652E-08
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:40:03 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:40:04 -03 2024 
+Total of 1 seconds elapsed
+
+real	0m0.705s
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =            0
+
+em solver, HYPREEsparso, potencial
+         PCG with AMG, num it =     5 , residual norm =   0.20978E-08
+ valores nos extremos do vetor solucao completo,   potencial    1, estacionario
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+Euclid norms of computed solution:  0.58685603E+01
+em solver, HYPREEsparso, fluxo
+         PCG with AMG, num it =     2 , residual norm =   0.18377E-08
+ valores nos extremos do vetor solucao completo,       fluxo    1, estacionario
+  0.4000E+00 -0.1652E-09  0.4000E+00 -0.6623E-10  0.4000E+00  0.4764E-11
+  0.4000E+00  0.1156E-08  0.4000E+00  0.2027E-08  0.4000E+00  0.2155E-08
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:40:04 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:40:05 -03 2024 
+Total of 1 seconds elapsed
+
+real	0m0.765s
+-----TRANSIENTE-------------- exp06x02F_Dirichlet_MKL
+(export OMP_NUM_THREADS=1; cd exp06x02F_Dirichlet_MKL ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
++++
++++
+Thu Jun  6 18:40:05 -03 2024
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina:
++++ compilador:
++++ solver:
++++ executavel: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe
++++ diretorio: exp06x02F_Dirichlet_MKL
++++
++++
++++
+(export OMP_NUM_THREADS=1; cd exp06x02F_Dirichlet_MKL ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
+       call abrirArquivos  ()
+  +++input.dat           
+  call preprocessador ()
+ Solvers disponiveis:
+                       SKYLINE
+                       PARDISO
+                       HYPRE
+  simetria = T , numCoefPorLinha=           5
+
+      number of equations . . . . . . . . . . . . (neq    ) =       21
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =           77
+
+  simetria = T , numCoefPorLinha=          10
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          287
+
+ em pardiso G com, numThreads           1
+ valores nos extremos do vetor solucao completo,   potencial    1     5.000
+  0.22000000E+01  0.13796266E+01  0.84469325E+00  0.48452400E+00  0.22460109E+00  0.11147368E-01 -0.20000000E+00
+  0.22000000E+01  0.13796266E+01  0.84469325E+00  0.48452400E+00  0.22460109E+00  0.11147368E-01 -0.20000000E+00
+  0.22000000E+01  0.13796266E+01  0.84469325E+00  0.48452400E+00  0.22460109E+00  0.11147368E-01 -0.20000000E+00
+Euclid norms of computed solution:  0.48318350E+01
+ em pardiso G com, numThreads           1
+ valores nos extremos do vetor solucao completo,       fluxo    1     5.000
+ em pardiso G com, numThreads           1
+ valores nos extremos do vetor solucao completo,   potencial   20   100.000
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999998E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999998E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999998E+00 -0.20000000E+00
+Euclid norms of computed solution:  0.58685602E+01
+ em pardiso G com, numThreads           1
+ valores nos extremos do vetor solucao completo,       fluxo   20   100.000
+  0.4000E+00 -0.1555E-08  0.4000E+00 -0.2927E-08  0.4000E+00 -0.5181E-08
+  0.4000E+00  0.5181E-08  0.4000E+00  0.2927E-08  0.4000E+00  0.1555E-08
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:40:05 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:40:05 -03 2024 
+Total of 0 seconds elapsed
+
+real	0m0.203s
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          287
+
+em solver, PardisoEsparso, potencial
+ em pardiso G com, numThreads           1
+ Begining backsubstitution  ... 
+ valores nos extremos do vetor solucao completo,   potencial    1, estacionario
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+Euclid norms of computed solution:  0.58685603E+01
+em solver, PardisoEsparso, fluxo
+ em pardiso G com, numThreads           1
+ Begining backsubstitution  ... 
+ valores nos extremos do vetor solucao completo,       fluxo    1, estacionario
+  0.4000E+00 -0.8198E-16  0.4000E+00  0.4470E-15  0.4000E+00  0.2353E-15
+  0.4000E+00 -0.6033E-16  0.4000E+00  0.1302E-17  0.4000E+00 -0.3799E-15
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:40:06 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:40:06 -03 2024 
+Total of 0 seconds elapsed
+
+real	0m0.215s
+-----TRANSIENTE-------------- exp06x02E_Dirichlet_MKL
+(export OMP_NUM_THREADS=1; cd exp06x02E_Dirichlet_MKL ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
++++
++++
+Thu Jun  6 18:40:06 -03 2024
++++
++++ RODAR EXPERIMENTO COM AS SEGUINTES ESCOLHAS:
++++
++++ maquina:
++++ compilador:
++++ solver:
++++ executavel: /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe
++++ diretorio: exp06x02E_Dirichlet_MKL
++++
++++
++++
+(export OMP_NUM_THREADS=1; cd exp06x02E_Dirichlet_MKL ; time /mnt/c/Users/bidu/OneDrive/aLncc/simuladorMEFacademicoPotencial/bin/simuladorTransiente.exe |tee -a tela_simuladorTransiente_1Thr.txt)
+       call abrirArquivos  ()
+  +++input.dat           
+  call preprocessador ()
+ Solvers disponiveis:
+                       SKYLINE
+                       PARDISO
+                       HYPRE
+  simetria = T , numCoefPorLinha=           5
+
+      number of equations . . . . . . . . . . . . (neq    ) =       15
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =           53
+
+  simetria = T , numCoefPorLinha=          10
+
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          287
+
+ em pardiso G com, numThreads           1
+ valores nos extremos do vetor solucao completo,   potencial    1     5.000
+  0.22000000E+01  0.13796266E+01  0.84469325E+00  0.48452400E+00  0.22460109E+00  0.11147368E-01 -0.20000000E+00
+  0.22000000E+01  0.13796266E+01  0.84469325E+00  0.48452400E+00  0.22460109E+00  0.11147368E-01 -0.20000000E+00
+  0.22000000E+01  0.13796266E+01  0.84469325E+00  0.48452400E+00  0.22460109E+00  0.11147368E-01 -0.20000000E+00
+Euclid norms of computed solution:  0.48318350E+01
+ em pardiso G com, numThreads           1
+ valores nos extremos do vetor solucao completo,       fluxo    1     5.000
+ em pardiso G com, numThreads           1
+ valores nos extremos do vetor solucao completo,   potencial   20   100.000
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999998E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999998E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.99999997E+00  0.59999997E+00  0.19999998E+00 -0.20000000E+00
+Euclid norms of computed solution:  0.58685602E+01
+ em pardiso G com, numThreads           1
+ valores nos extremos do vetor solucao completo,       fluxo   20   100.000
+  0.4000E+00 -0.1555E-08  0.4000E+00 -0.2927E-08  0.4000E+00 -0.5181E-08
+  0.4000E+00  0.5181E-08  0.4000E+00  0.2927E-08  0.4000E+00  0.1555E-08
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:40:06 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:40:06 -03 2024 
+Total of 0 seconds elapsed
+
+real	0m0.192s
+      number of equations . . . . . . . . . . . . (neq    ) =       42
+
+      number of terms in left-hand-side matrix  . (nalhs  ) =          287
+
+em solver, PardisoEsparso, potencial
+ em pardiso G com, numThreads           1
+ Begining backsubstitution  ... 
+ valores nos extremos do vetor solucao completo,   potencial    1, estacionario
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+  0.22000000E+01  0.18000000E+01  0.14000000E+01  0.10000000E+01  0.60000000E+00  0.20000000E+00 -0.20000000E+00
+Euclid norms of computed solution:  0.58685603E+01
+em solver, PardisoEsparso, fluxo
+ em pardiso G com, numThreads           1
+ Begining backsubstitution  ... 
+ valores nos extremos do vetor solucao completo,       fluxo    1, estacionario
+  0.4000E+00 -0.4459E-16  0.4000E+00  0.3916E-15  0.4000E+00  0.1899E-15
+  0.4000E+00  0.3313E-16  0.4000E+00 -0.6444E-17  0.4000E+00 -0.3877E-15
+Euclid norms of computed solution:  0.18330303E+01
+ +++ inicio da simulacao: Thu Jun  6 18:40:07 -03 2024
+ +++ fim .. da simulacao: Thu Jun  6 18:40:07 -03 2024 
+Total of 0 seconds elapsed
+
+real	0m0.196s

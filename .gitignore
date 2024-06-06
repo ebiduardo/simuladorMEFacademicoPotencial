@@ -1,5 +1,5 @@
 bin/*.o
 bin/*.exe
-bin/simuladorGG0.exe
-deposito/*
+bin/simulador*.exe
+bin/simulador.exe
 include/*.mod

@@ -1,0 +1,88 @@
+# Makefile created by mkmf 2022.01.00
+
+CPPDEFS = -DwithHYPRE
+
+MK_TEMPLATE = ../intel-linux.mk
+include $(MK_TEMPLATE)
+
+
+.DEFAULT:
+	-echo $@ does not exist.
+all: simulador.exe
+driver.o: ../src/driver.F90 variaveisGlobais.o leituraEscrita.o malha.o potencial.o fluxo.o solverHypre.o solverGaussSkyline.o utilSistemaEquacoes.o solverPardisoCSR.o estruturasDadosSistEq.o mInputReader.o
+	$(FC) $(CPPDEFS) $(FPPFLAGS) $(FFLAGS) $(OTHERFLAGS) $(OTHER_FFLAGS) -c	../src/driver.F90
+estruturasDadosSistEq.o: ../src/estruturasDadosSistEq.F90 malha.o
+	$(FC) $(CPPDEFS) $(FPPFLAGS) $(FFLAGS) $(OTHERFLAGS) $(OTHER_FFLAGS) -c	../src/estruturasDadosSistEq.F90
+fluxo.o: ../src/fluxo.F90 estruturasDadosSistEq.o malha.o utilSistemaEquacoes.o variaveisGlobais.o funcoesDeForma.o solverGaussSkyline.o solverPardisoCSR.o solverHypre.o
+	$(FC) $(CPPDEFS) $(FPPFLAGS) $(FFLAGS) $(OTHERFLAGS) $(OTHER_FFLAGS) -c	../src/fluxo.F90
+funcoesDeForma.o: ../src/funcoesDeForma.F90 variaveisGlobais.o leituraEscrita.o malha.o
+	$(FC) $(CPPDEFS) $(FPPFLAGS) $(FFLAGS) $(OTHERFLAGS) $(OTHER_FFLAGS) -c	../src/funcoesDeForma.F90
+leituraEscrita.o: ../src/leituraEscrita.F90 variaveisGlobais.o malha.o estruturasDadosSistEq.o
+	$(FC) $(CPPDEFS) $(FPPFLAGS) $(FFLAGS) $(OTHERFLAGS) $(OTHER_FFLAGS) -c	../src/leituraEscrita.F90
+mInputReader.o: ../src/mInputReader.F90 leituraEscrita.o malha.o variaveisGlobais.o
+	$(FC) $(CPPDEFS) $(FPPFLAGS) $(FFLAGS) $(OTHERFLAGS) $(OTHER_FFLAGS) -c	../src/mInputReader.F90
+malha.o: ../src/malha.F90 variaveisGlobais.o
+	$(FC) $(CPPDEFS) $(FPPFLAGS) $(FFLAGS) $(OTHERFLAGS) $(OTHER_FFLAGS) -c	../src/malha.F90
+potencial.o: ../src/potencial.F90 estruturasDadosSistEq.o malha.o utilSistemaEquacoes.o variaveisGlobais.o funcoesDeForma.o solverGaussSkyline.o solverPardisoCSR.o solverHypre.o
+	$(FC) $(CPPDEFS) $(FPPFLAGS) $(FFLAGS) $(OTHERFLAGS) $(OTHER_FFLAGS) -c	../src/potencial.F90
+solverGaussSkyline.o: ../src/solverGaussSkyline.F90 estruturasDadosSistEq.o
+	$(FC) $(CPPDEFS) $(FPPFLAGS) $(FFLAGS) $(OTHERFLAGS) $(OTHER_FFLAGS) -c	../src/solverGaussSkyline.F90
+solverHypre.o: ../src/solverHypre.F90 estruturasDadosSistEq.o
+	$(FC) $(CPPDEFS) $(FPPFLAGS) $(FFLAGS) $(OTHERFLAGS) $(OTHER_FFLAGS) -c	../src/solverHypre.F90
+solverPardisoCSR.o: ../src/solverPardisoCSR.F90 estruturasDadosSistEq.o
+	$(FC) $(CPPDEFS) $(FPPFLAGS) $(FFLAGS) $(OTHERFLAGS) $(OTHER_FFLAGS) -c	../src/solverPardisoCSR.F90
+utilSistemaEquacoes.o: ../src/utilSistemaEquacoes.F90 estruturasDadosSistEq.o solverHypre.o malha.o leituraEscrita.o
+	$(FC) $(CPPDEFS) $(FPPFLAGS) $(FFLAGS) $(OTHERFLAGS) $(OTHER_FFLAGS) -c	../src/utilSistemaEquacoes.F90
+utilitarios.o: ../src/utilitarios.F90 variaveisGlobais.o
+	$(FC) $(CPPDEFS) $(FPPFLAGS) $(FFLAGS) $(OTHERFLAGS) $(OTHER_FFLAGS) -c	../src/utilitarios.F90
+variaveisGlobais.o: ../src/variaveisGlobais.F90
+	$(FC) $(CPPDEFS) $(FPPFLAGS) $(FFLAGS) $(OTHERFLAGS) $(OTHER_FFLAGS) -c	../src/variaveisGlobais.F90
+./solverGaussSkyline.F90: ../src/solverGaussSkyline.F90
+	cp ../src/solverGaussSkyline.F90 .
+./malha.F90: ../src/malha.F90
+	cp ../src/malha.F90 .
+./utilitarios.F90: ../src/utilitarios.F90
+	cp ../src/utilitarios.F90 .
+./driver.F90: ../src/driver.F90
+	cp ../src/driver.F90 .
+./solverHypre.F90: ../src/solverHypre.F90
+	cp ../src/solverHypre.F90 .
+./solverPardisoCSR.F90: ../src/solverPardisoCSR.F90
+	cp ../src/solverPardisoCSR.F90 .
+./estruturasDadosSistEq.F90: ../src/estruturasDadosSistEq.F90
+	cp ../src/estruturasDadosSistEq.F90 .
+./leituraEscrita.F90: ../src/leituraEscrita.F90
+	cp ../src/leituraEscrita.F90 .
+./potencial.F90: ../src/potencial.F90
+	cp ../src/potencial.F90 .
+./funcoesDeForma.F90: ../src/funcoesDeForma.F90
+	cp ../src/funcoesDeForma.F90 .
+./fluxo.F90: ../src/fluxo.F90
+	cp ../src/fluxo.F90 .
+./utilSistemaEquacoes.F90: ../src/utilSistemaEquacoes.F90
+	cp ../src/utilSistemaEquacoes.F90 .
+./variaveisGlobais.F90: ../src/variaveisGlobais.F90
+	cp ../src/variaveisGlobais.F90 .
+./mInputReader.F90: ../src/mInputReader.F90
+	cp ../src/mInputReader.F90 .
+SRC = ../src/utilSistemaEquacoes.F90 ../src/potencial.F90 ../src/solverGaussSkyline.F90 ../src/utilitarios.F90 ../src/mInputReader.F90 ../src/leituraEscrita.F90 ../src/malha.F90 ../src/estruturasDadosSistEq.F90 ../src/solverPardisoCSR.F90 ../src/fluxo.F90 ../src/solverHypre.F90 ../src/funcoesDeForma.F90 ../src/driver.F90 ../src/variaveisGlobais.F90
+OBJ = utilSistemaEquacoes.o potencial.o solverGaussSkyline.o utilitarios.o mInputReader.o leituraEscrita.o malha.o estruturasDadosSistEq.o solverPardisoCSR.o fluxo.o solverHypre.o funcoesDeForma.o driver.o variaveisGlobais.o
+OFF = ../src/solverGaussSkyline.F90 ../src/malha.F90 ../src/utilitarios.F90 ../src/driver.F90 ../src/solverHypre.F90 ../src/solverPardisoCSR.F90 ../src/estruturasDadosSistEq.F90 ../src/leituraEscrita.F90 ../src/potencial.F90 ../src/funcoesDeForma.F90 ../src/fluxo.F90 ../src/utilSistemaEquacoes.F90 ../src/variaveisGlobais.F90 ../src/mInputReader.F90
+clean: neat
+	-rm -f .simulador.exe.cppdefs $(OBJ) simulador.exe
+
+neat:
+	-rm -f $(TMPFILES)
+
+localize: $(OFF)
+	cp $(OFF) .
+
+TAGS: $(SRC)
+	etags $(SRC)
+
+tags: $(SRC)
+	ctags $(SRC)
+
+simulador.exe: $(OBJ)
+	$(LD) $(OBJ) -o simulador.exe  $(LDFLAGS)
+

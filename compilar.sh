@@ -1,9 +1,9 @@
-opcaoA=${1:-"3"}
-opcaoB=${2:-"1"}
-opcaoC=${3:-"1"}
+dirFontes=${1:-${dirFontesD}}
+opcaoA=${2:-"1"}
+opcaoB=${3:-"1"}
+opcaoC=${4:-"1"}
 dirFontesD=fontes
     #dirFontes=${4:-"fontes"}
-dirFontes=${4:-${dirFontesD}}
 exeSufixExtra=${5:-""}
 
      listaSolvers=(zero Gauss Pardiso HYPRE PH)

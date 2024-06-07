@@ -60,13 +60,7 @@
    
       write(*,*) "exec =", exec
       if(exec==1)  then
-          if(estacionario) then
-          print*, "      Estacionario ()"
-          call processamentoE  ()
-          else
-          print*, "      Transiente   ()"
-          call processamentoT  ()
-          endif
+          call processamento  ()
       end if
 !
       call fecharArquivos ()
@@ -75,7 +69,7 @@
 end program poisson
 
 !**** new  **********************************************************************
-      subroutine processamentoT()
+      subroutine processamento()
      
       use mMalha,            only: nen, nsd, numnp, numConexoesPorElem
       use mMalha,            only: x, conecNodaisElem, numel
@@ -93,6 +87,9 @@ end program poisson
       use mUtilSistemaEquacoes, only: montarEstrutDadosSistEqAlq
       use mPotencial,           only: montarSistEqAlgPotencial
       use mFluxo,               only: montarSistEqAlgFluxo
+
+      use mGlobaisEscalares, only:  estacionario
+
   
       implicit none
 
@@ -137,6 +134,8 @@ end program poisson
       tempo=tempoInicial
       pTempo=(tempoFinal-tempoInicial)/(numPassos)
 
+      if(estacionario) numPassos =1
+
       do passo = 1, numPassos
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CALCULO DA PRESSAO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         tempo=tempo + pTempo; 
@@ -156,7 +155,8 @@ end program poisson
 
         label='potencial'
         call solver(estrutSistEqP,label)        
-        write(internalFile,'(a10, i5, f10.3)')  trim(label), passo,   tempo
+        write(internalFile,'(a10, a)')  trim(label), ', estacionario' 
+        if(.not.estacionario) write(internalFile,'(a10, i5, f10.3)')  trim(label), passo,   tempo
         call escreverSolucaoP(estrutSistEqP, internalFile) 
 
         call timing(t4)
@@ -189,13 +189,14 @@ end program poisson
         call timing(t3)
         label='fluxo';
         call solver(estrutSistEqF,label)        
-        write(internalFile,'(a10, i5, f10.3)')  trim(label), passo,   tempo
+        write(internalFile,'(a10, a)')  trim(label), ', estacionario' 
+        if(.not.estacionario) write(internalFile,'(a10, i5, f10.3)')  trim(label), passo,   tempo
         call escreverSolucaoF(estrutSistEqF, internalFile) 
         call timing(t4) ; 
         if(escreverSolF) call escreverSolSistema_MTX(estrutSistEqF, nomeArqSist); 
 
         estrutSistEqP%brhs = 0.0 ;! 
-	estrutSistEqF%brhs = 0.0 ;! 
+        estrutSistEqF%brhs = 0.0 ;! 
 
         if (estrutSistEqF%optSolver(1:12)/='HYPREEsparso') estrutSistEqF%alhs = 0.0 ;! stop! ladoB
         if (estrutSistEqP%optSolver(1:12)/='HYPREEsparso') estrutSistEqP%alhs = 0.0 ;! stop! ladoB        
@@ -213,155 +214,7 @@ end program poisson
       end if
 
       return
-  end subroutine processamentoT
-
-!**** new  **********************************************************************
-      subroutine processamentoE()
-     
-      use mMalha,            only: nen, nsd, numnp, numConexoesPorElem
-      use mMalha,            only: x, conecNodaisElem, numel
-      use mLeituraEscrita,   only: ignuplotPotencial, ignuplotFluxo, iparaviewPotencial, iparaviewFluxo
-      use mLeituraEscrita,   only: prtgnup, escreverArquivosSaida_Potencial
-      use mGlobaisEscalares, only: numPassos, passo, tempo
-!
-      use mPotencial,        only: estrutSistEqP
-      use mFluxo,            only: estrutSistEqF
-!      
-      use mSolverHypre,      only: inicializarMPI, finalizarMPI
-      use mSolverHypre,      only: myid, num_procs, mpi_comm
-      use mSolverGaussSkyline, only: escreverSistemaSkylineEmMTX
-!
-      use mUtilSistemaEquacoes, only: montarEstrutDadosSistEqAlq
-      use mPotencial,           only: montarSistEqAlgPotencial
-      use mFluxo,               only: montarSistEqAlgFluxo
-  
-      implicit none
-
-      logical :: firstP=.true., firstF=.true.
-!
-!.... solution driver program 
-!
-      real*8 :: t1, t2, t3, t4
-      character(LEN=12) :: label, etapa
-      character(LEN=240) :: internalFile
-
-      logical :: escreverSistP=.false., escreverSolP=.false.
-      logical :: escreverSistF=.false., escreverSolF=.false.
-      logical :: escreverSaidaVTK=.false., escreverSaidaVTK_F=.false.
-      character(LEN=40) ::  nomeArqSist
-
-      integer * 4 :: r, numRepeticoes = 1 
-
-      escreverSistF=.true. ; escreverSolF=.true.
-      escreverSistP=.true. ; escreverSolP=.true.
-      escreverSistF=.false.; escreverSolF=.false.
-      escreverSistP=.false.; escreverSolP=.false.
-      escreverSaidaVTK=.true.
-      escreverSaidaVTK=.false.
-      if(estrutSistEqP%optSolver(1:12)=='HYPREEsparso'.or.estrutSistEqF%optSolver(1:12)=='HYPREEsparso') then
-         call inicializarMPI                 (myid, num_procs, mpi_comm)
-      end if
-      numConexoesPorElem=nen !  usado para criar lista de visinhos dos nOs
-      !Jan22if (estrutSistEqP%optSolver(1:14)=='PardisoEsparso') then
-        if(nsd==2)estrutSistEqP%numCoefPorLinha=9    ! usado para criar LMStencilEq
-        if(nsd==3)estrutSistEqP%numCoefPorLinha=27
-      !Jan22end if
-
-      write(*,*) " call montarEstrutDadosSistEqAlq(optSolverP_ =", estrutSistEqP%optSolver 
-      call montarEstrutDadosSistEqAlq(estrutSistEqP) ; 
-
-   !   if (estrutSistEqF%optSolver(1:14)=='PardisoEsparso') then
-   !     if(nsd==2)estrutSistEqF%numCoefPorLinha=18
-   !     if(nsd==3)estrutSistEqF%numCoefPorLinha=81
-   !   end if
-      write(*,*) " call montarEstrutDadosSistEqAlq(optSolverF_ =", estrutSistEqF%optSolver 
-      call montarEstrutDadosSistEqAlq(estrutSistEqF) ; 
-
-      passo=0; tempo=0; numPassos=1
-
-      do r = 1, numPassos ! numRepeticoes
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CALCULO DA PRESSAO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!     
-        call timing(t1)
-        if(firstP) then 
-          call montarSistEqAlgPotencial(estrutSistEqP)
-      !firstP=.false.
-        endif
-        call timing(t2)
-                                   nomeArqSist="coefSistEqAlgEsparsoP_NSYM"
-        if(estrutSistEqP%simetria) nomeArqSist="coefSistEqAlgEsparsoP_SYM"
-        if(escreverSistP) call escreverSistema_MTX(estrutSistEqP, nomeArqSist); 
-        call timing(t3)
-
-
-!       write(*,'(a,20f10.5)') 'alhs =', estrutSistEqP%alhs
-!       write(*,'(a,20f10.5)') 'brhs =', estrutSistEqP%brhs
-        label='potencial'
-        call solver(estrutSistEqP,label)        
-        write(internalFile,'(a10, i5, a)')  trim(label), r, ', estacionario'
-        call escreverSolucaoP(estrutSistEqP, internalFile) 
-
-        call timing(t4)
-!                                  nomeArqSist="coefSistEqAlgEsparsoP_NSYM"
-!       if(estrutSistEqP%simetria) nomeArqSist="coefSistEqAlgEsparsoP"
-        if(escreverSolP)call escreverSolSistema_MTX(estrutSistEqP, nomeArqSist); 
-         estrutSistEqP%brhs = 0.0 ;
-!
-!       call prtgnup(label, x,potencial,nsd,ndofP,numnp,ignuplotPotencial)
-!                             2, label, len(label)) !1=por elemento, 2=nodal
-        !if(escreverSaidaVTK) call escreverArquivosSaida(estrutSistEqP, estrutSistEqF)
-!
-
-                              ! nao lineares ou transientes
-        write(*,'(a,f12.4,a)') ' tempo de parede (potencial) =',(t4-t3)+(t2-t1), ", segundos"
-        write(*,'(a,f12.4,a)') ' .............. montagem matriz   =', t2 - t1, ", segundos"
-        write(*,'(a,f12.4,a)') ' .............. solver            =', t4 - t3, ", segundos"
-
-        if(escreverSaidaVTK) call escreverArquivosSaida_Potencial(estrutSistEqP, passo, tempo)
-!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CALCULO DO FLUXO  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        call timing(t1)
-    !  if(firstF) then 
-         call montarSistEqAlgFluxo (estrutSistEqF,estrutSistEqP)
-      !  firstF=.false.
- !     endif
-        call timing(t2)
-                                   nomeArqSist="coefSistEqAlgEsparsoF_NSYM"
-        if(estrutSistEqF%simetria) nomeArqSist="coefSistEqAlgEsparsoF_SYM"
-        if(escreverSistF) call escreverSistema_MTX(estrutSistEqF, nomeArqSist); 
-        call timing(t3)
-        label='fluxo';
-        call solver(estrutSistEqF,label)        
-        write(internalFile,'(a10, i5, a)')  trim(label), r, ', estacionario'
-        call escreverSolucaoF(estrutSistEqF, internalFile) 
-        call timing(t4) ; 
-        if(escreverSolF) call escreverSolSistema_MTX(estrutSistEqF, nomeArqSist); 
-
-        !if(escreverSaidaVTK) call escreverArquivosSaida(estrutSistEqP, estrutSistEqF)
-
-        !estrutSistEqP%alhs = 0.0 ! 
-        estrutSistEqP%brhs = 0.0 ! 
-        estrutSistEqP%u    = 0.0 ! 
-        !estrutSistEqF%alhs = 0.0 ! 
-        estrutSistEqF%brhs = 0.0 ! 
-        estrutSistEqF%u    = 0.0 ! 
-
-!     call prtgnup(label, x,fluxo,nsd,ndofF,numnp,ignuplotFluxo)
-!
-      write(*,'(a,f12.4,a)') ' tempo de parede (fluxo)     =',(t4-t3)+(t2-t1), ", segundos"
-      write(*,'(a,f12.4,a)') ' .............. montagem matriz   =', t2 - t1, ", segundos"
-      write(*,'(a,f12.4,a)') ' .............. solver            =', t4 - t3, ", segundos"
-!
-      end do  !  do r = 1, numRepeticoes 
-
-      if(estrutSistEqP%optSolver(1:12)=='HYPREEsparso'.or.estrutSistEqF%optSolver(1:12)=='HYPREEsparso') then
-        call finalizarMPI                 ()
-      end if
-
-      return
-
-  end subroutine processamentoE
+  end subroutine processamento
 !
 !**** new **********************************************************************
 !
@@ -398,29 +251,26 @@ end program poisson
       if (estrutSistEq_%optSolver(1:12)=='GaussSkyline') then
           etapa='full'; 
           call solverGaussSkyline(estrutSistEq_, etapa, label_) 
-          !deallocate(estrutSistEq_%alhs) ! pode ser desnecessario para problemas 
       endif
       if (estrutSistEq_%optSolver(1:14)=='PardisoEsparso') then
           etapa='full'; 
           call solverPardisoEsparso(estrutSistEq_, etapa, label_)         
-          !deallocate(estrutSistEq_%alhs) ! pode ser desnecessario para problemas 
       endif
 
       if(estrutSistEq_%optSolver(1:12)=='HYPREEsparso') then
             estrutSistEq_%initialGuess=>null()
             if(.not.associated(estrutSistEq_%initialGuess)) then
-               !write(*,'(a)') ', allocate(initialGuess_(neqP)); initialGuessP=0.0 '
                allocate(estrutSistEq_%initialGuess(estrutSistEq_%neq));  estrutSistEq_%initialGuess=0.0
             endif
 
         estrutSistEq_%solver_id=1
-!    if(estrutSistEq_%ndof == 1) then   ! potencial
+
      if(label_ == "potencial") then   ! potencial
         estrutSistEq_%precond_id=2
  ! cg + AMG preconditioner
         estrutSistEq_%tol = 1.0e-08
      endif
-!    if(estrutSistEq_%ndof == nsd) then ! fluxo 
+
      if(label_ == "fluxo") then   ! fluxo
         estrutSistEq_%precond_id=1
  ! cg + jacobi preconditioner
